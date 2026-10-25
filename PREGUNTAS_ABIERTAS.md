@@ -28,3 +28,11 @@ La etapa 1 queda pendiente de estas decisiones y de la revisión visual; no se c
 
 - Resuelto el pendiente de aceptación visual de SAA-1: Jorge aprobó el formato presentado. Etapa 1 cerrada.
 - Continúan pendientes las ediciones autorizadas de NFPA 17A/NFPA 10 y la confirmación de la leyenda con Martín, conforme a los puntos originales.
+
+
+## 2026-10-25 — Observaciones de auditoría de la etapa 1
+
+- M1. La leyenda no figura en el PDF de SAA-1 aprobado. Confirmar con Martín el texto exacto y su ubicación (encabezado, pie o celda). Bloquea la emisión de planillas a clientes reales.
+- M2. Avisar a Martín del cambio de formato en build_planilla.py (ancho de impresión 6,2 y centrado horizontal), según la regla de oro del encargo. Las demás planillas se cotejarán en la etapa 6.
+- m3. Metadatos del PDF: fuente/KIT_AGENTS.md indica autor y productor BRAFEMAR; hoy figuran creador y productor readyproof. Decide Jorge.
+- m5. fix_impresion.py figura en el encargo (sección 6) y en fuente/KIT_AGENTS.md, pero no está en fuente/herramientas/. Confirmar si la copia del kit está completa.

@@ -6,6 +6,7 @@ import re
 from zipfile import ZipFile
 
 from lxml import etree
+from openpyxl import load_workbook
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import (
@@ -81,13 +82,26 @@ def _imagen_pdf(payload, writer):
     return writer._add_object(obj.flate_encode())
 
 
+
+def codigo_de_planilla(origen_excel):
+    """Obtiene el código de la celda original del encabezado, sin alterar el Excel."""
+    workbook = load_workbook(origen_excel, read_only=True, data_only=True)
+    try:
+        codigo = workbook.active["T1"].value
+    finally:
+        workbook.close()
+    if not isinstance(codigo, str) or not codigo.strip():
+        raise ValueError("El Excel no contiene un código de planilla en el encabezado.")
+    return codigo.strip()
+
+
 def reponer_logos(origen_excel, origen_pdf, destino_pdf):
     """Usa las medidas del Excel; no cambia filas, escala ni contenido del PDF."""
     logos, margins = logos_del_excel(origen_excel)
     reader = PdfReader(origen_pdf)
     writer = PdfWriter()
     writer.clone_document_from_reader(reader)
-    writer.add_metadata({"/Title": "SG-PEM-IFI-SAA-1", "/Author": "BRAFEMAR", "/Creator": "readyproof", "/Producer": "readyproof"})
+    writer.add_metadata({"/Title": codigo_de_planilla(origen_excel), "/Author": "BRAFEMAR", "/Creator": "readyproof", "/Producer": "readyproof"})
     refs = [_imagen_pdf(logo[3], writer) for logo in logos]
     for page in writer.pages:
         if logos and list(page.images):

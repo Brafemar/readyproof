@@ -1,9 +1,9 @@
-"""Cotejo visual local del piloto con el Excel oficial convertido a PDF."""
+"""Regenera imágenes de revisión; las verificaciones pertenecen a pytest."""
 import argparse
 import json
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw
+from PIL import Image, ImageDraw
 from pypdf import PdfReader
 import pypdfium2 as pdfium
 
@@ -25,23 +25,11 @@ def main():
     parser.add_argument("--piloto", type=Path, required=True)
     parser.add_argument("--salida", type=Path, required=True)
     args = parser.parse_args()
-    args.salida.mkdir(parents=True, exist_ok=True)
+    args.salida.mkdir(parents=True, exist_ok=False)
     paths = {"referencia": args.referencia, "blanca": args.blanca, "piloto": args.piloto}
     readers = {key: PdfReader(path) for key, path in paths.items()}
     counts = {key: len(reader.pages) for key, reader in readers.items()}
-    assert len(set(counts.values())) == 1, counts
-    assert all(len(page.images) == 2 for reader in readers.values() for page in reader.pages)
-    texts = {key: "\n".join(page.extract_text() for page in reader.pages) for key, reader in readers.items()}
-    for key, text in texts.items():
-        for label in ("SG-PEM-IFI-SAA-1", "T.C. 3 AÑOS", "SUPERVISOR DEL MANTENEDOR", "RESPONSABLE DE LA INSTALACIÓN", "OBSERVACIONES"):
-            assert label in text, (key, label)
-    assert "[Ejemplo]" in texts["piloto"]
     renders = {key: render(path) for key, path in paths.items()}
-    equal = []
-    for left, right in zip(renders["referencia"], renders["blanca"]):
-        assert left.size == right.size
-        equal.append(ImageChops.difference(left, right).getbbox() is None)
-    assert all(equal), "El PDF sin carga difiere visualmente de la referencia v5."
     for key, images in renders.items():
         for index, image in enumerate(images, 1):
             image.save(args.salida / f"{key}_pagina_{index}.png")
@@ -54,7 +42,12 @@ def main():
     draw.text((14, 12), "Referencia oficial v5", fill="black")
     draw.text((left.width + 38, 12), "readyproof - datos ficticios [Ejemplo]", fill="black")
     comparison.save(args.salida / "comparacion_pagina_1.png")
-    summary = {"paginas": counts, "blanca_identica_pixel_a_pixel": equal, "encabezados_y_pies_presentes": True, "logos_por_pagina": 2}
+    summary = {
+        "paginas": counts,
+        "logos_por_pagina": {key: [len(page.images) for page in reader.pages] for key, reader in readers.items()},
+        "archivos": {key: str(path) for key, path in paths.items()},
+        "validacion": "Ejecutar pytest -q: comparación de todas las páginas, encabezados y pies.",
+    }
     (args.salida / "resultado.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
