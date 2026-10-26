@@ -22,7 +22,7 @@ Aplicación para cargar y emitir planillas SG-PEM-IFI de BRAFEMAR. El técnico c
 ```
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 pytest -q
 ```
 
@@ -41,3 +41,10 @@ El adaptador local genera SAA-1 con los datos del kit y convierte el Excel inter
 ```
 
 El procedimiento, el contrato de datos y la validación se describen en `docs/PILOTO_SAA1.md`. La aceptación de esta etapa requiere revisar el PDF y aprobar el formato antes de continuar a la etapa 2.
+
+
+## Modelo de datos y API local (etapa 2)
+
+La API de SAA-1 permite crear y guardar borradores, finalizar, emitir PDF con datos ficticios y descargarlo. PostgreSQL es local; las pruebas crean y cierran un clúster temporal separado. Se requiere instalar `requirements-dev.txt`, además de disponer de PostgreSQL y LibreOffice, para ejecutar la suite completa.
+
+El contrato de los endpoints, la configuración local y las reglas de validación están en `docs/API_ETAPA2.md`. La emisión a clientes reales permanece bloqueada por la confirmación pendiente de la leyenda. No se incluyen interfaz, usuarios ni correo.

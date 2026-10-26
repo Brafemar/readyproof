@@ -36,3 +36,20 @@ La etapa 1 queda pendiente de estas decisiones y de la revisión visual; no se c
 - M2. Avisar a Martín del cambio de formato en build_planilla.py (ancho de impresión 6,2 y centrado horizontal), según la regla de oro del encargo. Las demás planillas se cotejarán en la etapa 6.
 - m3. Metadatos del PDF: fuente/KIT_AGENTS.md indica autor y productor BRAFEMAR; hoy figuran creador y productor readyproof. Decide Jorge.
 - m5. fix_impresion.py figura en el encargo (sección 6) y en fuente/KIT_AGENTS.md, pero no está en fuente/herramientas/. Confirmar si la copia del kit está completa.
+
+
+## 2026-10-25 — Inicio de la etapa 2
+
+- n1 de AUDITORIA_etapa1_verificacion_2026-10-25.md: pendiente antes de la etapa 6. Calcular las regiones de encabezado, pie y fecha a partir de la definición de cada planilla; no reutilizar las coordenadas fijas de SAA-1 para otras planillas. No se corrige en esta etapa por indicación de Jorge.
+- PostgreSQL no se encontró en PATH, en servicios locales ni en C:\Program Files\PostgreSQL. Consulta a Jorge: instalar PostgreSQL local con su autorización, o usar una base temporal solo para las pruebas. No se instala sin autorización y no se utilizan servicios externos ni DigitalOcean.
+
+- Resolución de base de datos para la etapa 2: Jorge autorizó instalar PostgreSQL local. No se utilizará una base externa ni se sustituirá PostgreSQL por otro motor.
+
+## 2026-10-25 — Resultado de la etapa 2
+
+- Base local: consulta resuelta con autorización de Jorge. PostgreSQL 18.6 instalado y servicio en ejecución, limitado a localhost. Las pruebas usan un clúster temporal PostgreSQL separado; no se utilizó una base externa.
+- n2: corregido en README, que indica instalar requirements-dev.txt para ejecutar las pruebas. n1 sigue pendiente antes de la etapa 6, conforme a la instrucción de Jorge.
+- M1 sigue bloqueando la emisión de planillas a clientes reales. La API solo admite ejemplos; la prueba de la leyenda permanece xfail. Continúan las preguntas anteriores de Martín y Jorge.
+- Confirmar antes de emisión real qué campos son obligatorios para finalizar: la fuente enumera campos y opciones, pero no define esa política. Esta API de ejemplo valida los datos presentes y rechaza cargas vacías, sin inventar condiciones normativas.
+- Cierre técnico con .venv: pytest -q: 54 passed, 1 xfailed in 108.84s (0:01:48), código 0. python -m compileall app: sin errores, código 0. python -m pip --isolated check: No broken requirements found., código 0. Salidas completas en REGISTRO_DE_CAMBIOS.md y out/etapa2/.
+- Sin interfaz, usuarios, correo ni avance a la etapa 3.

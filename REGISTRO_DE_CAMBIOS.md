@@ -344,3 +344,64 @@ Código de salida: 0.
 - Verificación SHA256 al cierre: 173 archivos de fuente/ idénticos al estado anterior a esta tarea; informe de auditoría idéntico. Las dos copias de aprobaciones coinciden con sus originales. Manifiesto y resultado en out/auditoria_etapa1/sha256_antes.json y sha256_verificacion.json.
 - Antes del segundo commit se revisan git status, .gitignore y el índice: no se admiten .env reales, entorno virtual, cachés ni secretos. Mensaje del segundo commit local: «Etapa 1: corrección de observaciones de auditoría».
 - Pendientes: texto y ubicación de la leyenda con Martín (bloquea emitir a clientes reales), aviso a Martín del cambio de formato y cotejo del resto en etapa 6, decisión de Jorge sobre creador/productor del PDF, y confirmación de la integridad del kit por la falta de fix_impresion.py. Las preguntas originales sobre NFPA 17A/NFPA 10 siguen vigentes. No se contactó a terceros ni se tomaron esas decisiones.
+
+
+## 2026-10-25 — Etapa 2: modelo de datos y API de planillas
+
+- Jorge autorizó iniciar exclusivamente la etapa 2, sin interfaz, usuarios, correo ni servicios externos. La emisión real permanece bloqueada por M1; la API se limita a datos ficticios [Ejemplo].
+- Leídos AGENTS.md, la verificación de auditoría de la etapa 1 y ambos registros. n2 corregido: README indica instalar requirements-dev.txt para ejecutar pytest. n1 registrado como pendiente antes de la etapa 6, sin modificar la comparación actual.
+- Comprobados Get-Command psql/postgres/pg_ctl, servicios con nombre postgres y carpeta habitual de instalación: no se encontró PostgreSQL. Consulta registrada con las dos opciones autorizables; no se instaló ningún servidor.
+- Jorge eligió instalar PostgreSQL local. Se utiliza el paquete PostgreSQL.PostgreSQL.18 del catálogo de instalación, sin servicios externos. La instalación es interactiva para que las credenciales, si se solicitan, se ingresen directamente en Windows.
+
+
+### Implementación y cierre de la etapa 2 — 2026-10-25
+
+- Alcance: fábrica Flask y configuración por variables de entorno; modelos Cliente, Sistema, Planilla, Carga y RevisionCarga; esquema inicial y versión de migración; catálogo local SAA-1. Por la indicación expresa de no implementar usuarios ni correo, Usuario/Envio y sus funcionalidades se reservan a sus etapas correspondientes. No se implementó interfaz ni se inició la etapa 3.
+- Endpoints locales para listar clientes/sistemas/planillas, consultar la definición, crear/consultar una carga, reemplazar el borrador, finalizar, emitir el PDF ficticio, descargarlo y consultar revisiones. Validación estricta de campos, fechas ISO, números JSON finitos, cantidades enteras, opciones literales y texto de ejemplo. No se agregaron campos ni valores normativos a las planillas.
+- Flujo borrador → finalizada → emitida, con bloqueo de edición al finalizar, revalidación antes de finalizar/emitir y control optimista de revisiones en SQLAlchemy/PostgreSQL. Cada evento guarda una instantánea, fecha UTC y actor local ficticio sin autenticación. La autenticación e identificación real corresponden a la etapa 4.
+- La versión y huella SHA256 de la plantilla quedan asociadas a cada carga. Si el generador, los datos fuente o el modelo difieren de esa versión, se bloquea finalizar/emitir. El PDF, su hash y el estado se confirman en una transacción; una conversión fallida no marca emisión ni deja un PDF registrado. El Excel se conserva solo durante la conversión.
+- M1 sigue activo: sin opción para habilitar emisión real. Se admiten solo clientes y sistemas ficticios identificados, y textos [Ejemplo]; se rechazan clientes no marcados como ejemplo y nombres inconsistentes. Fechas, números y opciones conservan su tipo. No se agregó la leyenda pendiente al PDF.
+- n2 corregido en README: requirements-dev.txt es necesario para las pruebas. n1 registrado para antes de la etapa 6; no se modificó la comparación de SAA-1.
+- Con autorización de Jorge se instaló PostgreSQL 18.6 mediante winget, paquete PostgreSQL.PostgreSQL.18. Salida en out/etapa2/instalacion_postgresql.log: «Instalado correctamente». Servicio postgresql-x64-18 en ejecución. No se leyeron ni guardaron contraseñas; no se usaron servicios externos ni DigitalOcean.
+- Jorge pidió finalizar el instalador. Se cerró exclusivamente su proceso opcional Stack Builder sin instalar componentes adicionales. La configuración inicial escuchaba en todas las interfaces; se limitó listen_addresses a localhost y se reinició únicamente el servicio recién instalado, con autorización. Verificaciones locales en out/etapa2/cierre_instalacion.json y stack_builder_cerrado.txt; el segundo archivo confirma el cierre posterior del proceso opcional.
+- Las pruebas usan PostgreSQL real en un clúster temporal dentro de .venv/tmp/pytest, enlazado solo a 127.0.0.1, sin contraseña ni datos reales. Cada caso usa una base descartable; el clúster se detiene al terminar. No se utilizó SQLite ni se accedió a la base habitual de la instalación.
+- Primer ensayo de arranque: PostgreSQL aceptaba conexiones pero una tubería de salida heredada por el servidor impedía terminar pg_ctl. Se detuvo únicamente el clúster temporal de ese ensayo y se corrigió la fixture para redirigir salida a archivo y garantizar el apagado. Las primeras pruebas de API corregidas terminaron con 26 passed; luego se agregaron los controles de cierre.
+- Dependencias de aplicación y desarrollo conservadas, sin nuevos paquetes Python. Se reutilizan Flask, SQLAlchemy y psycopg ya fijados. La única red adicional de esta etapa fue la descarga autorizada de PostgreSQL.
+- Documentación de configuración local, contrato de API, estados, tipos y limitaciones en docs/API_ETAPA2.md. init-db --ejemplos es idempotente y no duplica catálogo ni cliente ficticio.
+
+Comando con .venv: pytest -q
+
+Salida exacta:
+```text
+...................................................x...                  [100%]
+54 passed, 1 xfailed in 108.84s (0:01:48)
+```
+Código de salida: 0.
+
+Comando con .venv: python -m compileall app
+
+Salida exacta:
+```text
+Listing 'app'...
+Listing 'app\\auth'...
+Listing 'app\\models'...
+Listing 'app\\planillas'...
+Listing 'app\\planillas\\definiciones'...
+Listing 'app\\rutas'...
+Listing 'app\\static'...
+Listing 'app\\templates'...
+```
+Código de salida: 0.
+
+Comando con .venv: python -m pip --isolated check
+
+Salida exacta:
+```text
+No broken requirements found.
+```
+Código de salida: 0.
+
+- Verificación SHA256: 180 archivos de fuente/, auditorias/ y docs/aprobaciones/ idénticos al comienzo de la etapa; no se modificaron el kit, los informes de auditoría ni los entregables aprobados.
+- El commit local de cierre agrupa únicamente la etapa 2 y la verificación de auditoría proporcionada por Jorge. Antes de prepararlo se revisan .gitignore, git status y el índice para excluir .env reales, .venv, cachés, datos del servidor y secretos. No se publica ni se agrega un remoto.
+- Pendientes: M1 con Martín antes de emitir a clientes reales; n1 antes de la etapa 6; preguntas anteriores sobre aviso de formato, metadatos e integridad del kit. La definición no establece obligatoriedad de cada campo: no se inventó esa política y debe confirmarse antes de una emisión real. Finalizar valida los datos presentes y rechaza cargas vacías; las pruebas de flujo usan todos los campos del ejemplo.
+- Etapa 2 implementada y verificada para desarrollo local con ejemplos. No se avanza a la etapa 3.
