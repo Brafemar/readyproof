@@ -181,28 +181,29 @@ def pdfs_saa1(tmp_path_factory):
 
 
 def _textos_fijos_encabezado_y_pie(reader):
-    """Compara todo el texto fijo; la fecha de V4 se controla como dato cargado."""
-    encabezados, pies = [], []
-    for index, page in enumerate(reader.pages):
-        header, footer = [], []
-        height, width = float(page.mediabox.height), float(page.mediabox.width)
-        def visitor(text, cm, tm, font, size):
-            if not text.strip():
-                return
-            x = tm[4] * cm[0] + tm[5] * cm[2] + cm[4]
-            y = tm[4] * cm[1] + tm[5] * cm[3] + cm[5]
-            top_limit = height - (126 if index == 0 else 70)
-            # V4 es la fecha variable, a la derecha de FECHA, en la fila 4.
-            is_date_value = index == 0 and x > width * 0.82 and height - 126 <= y < height - 112
-            if y >= top_limit and not is_date_value:
-                header.append(" ".join(text.split()))
-            # El pie de SAA-1 comienza después de los cuatro renglones de observaciones.
-            if index == len(reader.pages) - 1 and y <= height - 130:
-                footer.append(" ".join(text.split()))
+    """Regiones por anclas del contenido, sin coordenadas fijas de SAA-1."""
+    from app.planillas.leyenda_iram import TEXTO
+    encabezados,pies=[],[]
+    for index,page in enumerate(reader.pages):
+        spans=[]
+        def visitor(text,cm,tm,font,size):
+            if text.strip():spans.append((" ".join(text.split()),tm[4]*cm[0]+tm[5]*cm[2]+cm[4],tm[4]*cm[1]+tm[5]*cm[3]+cm[5],size))
         page.extract_text(visitor_text=visitor)
-        encabezados.append(tuple(header))
-        pies.append(tuple(footer))
-    return encabezados, pies
+        dates=[span for span in spans if span[0]=="FECHA:"]
+        if dates:
+            date=max(dates,key=lambda span:span[2])
+            header=[text for text,x,y,size in spans if y>=date[2]-date[3]*.25 and not (x>date[1] and abs(y-date[2])<date[3]*.6)]
+        else:
+            top=max(spans,key=lambda span:span[2])
+            header=[text for text,x,y,size in spans if y>=top[2]-top[3]*.25]
+        footer=[text for text,x,y,size in spans if text==TEXTO]
+        if index==len(reader.pages)-1:
+            legends=[span for span in spans if "CUMPLE:" in span[0]]
+            assert legends,"No se encontró el ancla del pie."
+            legend=max(legends,key=lambda span:span[2])
+            footer=[text for text,x,y,size in spans if y<=legend[2]+legend[3]*.25]
+        encabezados.append(tuple(header));pies.append(tuple(footer))
+    return encabezados,pies
 
 
 def test_conversion_real_con_libreoffice(pdfs_saa1):
@@ -233,10 +234,10 @@ def test_blanca_identica_pixel_a_pixel_en_todas_las_paginas(pdfs_saa1):
             right_page.close()
 
 
-@pytest.mark.xfail(reason="leyenda pendiente de confirmación de Martín", strict=True, raises=AssertionError)
-def test_pdf_contiene_leyenda_iram_pendiente(pdfs_saa1):
-    text = "\n".join(page.extract_text() for page in PdfReader(pdfs_saa1["piloto"]).pages)
-    assert "Planilla conforme a IRAM 3546:2011" in text
+def test_pdf_contiene_leyenda_iram_confirmada(pdfs_saa1):
+    from app.planillas.leyenda_iram import TEXTO
+    for page in PdfReader(pdfs_saa1["piloto"]).pages:
+        assert page.extract_text().count(TEXTO)==1
 
 
 def test_pdf_no_sobrescribe_destino(tmp_path):
@@ -286,3 +287,15 @@ def test_titulo_pdf_toma_codigo_del_excel(tmp_path):
     assert metadata.title == code
     assert metadata.creator == "readyproof"
     assert metadata.producer == "readyproof"
+    assert metadata.author == "readyproof"
+
+
+
+def test_regiones_independientes_de_escala_y_posicion(pdfs_saa1,tmp_path):
+    from pypdf import PdfWriter,Transformation
+    original=PdfReader(pdfs_saa1["piloto"])
+    writer=PdfWriter();writer.clone_document_from_reader(original)
+    for page in writer.pages:page.add_transformation(Transformation().scale(.9).translate(10,20))
+    target=tmp_path/"desplazada.pdf"
+    with target.open("wb") as output:writer.write(output)
+    assert _textos_fijos_encabezado_y_pie(PdfReader(target))==_textos_fijos_encabezado_y_pie(original)

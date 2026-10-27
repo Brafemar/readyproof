@@ -1,0 +1,286 @@
+{
+  "codigo": "SAL",
+  "version": "v2",
+  "sistema_tipo": "SG-PEM-IFI",
+  "origen": {
+    "ruta": "herramientas/planillas_data2.py",
+    "sha256": "2fa99330a0d4d9316f70c993d6e835d555ed57122cabc9d5f7f433a651a383d1"
+  },
+  "generador": {
+    "ruta": "herramientas/build_planilla.py",
+    "sha256": "feac9d3f8ad5207756c8a421bbc1c73b1c2c954ebca17171d86f08aa13098c26"
+  },
+  "cabecera": {
+    "fecha": {
+      "tipo": "fecha",
+      "celda": "V4"
+    },
+    "cliente": {
+      "tipo": "texto",
+      "celda": "C5"
+    },
+    "cuit": {
+      "tipo": "texto",
+      "celda": "O5"
+    },
+    "telefono": {
+      "tipo": "texto",
+      "celda": "V5"
+    },
+    "direccion": {
+      "tipo": "texto",
+      "celda": "C6"
+    },
+    "edificio": {
+      "tipo": "texto",
+      "celda": "O6"
+    },
+    "sector": {
+      "tipo": "texto",
+      "celda": "V6"
+    },
+    "empresa_mantenedora": {
+      "tipo": "texto",
+      "celda": "E7"
+    },
+    "numero_mantenedor": {
+      "tipo": "texto",
+      "celda": "R7"
+    },
+    "inspector": {
+      "tipo": "texto",
+      "celda": "V7"
+    },
+    "sistema_designacion": {
+      "tipo": "texto",
+      "celda": "A8"
+    }
+  },
+  "datos": {
+    "nom": "Sistema de Extinción por Agentes Limpios",
+    "cap": "17",
+    "planillas": [
+      {
+        "n": 1,
+        "nombre": "Información general",
+        "tipo": "general",
+        "bloques": [
+          [
+            "INSTALACIÓN",
+            [
+              "Marca del sistema",
+              "Marca de los detectores",
+              "Marca del panel de control",
+              "Fecha de instalación del sistema",
+              [
+                "Tipo de agente",
+                [
+                  "Halon 1301",
+                  "Inertes",
+                  "FM200",
+                  "Otros"
+                ]
+              ],
+              [
+                "Volumen protegido",
+                [
+                  "Ambiente",
+                  "Falso suelo",
+                  "Entre suelo y techo",
+                  "Falso techo",
+                  "Otros"
+                ]
+              ],
+              [
+                "Concentración",
+                [
+                  "5 %",
+                  "6 %",
+                  "7 %",
+                  "Otra"
+                ]
+              ],
+              [
+                "Tipo de sistema",
+                [
+                  "Alta presión",
+                  "Baja presión"
+                ]
+              ],
+              "Cantidad de cilindros",
+              [
+                "Capacidad del cilindro",
+                "kg"
+              ],
+              [
+                "Capacidad del sistema",
+                "kg/m³"
+              ],
+              [
+                "Presión normal a 20 °C",
+                "MPa"
+              ],
+              [
+                "No hay modificaciones del sistema, entorno o uso del área protegida",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "SISTEMA DE DETECCIÓN",
+            [
+              [
+                "Detectores",
+                [
+                  "Iónicos de humo",
+                  "Ópticos de humo",
+                  "Termovelocimétricos"
+                ]
+              ],
+              [
+                "Detectores (cont.)",
+                [
+                  "Temperatura fija",
+                  "Por compensación",
+                  "Otros"
+                ]
+              ]
+            ]
+          ],
+          [
+            "COMANDOS DE EXTINCIÓN",
+            [
+              [
+                "Comando",
+                [
+                  "Zona simple",
+                  "Dos zonas (zona cruzada)",
+                  "Dos detectores por zona",
+                  "Otros"
+                ]
+              ]
+            ]
+          ],
+          [
+            "RESULTADOS",
+            [
+              "Resultado y comentarios de inspección / mantenimiento",
+              "Otros equipos probados o inspeccionados"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 2,
+        "nombre": "Inspección mensual",
+        "tipo": "periodico",
+        "bloques": [
+          [
+            "INSPECCIÓN MENSUAL",
+            [
+              "Boquillas no dañadas y tapas en su lugar",
+              "Sin cambios en tamaño o tipo de riesgo del local",
+              "Sin indicios de daños físicos en componentes",
+              "Cierre automático de aberturas con la descarga",
+              "Desactivaciones del mes registradas (inicio, fin, causa, medidas)"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 3,
+        "nombre": "Inspección y pruebas semestral y anual",
+        "tipo": "checklist",
+        "bloques": [
+          [
+            "SEMESTRAL",
+            [
+              [
+                "Presión del recipiente (pérdida > 10 % halogenado o > 5 % inertes: rellenar)",
+                "MPa"
+              ],
+              [
+                "Peso del recipiente con halogenados (pérdida > 5 %: rellenar)",
+                "kg"
+              ],
+              "Presión y peso anotados en la etiqueta sujeta (si no, colocar)",
+              "Recipientes sin daños",
+              "Activación de cabezas de control (cabezas retiradas de los cilindros)",
+              "Planilla por cilindro: número, tara, peso cargado y carga neta"
+            ]
+          ],
+          [
+            "ANUAL",
+            [
+              "Inspección profunda del sistema",
+              "Estanqueidad del local (prueba con ventilador de puerta si hay dudas)",
+              "Prueba de funcionamiento del sistema (sin descarga)",
+              "Detección cruzada, aborto y solenoide de descarga",
+              "Conexiones flexibles: estado; sustituir o probar las defectuosas",
+              "Detectores del recinto: prueba funcional anual",
+              "Supervisión de circuitos (circuito abierto)",
+              "Alarmas, retardo y cierre de puertas, compuertas y ventilación",
+              "Indicación en la alarma del edificio (NFPA 101, 9.8.2)",
+              "Funciones de control (NFPA 72, T. 14.4.3.2, ítem 24)",
+              "Aborto tipo hombre muerto; disparo manual con dos acciones (NFPA 2001, 10.6)",
+              "Mangueras del sistema examinadas (NFPA 2001, 11.4.4)",
+              "Manómetros de gases inertes comparados (NFPA 2001, 11.3.5)",
+              "Informe con recomendaciones entregado al propietario (NFPA 2001, 11.4.2)"
+            ]
+          ],
+          [
+            "POSTERIOR A UNA DESCARGA O ACTUACIÓN",
+            [
+              "Ausencia de personas en el recinto",
+              "Ventilación antes del reingreso",
+              "Causa de la activación determinada",
+              "Reposición del agente con verificación de calidad (certificado)",
+              "Rearme de cabezales y restitución del sistema"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 4,
+        "nombre": "Inspección y prueba quinquenal",
+        "tipo": "checklist",
+        "bloques": [
+          [
+            "QUINQUENAL",
+            [
+              [
+                "Prueba hidrostática de conectores flexibles (fecha última prueba)",
+                "fecha"
+              ],
+              [
+                "Prueba hidrostática de cilindros (fecha última prueba)",
+                "fecha"
+              ],
+              "Destruir conectores flexibles o cilindros que no pasan las pruebas",
+              "Examen visual completo de recipientes (IRAM 2529-1)",
+              "Planilla con número de cilindro y resultado de la prueba",
+              "Inspección visual externa de recipientes según CGA C-6 (NFPA 2001, 11.6.2)",
+              [
+                "Mangueras: prueba a 1,5 × presión máxima a 54,4 °C, 1 min (NFPA 2001, 11.7)",
+                "MPa"
+              ]
+            ]
+          ]
+        ]
+      }
+    ]
+  },
+  "firmas": {
+    "tecnico": {
+      "etiqueta": "SUPERVISOR DEL MANTENEDOR – FIRMA / ACLARACIÓN",
+      "formato": "PNG"
+    },
+    "responsable": {
+      "etiqueta": "RESPONSABLE DE LA INSTALACIÓN – FIRMA / ACLARACIÓN",
+      "formato": "PNG"
+    }
+  }
+}

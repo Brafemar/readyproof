@@ -1,0 +1,105 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const {chromium} = require("playwright");
+const base = process.env.RP_URL, output = process.env.RP_OUT;
+fs.mkdirSync(output,{recursive:true});
+(async()=>{
+  const candidates=[process.env.READYPROOF_BROWSER,chromium.executablePath(),path.join(process.env.ProgramFiles||"C:/Program Files","Google/Chrome/Application/chrome.exe"),path.join(process.env["ProgramFiles(x86)"]||"C:/Program Files (x86)","Microsoft/Edge/Application/msedge.exe")];
+  const executable=candidates.find(candidate=>candidate&&fs.existsSync(candidate));
+  assert.ok(executable,"Se requiere Chromium, Chrome o Edge local; indicar READYPROOF_BROWSER.");
+  const browser=await chromium.launch({headless:true,executablePath:executable});
+  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1,locale:"es-AR",timezoneId:"America/Argentina/Buenos_Aires",acceptDownloads:true});
+  const page=await context.newPage(), errors=[];
+  page.on("pageerror",error=>errors.push(error.message));
+  page.setDefaultTimeout(30000);
+  async function record(){return page.evaluate(()=>new Promise((resolve,reject)=>{const open=indexedDB.open("readyproof-local-"+JSON.parse(sessionStorage.getItem("readyproof-cuenta-activa")).usuario.id,1);open.onsuccess=()=>{const r=open.result.transaction("borradores").objectStore("borradores").getAll();r.onsuccess=()=>resolve(r.result.sort((a,b)=>b.actualizado.localeCompare(a.actualizado))[0]);r.onerror=()=>reject(r.error);};}));}
+  async function touchSignature(id){
+    const canvas=page.locator(id);await canvas.evaluate(element=>element.scrollIntoView({block:"center",behavior:"instant"}));
+    await canvas.evaluate(element=>{element.dataset.touchEvents="";for(const name of ["pointerdown","pointermove","pointerup"])element.addEventListener(name,event=>{element.dataset.touchEvents+=name+":"+event.pointerType+",";},{once:true});});
+    const box=await canvas.boundingBox(), cdp=await context.newCDPSession(page);
+    const points=[[.12,.70],[.22,.24],[.30,.75],[.40,.40],[.58,.68],[.77,.38],[.88,.58]];
+    for(let i=0;i<points.length;i++){
+      await cdp.send("Input.dispatchTouchEvent",{type:i===0?"touchStart":"touchMove",touchPoints:[{id:1,x:box.x+box.width*points[i][0],y:box.y+box.height*points[i][1],radiusX:2,radiusY:2,force:1}]});
+      await page.waitForTimeout(35);
+    }
+    await cdp.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});await cdp.detach();
+    assert.ok((await canvas.getAttribute("data-touch-events")).includes("pointerup:touch"), "No se completó el trazo táctil: "+await canvas.getAttribute("data-touch-events"));
+  }
+  try{
+    await page.goto(base+"/login",{waitUntil:"networkidle"});
+    await page.locator("#login").fill(process.env.RP_LOGIN);
+    await page.locator("#clave").fill(process.env.RP_PASSWORD);
+    await Promise.all([page.waitForURL(base+"/"),page.getByRole("button",{name:"Ingresar",exact:true}).click()]);
+    await page.locator('#cabecera-campos input').first().waitFor();
+    await page.evaluate(()=>navigator.serviceWorker.ready.then(()=>true));
+    await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+    await page.click("#completar-ejemplo");
+    await page.waitForFunction(()=>document.getElementById("save-status").textContent.includes("y en el servidor"));
+    const start=await record();assert.ok(start.serverId);
+    const definition=await (await context.request.get(`${base}/api/planillas/${start.planillaId}`)).json();
+    const expected=Object.values(definition.definicion.bloques).flatMap(block=>Object.keys(block));
+    assert.deepEqual(await page.locator("#bloques .field label").allTextContents(),expected);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+    await page.locator('[name=\'["cabecera","inspector"]\']').fill("Texto sin prefijo de prueba");
+    await page.click("#vista-previa");
+    assert.equal(await page.locator("#preview-dialog").isVisible(),false);
+    await page.locator('[name=\'["cabecera","inspector"]\']').fill("[Ejemplo] Técnico");
+    await page.waitForFunction(()=>document.getElementById("save-status").textContent.includes("y en el servidor"));
+    await page.evaluate(()=>window.scrollTo(0,0));
+    await page.screenshot({path:path.join(output,"celular_inicio.png")});
+    await context.setOffline(true);
+    await page.getByLabel("Observación 1",{exact:true}).fill("[Ejemplo] Carga completada sin conexión");
+    await touchSignature("#firma-tecnico");
+    await touchSignature("#firma-responsable");
+    await page.waitForFunction(()=>document.getElementById("firma-responsable-status").textContent.includes("guardada"));
+    await page.locator("#firmas").screenshot({path:path.join(output,"firmas_celular.png")});
+    const offline=await record();
+    assert.equal(offline.datos.observaciones[0],"[Ejemplo] Carga completada sin conexión");
+    assert.ok(offline.firmas.tecnico.startsWith("data:image/png;base64,"));
+    assert.ok(offline.firmas.responsable.startsWith("data:image/png;base64,"));
+    assert.equal(offline.pending,true);
+    await page.reload({waitUntil:"domcontentloaded"});
+    await page.getByLabel("Observación 1",{exact:true}).waitFor();
+    assert.equal(await page.getByLabel("Observación 1",{exact:true}).inputValue(),offline.datos.observaciones[0]);
+    await page.waitForFunction(()=>document.getElementById("firma-tecnico-status").textContent.includes("guardada"));
+    await context.setOffline(false);
+    await page.waitForFunction(()=>document.getElementById("save-status").textContent.includes("y en el servidor"));
+    const synced=await record();assert.equal(synced.serverId,start.serverId);assert.equal(synced.pending,false);
+    await page.setViewportSize({width:1440,height:1000});await page.evaluate(()=>window.scrollTo(0,0));
+    await page.screenshot({path:path.join(output,"notebook.png")});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+    await page.setViewportSize({width:390,height:844});
+    const previewResponse=page.waitForResponse(r=>r.url().endsWith("/vista-previa")&&r.request().method()==="POST",{timeout:90000});
+    await page.click("#vista-previa");
+    const preview=await previewResponse;assert.equal(preview.status(),200,await preview.text());
+    await page.waitForFunction(()=>document.getElementById("preview-status").textContent.includes("Vista previa lista"),{timeout:90000});
+    const previewBytes=await page.evaluate(async()=>{
+      const response=await fetch(document.getElementById("pdf-frame").src);
+      return Array.from(new Uint8Array(await response.arrayBuffer()));
+    });
+    const previewBuffer=Buffer.from(previewBytes);
+    assert.ok(previewBuffer.length>1000,"La vista previa de la pantalla está vacía.");
+    assert.equal(previewBuffer.subarray(0,5).toString(),"%PDF-");
+    fs.writeFileSync(path.join(output,"vista_previa.pdf"),previewBuffer);
+    await page.click("#cerrar-preview");
+    assert.equal(await page.locator("#finalizar").isEnabled(),true);
+    const emissionResponse=page.waitForResponse(r=>r.url().endsWith("/emitir")&&r.request().method()==="POST",{timeout:90000});
+    await page.click("#finalizar");
+    const emission=await emissionResponse;assert.equal(emission.status(),201,await emission.text());
+    await page.locator("#descargar").waitFor({state:"visible",timeout:90000});
+    const result=await emission.json();
+    const download=await context.request.get(`${base}/api/cargas/${result.id}/pdf`);assert.equal(download.status(),200);
+    fs.writeFileSync(path.join(output,"SAA-1_firmada.pdf"),await download.body());
+    const records=await page.evaluate(()=>new Promise(resolve=>{const r=indexedDB.open("readyproof-local-"+JSON.parse(sessionStorage.getItem("readyproof-cuenta-activa")).usuario.id,1);r.onsuccess=()=>{const q=r.result.transaction("borradores").objectStore("borradores").getAll();q.onsuccess=()=>resolve(q.result);};}));
+    assert.equal(records.length,1);
+    assert.equal(records[0].estado,"emitida");
+    assert.deepEqual(errors,[]);
+    const report={celular:"390x844",notebook:"1440x1000",offline_con_recarga:true,firmas_por_eventos_tactiles:2,borradores_locales:records.length,carga_id:result.id,estado:result.estado,pdf_sha256:result.pdf_sha256,errores_javascript:errors};
+    fs.writeFileSync(path.join(output,"resultado.json"),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+  }catch(error){
+    await page.screenshot({path:path.join(output,"error.png"),fullPage:true}).catch(()=>{});
+    console.error(error.stack||error);console.error("Mensajes:",await page.locator("#mensaje").textContent().catch(()=>""));
+    process.exitCode=1;
+  }finally{await context.close();await browser.close();}
+})();

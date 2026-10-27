@@ -1,6 +1,6 @@
 # API local de planillas — etapa 2
 
-La API usa Flask y PostgreSQL local con SQLAlchemy. Su catálogo inicial contiene únicamente SAA-1. No incluye interfaz, administración de usuarios, autenticación ni correo, según el alcance indicado por Jorge. Es un entorno de desarrollo local con datos ficticios y no debe publicarse. La emisión de clientes reales sigue bloqueada por M1.
+La API usa Flask y PostgreSQL local con SQLAlchemy. Su catálogo inicial contiene únicamente SAA-1. No incluye interfaz, administración de usuarios, autenticación ni correo, según el alcance indicado por Jorge. Es un entorno de desarrollo local con datos ficticios y no debe publicarse. El uso real sigue bloqueado por los controles pendientes; la leyenda M1 se incorporó posteriormente.
 
 ## Preparación y pruebas
 
@@ -39,6 +39,8 @@ Para usar la API manualmente, una persona debe crear una base PostgreSQL local v
 | GET | `/api/cargas/{id}/pdf` | Descargar el PDF emitido como adjunto |
 | GET | `/api/cargas/{id}/revisiones` | Consultar las instantáneas y eventos |
 
+`GET /api/cargas/{id}/revisiones` devuelve en el campo `datos` la instantánea JSON completa de cada revisión, no solo las diferencias respecto de la anterior. Incluye `cabecera`, `bloques` y `observaciones` tal como se guardaron en ese evento, junto con `numero`, `evento`, `actor` y `fecha`.
+
 Los cuerpos son objetos JSON. Se rechazan los campos desconocidos tanto en el cuerpo de la solicitud como en cada bloque de datos. Los identificadores se obtienen del catálogo; no se codifican en el cliente.
 
 ## Datos y tipos
@@ -48,7 +50,7 @@ Los cuerpos son objetos JSON. Se rechazan los campos desconocidos tanto en el cu
 - Fechas: texto ISO `YYYY-MM-DD`, con validación de calendario. Incluye la fecha del encabezado y las dos etiquetas de inspección/prueba que declaran fecha.
 - Números: números JSON finitos para los campos con unidad. Las dos cantidades de equipos/unidades son enteros JSON. No se aceptan booleanos ni números escritos como texto.
 - Opciones: una de las cadenas exactas del kit; no se agregan opciones.
-- Texto: cadena no vacía de hasta 500 caracteres, identificada con `[Ejemplo] `. La empresa mantenedora BRAFEMAR puede conservar el valor original del kit.
+- Texto: cadena no vacía de hasta 500 caracteres, identificada con `[Ejemplo] `. La empresa mantenedora readyproof puede conservar el valor original del kit.
 - Observaciones: hasta cuatro textos identificados como ejemplo, en el orden original.
 
 Los números, fechas y opciones no llevan el prefijo, porque deben conservar su tipo. Los textos y el cliente relacionado identifican la carga ficticia. No se asignan límites de aceptación normativa ni frecuencias nuevas.
@@ -66,7 +68,7 @@ El Excel es temporal y no se expone por API. El PDF y su SHA256 se guardan en la
 ## Respuestas de error
 
 - 400/415: JSON mal formado o tipo de contenido incorrecto.
-- 403: registro que no es de ejemplo; bloqueo M1.
+- 403: registro que no es de ejemplo; uso real no habilitado.
 - 404: identificador inexistente.
 - 409: revisión vencida, estado incompatible o plantilla distinta.
 - 422: campo, tipo, valor u opción inválidos.
@@ -74,4 +76,4 @@ El Excel es temporal y no se expone por API. El PDF y su SHA256 se guardan en la
 
 ## Fuera de alcance y pendientes
 
-Usuario y Envio, así como sus operaciones, quedan reservados para las etapas de usuarios y correo por la restricción expresa de esta tarea. Tampoco se implementaron pantallas, firmas, PWA ni sincronización. El hallazgo n1 se mantiene pendiente antes de la etapa 6. La leyenda M1, el aviso a Martín sobre el formato, los metadatos y la integridad del kit conservan sus preguntas abiertas.
+Usuario y Envio, así como sus operaciones, quedan reservados para las etapas de usuarios y correo por la restricción expresa de esta tarea. Tampoco se implementaron pantallas, firmas, PWA ni sincronización. M1 y las coordenadas fijas de n1 se corrigieron posteriormente; ver LEYENDA_IRAM_M1.md. El aviso a Martín sobre el formato, los metadatos y la integridad del kit conservan sus preguntas abiertas.

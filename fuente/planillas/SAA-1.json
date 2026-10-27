@@ -1,0 +1,181 @@
+{
+  "codigo": "SAA-1",
+  "version": "v2",
+  "sistema_tipo": "SG-PEM-IFI",
+  "origen": {
+    "ruta": "herramientas/planillas_data3.py",
+    "sha256": "1b4d7a51a7615ea0cc0572f08d7f5ee7bf99d9b635932f8a05665d34058b0de2"
+  },
+  "generador": {
+    "ruta": "herramientas/build_planilla.py",
+    "sha256": "feac9d3f8ad5207756c8a421bbc1c73b1c2c954ebca17171d86f08aa13098c26"
+  },
+  "cabecera": {
+    "fecha": {
+      "tipo": "fecha",
+      "celda": "V4"
+    },
+    "cliente": {
+      "tipo": "texto",
+      "celda": "C5"
+    },
+    "cuit": {
+      "tipo": "texto",
+      "celda": "O5"
+    },
+    "telefono": {
+      "tipo": "texto",
+      "celda": "V5"
+    },
+    "direccion": {
+      "tipo": "texto",
+      "celda": "C6"
+    },
+    "edificio": {
+      "tipo": "texto",
+      "celda": "O6"
+    },
+    "sector": {
+      "tipo": "texto",
+      "celda": "V6"
+    },
+    "empresa_mantenedora": {
+      "tipo": "texto",
+      "celda": "E7"
+    },
+    "numero_mantenedor": {
+      "tipo": "texto",
+      "celda": "R7"
+    },
+    "inspector": {
+      "tipo": "texto",
+      "celda": "V7"
+    },
+    "sistema_designacion": {
+      "tipo": "texto",
+      "celda": "A8"
+    }
+  },
+  "datos": {
+    "nom": "Sistema de Abastecimiento de Agua",
+    "cap": "13",
+    "planillas": [
+      {
+        "n": 1,
+        "nombre": "Información general",
+        "tipo": "general",
+        "bloques": [
+          [
+            "INSTALACIÓN",
+            [
+              "Designación del sistema",
+              "¿Cuál es el riesgo protegido?",
+              [
+                "No hay modificaciones del sistema, entorno o uso del área protegida",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ],
+              [
+                "Cuenta con los instructivos de operación",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "ABASTECIMIENTO DE AGUA",
+            [
+              "Última prueba de abastecimiento de agua (fecha)",
+              "Condición de depósitos y depósitos de presión",
+              [
+                "Capacidad",
+                "m³"
+              ],
+              "Material",
+              "Tipo",
+              [
+                "Elevado",
+                "m"
+              ],
+              [
+                "Ubicación",
+                [
+                  "A superficie",
+                  "Enterrado",
+                  "Nivel"
+                ]
+              ],
+              [
+                "Dispositivo de alarma de alto o bajo nivel",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ],
+              "Registro de alarmas",
+              [
+                "Control de nivel vinculado a la detección (SG-PEM-IFI-SDI)",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "BOMBAS CONTRA INCENDIO (CAPÍTULO 12)",
+            [
+              [
+                "Tipo de bomba",
+                [
+                  "Diésel",
+                  "Eléctrica",
+                  "Naftera",
+                  "Ninguna"
+                ]
+              ],
+              "Registro de la última inspección (fecha)",
+              "Cantidad",
+              [
+                "Funcionan",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "TOMA DE IMPULSIÓN PARA BOMBEROS",
+            [
+              "Localización",
+              [
+                "Cantidad",
+                "u"
+              ],
+              [
+                "Diámetro",
+                "mm"
+              ],
+              "Identificación"
+            ]
+          ]
+        ]
+      }
+    ]
+  },
+  "firmas": {
+    "tecnico": {
+      "etiqueta": "SUPERVISOR DEL MANTENEDOR – FIRMA / ACLARACIÓN",
+      "formato": "PNG"
+    },
+    "responsable": {
+      "etiqueta": "RESPONSABLE DE LA INSTALACIÓN – FIRMA / ACLARACIÓN",
+      "formato": "PNG"
+    }
+  }
+}

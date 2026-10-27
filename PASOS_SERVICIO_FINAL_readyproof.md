@@ -23,7 +23,7 @@ El agente puede hacer los pasos de servicio por pantalla (DigitalOcean, cPanel, 
 - Crear y configurar el Droplet, la base y el firewall: comandos o la API del proveedor con el token de la sección A2.
 - Registrar SPF y DKIM: pantalla, con revisión de Jorge.
 
-Este instructivo acompaña al encargo `AGENTS.md` (copia de `ENCARGO_FINAL_readyproof.md`). Separa lo que hace una persona de BRAFEMAR (una sola vez) de lo que hace el agente. Los comandos y las pantallas de los proveedores cambian con el tiempo: **antes de ejecutar cada paso, el agente debe verificarlo en la documentación vigente del proveedor** y anotar cualquier diferencia en `REGISTRO_DE_CAMBIOS.md`.
+Este instructivo acompaña al encargo `AGENTS.md` (copia de `ENCARGO_FINAL_readyproof.md`). Separa lo que hace una persona de readyproof (una sola vez) de lo que hace el agente. Los comandos y las pantallas de los proveedores cambian con el tiempo: **antes de ejecutar cada paso, el agente debe verificarlo en la documentación vigente del proveedor** y anotar cualquier diferencia en `REGISTRO_DE_CAMBIOS.md`.
 
 ---
 
@@ -40,7 +40,7 @@ Ninguna de estas tareas se hace con el agente, porque implican pagos, identidad 
 | A5 | Activar autenticación en dos pasos en DigitalOcean y en cPanel | Cada cuenta | Confirmación |
 | A6 | Crear un **repositorio privado** en GitHub solo si Jorge lo decide (ver regla de la serie) | GitHub | URL y token de solo lectura/escritura sobre ese repositorio |
 
-**Regla:** las contraseñas y tokens nunca se pegan en el chat. Se cargan en el gestor de contraseñas de BRAFEMAR, y el agente los toma de allí o de variables de entorno en el servidor.
+**Regla:** las contraseñas y tokens nunca se pegan en el chat. Se cargan en el gestor de contraseñas de readyproof, y el agente los toma de allí o de variables de entorno en el servidor.
 
 ---
 
@@ -79,7 +79,7 @@ Cada bloque termina con una **verificación** y un registro en `REGISTRO_DE_CAMB
 
 ### B5. Correo (etapa 5)
 1. Configurar en `.env` el servidor SMTP de cPanel, el usuario y la contraseña de la casilla dedicada.
-2. Enviar un correo de prueba **solo a una dirección de prueba de BRAFEMAR**, con un PDF adjunto.
+2. Enviar un correo de prueba **solo a una dirección de prueba de readyproof**, con un PDF adjunto.
 3. Revisar en el correo recibido que no caiga en spam y que el remitente y el adjunto sean correctos.
 - **Verificación:** el correo llega, con el PDF adjunto, y el encabezado tiene SPF y DKIM en «pass». **Ningún envío real a clientes hasta que Jorge lo apruebe por escrito.**
 

@@ -1,5 +1,6 @@
 """Pruebas sobre PostgreSQL local aislado, sin credenciales persistentes."""
 import os
+import secrets
 from pathlib import Path
 import socket
 import subprocess
@@ -58,23 +59,42 @@ def database_url(postgres_temporal):
 def app(database_url, tmp_path):
     application = create_app({"TESTING": True, "DATABASE_URL": database_url, "DIRECTORIO_TEMPORAL": str(tmp_path / "temporales")})
     engine = application.extensions["db_engine"]
-    crear_esquema(engine)
-    with Session(engine, expire_on_commit=False) as session:
-        registrar_ejemplos(session)
+    result=application.test_cli_runner().invoke(args=["init-db","--ejemplos"])
+    assert result.exit_code==0,result.output
     yield application
     engine.dispose()
 
 
 @pytest.fixture
-def client(app):
-    return app.test_client()
+def usuario_admin(app):
+    from app.auth import hash_clave
+    from app.models import Usuario
+    password=secrets.token_urlsafe(24)
+    with Session(app.extensions["db_engine"],expire_on_commit=False) as session:
+        user=Usuario(login="admin-ejemplo",nombre="[Ejemplo] Administración",rol="admin",clave_hash=hash_clave(password))
+        session.add(user);session.commit()
+        return {"id":user.id,"login":user.login,"clave":password}
+
+
+def login_cliente(app,login,clave):
+    client=app.test_client()
+    csrf=client.get("/api/auth/sesion").get_json()["csrf_token"]
+    response=client.post("/api/auth/login",json={"login":login,"clave":clave},headers={"X-CSRF-Token":csrf})
+    assert response.status_code==200
+    client.environ_base["HTTP_X_CSRF_TOKEN"]=response.get_json()["csrf_token"]
+    return client
+
+
+@pytest.fixture
+def client(app,usuario_admin):
+    return login_cliente(app,usuario_admin["login"],usuario_admin["clave"])
 
 
 @pytest.fixture
 def catalogo(client):
     cliente = client.get("/api/clientes").get_json()[0]
     sistema = client.get(f"/api/clientes/{cliente['id']}/sistemas").get_json()[0]
-    planilla = client.get("/api/planillas").get_json()[0]
+    planilla = next(p for p in client.get("/api/planillas").get_json() if p["codigo"]=="SG-PEM-IFI-SAA-1")
     return cliente, sistema, planilla
 
 
@@ -87,3 +107,12 @@ def datos_api():
     for title, label in ENTEROS:
         data["bloques"][title][label] = 1
     return data
+
+
+@pytest.fixture(autouse=True)
+def impedir_smtp_real(monkeypatch):
+    import smtplib
+    def prohibido(*args, **kwargs):
+        raise AssertionError("Los tests no pueden contactar un servidor SMTP real.")
+    monkeypatch.setattr(smtplib,"SMTP",prohibido)
+    monkeypatch.setattr(smtplib,"SMTP_SSL",prohibido)

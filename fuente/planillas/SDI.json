@@ -1,0 +1,427 @@
+{
+  "codigo": "SDI",
+  "version": "v2",
+  "sistema_tipo": "SG-PEM-IFI",
+  "origen": {
+    "ruta": "herramientas/planillas_data2.py",
+    "sha256": "2fa99330a0d4d9316f70c993d6e835d555ed57122cabc9d5f7f433a651a383d1"
+  },
+  "generador": {
+    "ruta": "herramientas/build_planilla.py",
+    "sha256": "feac9d3f8ad5207756c8a421bbc1c73b1c2c954ebca17171d86f08aa13098c26"
+  },
+  "cabecera": {
+    "fecha": {
+      "tipo": "fecha",
+      "celda": "V4"
+    },
+    "cliente": {
+      "tipo": "texto",
+      "celda": "C5"
+    },
+    "cuit": {
+      "tipo": "texto",
+      "celda": "O5"
+    },
+    "telefono": {
+      "tipo": "texto",
+      "celda": "V5"
+    },
+    "direccion": {
+      "tipo": "texto",
+      "celda": "C6"
+    },
+    "edificio": {
+      "tipo": "texto",
+      "celda": "O6"
+    },
+    "sector": {
+      "tipo": "texto",
+      "celda": "V6"
+    },
+    "empresa_mantenedora": {
+      "tipo": "texto",
+      "celda": "E7"
+    },
+    "numero_mantenedor": {
+      "tipo": "texto",
+      "celda": "R7"
+    },
+    "inspector": {
+      "tipo": "texto",
+      "celda": "V7"
+    },
+    "sistema_designacion": {
+      "tipo": "texto",
+      "celda": "A8"
+    }
+  },
+  "datos": {
+    "nom": "Sistema de Detección de Incendios",
+    "cap": "6",
+    "planillas": [
+      {
+        "n": 1,
+        "nombre": "Información general",
+        "titulo": "Información general – Sistema convencional de dos hilos",
+        "tipo": "general",
+        "bloques": [
+          [
+            "INSTALACIÓN",
+            [
+              "Designación del sistema",
+              [
+                "No hay modificación en el sistema, entorno o uso del área protegida",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "PANEL DE CONTROL",
+            [
+              "Ubicación de la central",
+              "Marca y modelo",
+              [
+                "Tipo de sistema",
+                [
+                  "Convencional",
+                  "Direccionable",
+                  "Inteligente",
+                  "Otros"
+                ]
+              ],
+              "Cantidad de zonas: en servicio / de reserva",
+              [
+                "Sistema en servicio",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ],
+              [
+                "Manual instructivo de operación en español",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "ELEMENTOS DE INICIACIÓN",
+            [
+              "Control e identificación",
+              "Detectores de humo: cantidad / tipo / marca",
+              "Detectores de temperatura: cantidad / tipo / marca",
+              "Detectores de llama: cantidad / tipo / marca",
+              "Avisadores manuales: cantidad / tipo / marca"
+            ]
+          ],
+          [
+            "FUENTES DE ENERGÍA",
+            [
+              [
+                "Primaria",
+                [
+                  "Red eléctrica urbana",
+                  "Grupo generador",
+                  "Alimentado"
+                ]
+              ],
+              [
+                "Secundaria: tensión / corriente",
+                "V / A"
+              ],
+              [
+                "Secundaria alimentada",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "CONDUCTOS",
+            [
+              "Tipo de instalación",
+              [
+                "Largo total",
+                "m"
+              ],
+              [
+                "Diámetro",
+                "mm"
+              ],
+              "Material del conducto"
+            ]
+          ],
+          [
+            "CABLEADO",
+            [
+              [
+                "Aprobación del cable",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ],
+              [
+                "Memoria técnica de la conexión",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ],
+              [
+                "Existe plano de cableado",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "ALARMAS",
+            [
+              [
+                "Señal visual / acústica",
+                [
+                  "Estroboscópica",
+                  "Rotativa acústica",
+                  "Señal acústica",
+                  "Sirena"
+                ]
+              ]
+            ]
+          ],
+          [
+            "ANUNCIACIÓN",
+            [
+              [
+                "Posee sistema de aviso con parlantes",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ],
+              [
+                "Tipo",
+                [
+                  "Estándar",
+                  "Intrínsecos"
+                ]
+              ]
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 2,
+        "nombre": "Prueba mensual",
+        "titulo": "Prueba mensual – Sistema convencional de dos hilos",
+        "tipo": "periodico",
+        "bloques": [
+          [
+            "PANEL DE CONTROL",
+            [
+              "Fusibles",
+              "Equipos de interfase",
+              "Alimentación de energía primaria",
+              "Indicadores lumínicos del panel",
+              "Señales de falla propias del panel de simulación",
+              "Conexiones de red",
+              "Panel de audio para evacuación",
+              "Medición de tensión de baterías (alimentación secundaria)",
+              "Conexiones entre la central y cada zona",
+              "Anunciadores remotos y su comando (en caso de existir)",
+              "Discador telefónico"
+            ]
+          ],
+          [
+            "ELEMENTOS DE INICIACIÓN",
+            [
+              "Detectores de humo",
+              "Detectores de temperatura",
+              "Detectores de llama",
+              "Detectores de gas/monóxido",
+              "Avisadores manuales",
+              "Barreras infrarrojas",
+              "Sistema aspirador",
+              "Detección del nivel del tanque de agua",
+              "Indicación detectores de flujo",
+              "Indicación de baja presión en red de cañerías",
+              "Indicación arranque de bomba"
+            ]
+          ],
+          [
+            "TAREAS COMPLEMENTARIAS (TEXTO IRAM Y NFPA 72)",
+            [
+              "Indicadores sonoros del panel",
+              "Dispositivos de aviso lumínicos y sonoros",
+              "Altavoces del sistema de audio para evacuación",
+              "Baterías: corrosión, fugas, conexiones y fecha (NFPA 72, T. 14.3.1)",
+              "Baterías de plomo-ácido: nivel de electrolito",
+              "Baterías primarias (pila seca)",
+              "Desactivaciones del mes registradas (inicio, fin, causa, medidas)"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 3,
+        "nombre": "Prueba trimestral, semestral y anual",
+        "titulo": "Prueba trimestral, semestral y anual – Sistema convencional de dos hilos",
+        "tipo": "checklist",
+        "bloques": [
+          [
+            "PRUEBA TRIMESTRAL",
+            [
+              "Ensayo del cargador de baterías del panel",
+              "Prueba de descarga de baterías",
+              [
+                "Tensión de flotación del cargador (2,30 V/celda ± 0,02 V a 25 °C)",
+                "V"
+              ]
+            ]
+          ],
+          [
+            "PRUEBA SEMESTRAL",
+            [
+              "Accionamiento de dispositivos para asegurar su correspondencia con su funcionamiento",
+              "Módulos de control y sus accionamientos",
+              "Módulos de verificación",
+              "Accionamiento de detectores de flujo",
+              "Prueba de detectores en ductos",
+              "Interruptores de válvulas de control (señal en 2 vueltas o 1/5 del recorrido)",
+              [
+                "Tensión de baterías bajo carga (≥ 2,05 V/celda plomo-ácido)",
+                "V"
+              ],
+              "Detectores de llama"
+            ]
+          ],
+          [
+            "PRUEBA ANUAL",
+            [
+              "Prueba de baterías (24 h)",
+              "Planimetría",
+              "Funciones de la central (alarma, supervisión, falla, evacuación, auxiliares)",
+              "Integridad de circuitos",
+              "Detectores de humo: prueba funcional con humo o producto listado (todos)",
+              "Detectores de temperatura restaurables probados (2 por circuito; identificación)",
+              "Interruptores de supervisión (70 kPa / 4,4 °C / 70 o 300 mm)",
+              "Aparatos de notificación audibles y visibles",
+              "Funciones de control de emergencia (NFPA 72, T. 14.4.3.2, ítem 24)",
+              "Baterías: reemplazo según fabricante",
+              "Alimentación primaria con carga máxima",
+              "Señales de falla de la central",
+              "Transmisión al servicio de monitoreo (DACT ≤ 90 s)",
+              "Avisadores manuales (todos)",
+              "Dispositivos electromecánicos de descarga (donde existan)",
+              "Interruptores de alarma de sistemas de extinción",
+              "Detectores de gas (según fabricante)",
+              "Aparatos de notificación audible textual"
+            ]
+          ],
+          [
+            "INSPECCIONES COMPLEMENTARIAS (NFPA 72, TABLA 14.3.1)",
+            [
+              "Trimestral: detectores de llama sin obstrucción del campo visual",
+              "Trimestral: dispositivos de señales de supervisión",
+              "Trimestral: sensores de flujo de agua",
+              "Semestral: baterías de níquel-cadmio y plomo-ácido selladas",
+              "Semestral: dispositivos iniciadores",
+              "Semestral: aparatos de notificación",
+              "Semestral: anunciadores remotos y supresores de transientes",
+              "Semestral: equipos de comunicación de emergencia por voz",
+              "Semestral: dispositivos electromecánicos de descarga e interruptores de extinción",
+              "Semestral: interfaz de funciones de control de emergencia",
+              "Semestral: aparatos de notificación audible textual",
+              "Anual: todos los equipos",
+              "Anual: fuentes remotas y extensiones de circuitos de notificación",
+              "Anual: transmisores al servicio de monitoreo",
+              "Anual: conexiones de fibra óptica",
+              "Anual: tubo de muestreo de detectores en ducto"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 4,
+        "nombre": "Mantenimiento anual",
+        "titulo": "Mantenimiento anual – Sistema convencional de dos hilos",
+        "tipo": "checklist",
+        "bloques": [
+          [
+            "MANTENIMIENTO ANUAL",
+            [
+              "Limpieza del panel de control de alarma de incendio",
+              "Limpieza de panel de audio para evacuación",
+              "Calibración de detectores de humo y temperatura (8,3 %)",
+              "Calibración de detectores de gas (8,3 %)",
+              "Verificación de valores indicados y reemplazo de detectores fuera de valores",
+              "Limpieza y/o calibración de detectores (humo y/o temperatura y/o gas)",
+              "Reemplazo de elementos de iniciación (según vida útil de fabricante)",
+              "Modificación y/o reparación de la instalación (según planillas de registro)"
+            ]
+          ],
+          [
+            "ENSAYOS DE LARGO PLAZO (NFPA 72)",
+            [
+              "Sensibilidad de detectores de humo: fecha de la última prueba / próxima",
+              "Detectores fuera de rango: limpieza, recalibración o reemplazo",
+              "Detectores de temperatura no restaurables a 15 años: reemplazo o ensayo de 2 de cada 100",
+              "Zonas con aumento de falsas alarmas: prueba de calibración"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 5,
+        "nombre": "Información semanal (autocontrol)",
+        "titulo": "Información semanal (autocontrol) – Sistema convencional de dos hilos",
+        "tipo": "periodico",
+        "modo": "semanal",
+        "bloques": [
+          [
+            "INSPECCIÓN SEMANAL – MES: ________  AÑO: ______",
+            [
+              "Detectores de humo, temperatura, gas y llama en buen estado",
+              "Pulsadores manuales sin obstrucciones",
+              "Sirenas, alarmas acústicas y luces estroboscópicas en buen estado",
+              "Panel: LED / visor en condición normal",
+              "Panel: fusibles, equipos interconectados y energía primaria",
+              "Panel: sin señales de falla",
+              "Detectores sin obstrucción, sin pintura ni daños",
+              "Canalizaciones en buen estado, alineadas, sin cargas",
+              "Eventos repetidos del mes en el panel",
+              "Barreras infrarrojas y sistema aspirador",
+              "Alimentación primaria y secundaria presentes",
+              "Zonas con falla / zonas conectadas",
+              "Indicación de nivel de tanque, flujo, baja presión y arranque de bomba",
+              "Componentes incrustados y alineados",
+              "Planillas de eventos de la semana verificadas",
+              "Manual instructivo en español disponible",
+              "Planos de la instalación disponibles"
+            ]
+          ]
+        ]
+      }
+    ]
+  },
+  "firmas": {
+    "tecnico": {
+      "etiqueta": "SUPERVISOR DEL MANTENEDOR – FIRMA / ACLARACIÓN",
+      "formato": "PNG"
+    },
+    "responsable": {
+      "etiqueta": "RESPONSABLE DE LA INSTALACIÓN – FIRMA / ACLARACIÓN",
+      "formato": "PNG"
+    }
+  }
+}

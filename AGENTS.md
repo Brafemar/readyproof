@@ -1,4 +1,4 @@
-# Encargo final: readyproof, aplicación de carga y emisión de planillas SG-PEM-IFI (BRAFEMAR)
+# Encargo final: readyproof, aplicación de carga y emisión de planillas SG-PEM-IFI (readyproof)
 
 > Documento de encargo para un agente de IA de programación. Está escrito para ser autosuficiente: no depende de ninguna conversación previa. Leelo completo antes de tocar código. Si algo contradice este documento y los archivos del kit, **detenete y preguntá**.
 
@@ -16,7 +16,7 @@
 
 ## 1. Contexto
 
-- **Empresa:** BRAFEMAR, Mendoza, Argentina. Inspección, prueba y mantenimiento de instalaciones fijas contra incendios.
+- **Empresa:** readyproof, Mendoza, Argentina. Inspección, prueba y mantenimiento de instalaciones fijas contra incendios.
 - **Responsable técnico de la serie:** Lic. Martín Sánchez. **Toda interpretación normativa la confirma él.**
 - **Administración:** Jorge Sánchez.
 - **Serie de referencia:** manuales SG-PEM-IFI basados en la IRAM 3546:2011, complementados con normas NFPA y UL. Cada manual tiene planillas Excel de registro y un informe general en Word (`-IN`).
@@ -80,7 +80,7 @@ Estas reglas vienen del proyecto de manuales y aplican a todo lo que se genere:
 | Generación Excel | **openpyxl**, reutilizando `build_planilla.py` y los datos de `planillas_data*.py` | Ya existe y está probado. |
 | Generación PDF | **LibreOffice en modo headless** (`soffice --convert-to pdf`) sobre el .xlsx emitido | Es lo que ya se usa para generar la serie. |
 | Informes -IN | **python-docx**, reutilizando `build_informe.py` | Ya existe. |
-| Correo | **SMTP de la cuenta cPanel de BRAFEMAR** (webmail existente), con **SPF y DKIM** configurados en el dominio. Configuración por variables de entorno | Ya existe, sin costo adicional. Un Gmail dedicado queda como respaldo si el cPanel da problemas de entregabilidad. |
+| Correo | **SMTP de la cuenta cPanel de readyproof** (webmail existente), con **SPF y DKIM** configurados en el dominio. Configuración por variables de entorno | Ya existe, sin costo adicional. Un Gmail dedicado queda como respaldo si el cPanel da problemas de entregabilidad. |
 | Autenticación | Contraseñas con **bcrypt** o **argon2**, sesión con cookie segura, roles `tecnico` y `admin` | Estándar y sencillo. |
 | Pruebas | **pytest** | Pruebas de generación, de API y de flujo. |
 | Alojamiento | **DigitalOcean**, en un Droplet propio, separado del proyecto que ya está en curso en esa cuenta | No tocar el otro proyecto: mismo proveedor, servidor distinto. |
@@ -218,7 +218,7 @@ Cada etapa termina con: código, pruebas que pasan, `REGISTRO_DE_CAMBIOS.md` act
 |---|---|---|
 | 1 | Conectividad en campo | **A veces sin señal.** El modo sin conexión es obligatorio (etapa 8, con base en la etapa 3). |
 | 2 | Entrega al cliente | **Correo simple y ágil**, con el PDF adjunto. Sin enlaces ni portal en esta etapa. |
-| 3 | Correo de salida | **SMTP de la cuenta cPanel de BRAFEMAR.** Si da problemas de entregabilidad, se usa una cuenta Gmail dedicada solo para esto. |
+| 3 | Correo de salida | **SMTP de la cuenta cPanel de readyproof.** Si da problemas de entregabilidad, se usa una cuenta Gmail dedicada solo para esto. |
 | 4 | Firma | **En pantalla, y la firma aparece en el PDF.** Ver sección 3.2 sobre cómo se guarda. |
 | 5 | Alojamiento | **DigitalOcean.** Se instala en un servidor propio, separado del proyecto que ya está en curso en esa cuenta. |
 | 6 | Base de datos | **PostgreSQL** (confirmado). MongoDB no se usa. |
@@ -228,7 +228,7 @@ Cada etapa termina con: código, pruebas que pasan, `REGISTRO_DE_CAMBIOS.md` act
 
 ## 9 bis. Pendientes (no decidir sin Jorge o Martín)
 
-1. **Normas pendientes:** edición vigente de la NFPA 17A y de la NFPA 10 (decisión 19 de `AGENTS.md`). Hasta comprarlas, **no citar** ni copiar texto de las copias no autorizadas que circulan. Los criterios de revisión ya extraídos están en `AGENTS.md` («Criterios NFPA 17A»). Si BRAFEMAR consigue las ediciones vigentes, se incorporan al SCC.
+1. **Normas pendientes:** edición vigente de la NFPA 17A y de la NFPA 10 (decisión 19 de `AGENTS.md`). Hasta comprarlas, **no citar** ni copiar texto de las copias no autorizadas que circulan. Los criterios de revisión ya extraídos están en `AGENTS.md` («Criterios NFPA 17A»). Si readyproof consigue las ediciones vigentes, se incorporan al SCC.
 2. ~~Unidad de presión en SCC~~ **Resuelto por Jorge: bar.** Las planillas de SCC usan bar; el SSA sigue en MPa.
 3. ~~Nombre de la aplicación~~ **Resuelto por Jorge: readyproof.** Falta confirmar el texto exacto de la leyenda con Martín.
 
@@ -247,7 +247,7 @@ Cada etapa termina con: código, pruebas que pasan, `REGISTRO_DE_CAMBIOS.md` act
 Los accesos externos (DigitalOcean, cPanel, GitHub) y los pasos de servicio están en `PASOS_SERVICIO_FINAL_readyproof.md`. Reglas:
 
 - Las etapas 0 a 4 se hacen **sin accesos externos**, con datos ficticios.
-- Los accesos recién se usan en la etapa 5 (correo de prueba) y en la puesta en marcha, con las credenciales que carga una persona de BRAFEMAR en el gestor de contraseñas.
+- Los accesos recién se usan en la etapa 5 (correo de prueba) y en la puesta en marcha, con las credenciales que carga una persona de readyproof en el gestor de contraseñas.
 - La operación en pantalla requiere aprobación de Jorge en cada acción sensible, según la sección 0 de ese instructivo.
 - Las contraseñas y códigos de dos pasos nunca pasan por el chat.
 

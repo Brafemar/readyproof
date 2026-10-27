@@ -59,7 +59,7 @@ No hay secretos, copias de normas ni datos reales de clientes. Las observaciones
 
 **m3. Los metadatos del PDF están fijos para SAA-1 y no siguen la regla de la serie**
 - Archivo: `app/planillas/encabezado_pdf.py`, línea 90.
-- Qué pasa: el título está escrito como `SG-PEM-IFI-SAA-1` para cualquier planilla. Creador y productor dicen «readyproof», mientras que `fuente/KIT_AGENTS.md` (sección de identidad) indica «autor y productor BRAFEMAR».
+- Qué pasa: el título está escrito como `SG-PEM-IFI-SAA-1` para cualquier planilla. Creador y productor dicen «readyproof», mientras que `fuente/KIT_AGENTS.md` (sección de identidad) indica «autor y productor readyproof».
 - Qué hacer: tomar el título del código de la planilla y confirmar con Jorge qué valores de creador y productor corresponden.
 
 **m4. Datos de ejemplo sin el prefijo `[Ejemplo]`**
@@ -131,7 +131,7 @@ No hay secretos, copias de normas ni datos reales de clientes. Las observaciones
 | Búsqueda de secretos (contraseña, token, clave, URL con credenciales, clave privada) | Ninguno en el código, las pruebas, la documentación ni la configuración. |
 | Búsqueda de rastros de herramientas automáticas | Dos documentos con menciones (m1). |
 | Búsqueda de «twinloop» | Sin resultados. |
-| Búsqueda de nombres de clientes, marcas o modelos | Ninguno en el código, las pruebas ni los datos de ejemplo. «BRAFEMAR» aparece solo como empresa mantenedora, que viene de la planilla de la serie. |
+| Búsqueda de nombres de clientes, marcas o modelos | Ninguno en el código, las pruebas ni los datos de ejemplo. «readyproof» aparece solo como empresa mantenedora, que viene de la planilla de la serie. |
 
 ## Limitaciones
 

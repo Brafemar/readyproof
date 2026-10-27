@@ -85,7 +85,7 @@ def validar_datos(datos, esquema):
     header = mapa(datos.get("cabecera", {}), "cabecera")
     campos_permitidos(header, esquema["cabecera"], "cabecera")
     for key, value in header.items():
-        normalized["cabecera"][key] = fecha(value) if key == "fecha" else texto(value, ejemplo=not (key == "empresa_mantenedora" and value == "BRAFEMAR"))
+        normalized["cabecera"][key] = fecha(value) if key == "fecha" else texto(value, ejemplo=not (key == "empresa_mantenedora" and value == "readyproof"))
     blocks = mapa(datos.get("bloques", {}), "bloques")
     campos_permitidos(blocks, esquema["bloques"], "bloques")
     for title, values in blocks.items():
@@ -110,7 +110,7 @@ def validar_datos(datos, esquema):
     observations = datos.get("observaciones", [])
     if not isinstance(observations, list) or len(observations) > 4:
         raise DatosInvalidos("observaciones debe contener hasta cuatro textos.")
-    normalized["observaciones"] = [texto(value) for value in observations]
+    normalized["observaciones"] = ["" if value == "" else texto(value) for value in observations]
     return normalized
 
 

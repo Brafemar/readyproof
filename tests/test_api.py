@@ -182,4 +182,4 @@ def test_init_db_es_idempotente(app, client):
     result = app.test_cli_runner().invoke(args=["init-db", "--ejemplos"])
     assert result.exit_code == 0
     assert len(client.get("/api/clientes").get_json()) == 1
-    assert len(client.get("/api/planillas").get_json()) == 1
+    assert len(client.get("/api/planillas").get_json()) == 5

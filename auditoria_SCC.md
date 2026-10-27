@@ -7,7 +7,7 @@
 
 **Fuentes usadas (solo copias locales provistas por la empresa):** IRAM 3546:2011, capítulo 16 y planillas 16A a 16D; NFPA 96 (2021); UL 300 (2019); NFPA 72 (2016, en español); material de campo de la empresa; `out/AGENTS.md`, secciones 3, 4 y 8.
 
-**Resumen:** 26 hallazgos: **2 críticos, 5 mayores y 19 menores**. Todos los valores numéricos citados del manual (457 mm, 45°, 406 mm, 203 mm, 22,9 m, 2000 µm, 3175 µm, 50 µm, 0,55 m², 34 °C, 20 min, 5 min, 21 °C, 24 h + 5 min, 12 meses, Tabla 12.4) existen en la fuente, con el mismo artículo y la misma unidad. No aparecen nombres de clientes, marcas ni personas en el texto del manual ni en las planillas; solo figuran el nombre de BRAFEMAR como mantenedor y el pie «Autor» de la plantilla. Los hallazgos críticos son de seguridad en los protocolos de ensayo. Los mayores son omisiones normativas y filas de planillas IRAM que se quitaron.
+**Resumen:** 26 hallazgos: **2 críticos, 5 mayores y 19 menores**. Todos los valores numéricos citados del manual (457 mm, 45°, 406 mm, 203 mm, 22,9 m, 2000 µm, 3175 µm, 50 µm, 0,55 m², 34 °C, 20 min, 5 min, 21 °C, 24 h + 5 min, 12 meses, Tabla 12.4) existen en la fuente, con el mismo artículo y la misma unidad. No aparecen nombres de clientes, marcas ni personas en el texto del manual ni en las planillas; solo figuran el nombre de readyproof como mantenedor y el pie «Autor» de la plantilla. Los hallazgos críticos son de seguridad en los protocolos de ensayo. Los mayores son omisiones normativas y filas de planillas IRAM que se quitaron.
 
 ---
 

@@ -95,13 +95,17 @@ def codigo_de_planilla(origen_excel):
     return codigo.strip()
 
 
-def reponer_logos(origen_excel, origen_pdf, destino_pdf):
+def reponer_logos(origen_excel, origen_pdf, destino_pdf, *, logo_izquierdo=None):
     """Usa las medidas del Excel; no cambia filas, escala ni contenido del PDF."""
     logos, margins = logos_del_excel(origen_excel)
+    if logo_izquierdo is not None:
+        if sum(anchor=="LH" for anchor,_,_,_ in logos)!=1:
+            raise RuntimeError("No hay un único espacio izquierdo para el logo readyproof.")
+        logos=[(anchor,width,height,logo_izquierdo if anchor=="LH" else payload) for anchor,width,height,payload in logos]
     reader = PdfReader(origen_pdf)
     writer = PdfWriter()
     writer.clone_document_from_reader(reader)
-    writer.add_metadata({"/Title": codigo_de_planilla(origen_excel), "/Author": "BRAFEMAR", "/Creator": "readyproof", "/Producer": "readyproof"})
+    writer.add_metadata({"/Title": codigo_de_planilla(origen_excel), "/Author": "readyproof", "/Creator": "readyproof", "/Producer": "readyproof"})
     refs = [_imagen_pdf(logo[3], writer) for logo in logos]
     for page in writer.pages:
         if logos and list(page.images):
@@ -121,6 +125,13 @@ def reponer_logos(origen_excel, origen_pdf, destino_pdf):
             page_width, page_height = float(page.mediabox.width), float(page.mediabox.height)
             x = margins["left"] if anchor == "LH" else (page_width - margins["right"] - width if anchor == "RH" else (page_width - width) / 2)
             y = page_height - margins["header"] - height
+            if anchor=="LH" and logo_izquierdo is not None:
+                with Image.open(BytesIO(logo_izquierdo)) as image:
+                    ratio=min(width/image.width,height/image.height)
+                    draw_width,draw_height=image.width*ratio,image.height*ratio
+                x+=(width-draw_width)/2
+                y+=(height-draw_height)/2
+                width,height=draw_width,draw_height
             commands.append(f"q {width:.5f} 0 0 {height:.5f} {x:.5f} {y:.5f} cm {name} Do Q\n")
         if commands:
             content = DecodedStreamObject()

@@ -1,0 +1,655 @@
+{
+  "codigo": "SBC",
+  "version": "v2",
+  "sistema_tipo": "SG-PEM-IFI",
+  "origen": {
+    "ruta": "herramientas/planillas_data2.py",
+    "sha256": "2fa99330a0d4d9316f70c993d6e835d555ed57122cabc9d5f7f433a651a383d1"
+  },
+  "generador": {
+    "ruta": "herramientas/build_planilla.py",
+    "sha256": "feac9d3f8ad5207756c8a421bbc1c73b1c2c954ebca17171d86f08aa13098c26"
+  },
+  "cabecera": {
+    "fecha": {
+      "tipo": "fecha",
+      "celda": "V4"
+    },
+    "cliente": {
+      "tipo": "texto",
+      "celda": "C5"
+    },
+    "cuit": {
+      "tipo": "texto",
+      "celda": "O5"
+    },
+    "telefono": {
+      "tipo": "texto",
+      "celda": "V5"
+    },
+    "direccion": {
+      "tipo": "texto",
+      "celda": "C6"
+    },
+    "edificio": {
+      "tipo": "texto",
+      "celda": "O6"
+    },
+    "sector": {
+      "tipo": "texto",
+      "celda": "V6"
+    },
+    "empresa_mantenedora": {
+      "tipo": "texto",
+      "celda": "E7"
+    },
+    "numero_mantenedor": {
+      "tipo": "texto",
+      "celda": "R7"
+    },
+    "inspector": {
+      "tipo": "texto",
+      "celda": "V7"
+    },
+    "sistema_designacion": {
+      "tipo": "texto",
+      "celda": "A8"
+    }
+  },
+  "datos": {
+    "nom": "Sistema de Bombas Contraincendios",
+    "cap": "12",
+    "planillas": [
+      {
+        "n": 1,
+        "nombre": "Información general",
+        "tipo": "general",
+        "bloques": [
+          [
+            "INSTALACIÓN",
+            [
+              "¿Cuál es el riesgo protegido?",
+              "Localización de la sala de bombas",
+              "Marca y modelo de la bomba",
+              [
+                "No hay modificaciones del sistema, entorno o uso del área protegida",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ],
+              [
+                "Cuenta con los instructivos de operación",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "ABASTECIMIENTO DE AGUA",
+            [
+              "Última prueba de abastecimiento de agua",
+              "Condiciones de depósitos y depósitos de presión",
+              [
+                "Cantidad",
+                "m³"
+              ]
+            ]
+          ],
+          [
+            "BOMBAS CONTRA INCENDIO",
+            [
+              [
+                "Tipo de bomba",
+                [
+                  "Diésel",
+                  "Eléctrica",
+                  "Naftera",
+                  "Ninguna"
+                ]
+              ],
+              "Registro de la última inspección",
+              [
+                "Cantidad / funcionan",
+                [
+                  "SI",
+                  "NO"
+                ]
+              ]
+            ]
+          ],
+          [
+            "DATOS NOMINALES",
+            [
+              [
+                "Caudal nominal",
+                "m³/h"
+              ],
+              [
+                "Altura manométrica",
+                "m.c.a."
+              ],
+              [
+                "Velocidad",
+                "vueltas/min"
+              ],
+              [
+                "Presión máxima",
+                "MPa"
+              ],
+              "Motor: marca y potencia nominal",
+              "Curva de aceptación en campo disponible"
+            ]
+          ],
+          [
+            "TOMA DE IMPULSIÓN PARA BOMBEROS",
+            [
+              "Localización",
+              [
+                "Cantidad",
+                "m"
+              ],
+              [
+                "Diámetro",
+                "mm"
+              ],
+              "Identificación"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 2,
+        "nombre": "Inspección semanal / autocontrol",
+        "tipo": "periodico",
+        "modo": "semanal",
+        "bloques": [
+          [
+            "SALA Y SISTEMA DE BOMBEO – MES: ________  AÑO: ______",
+            [
+              [
+                "Temperatura de sala ≥ 4 °C (20 °C diésel sin calefactor)",
+                "°C"
+              ],
+              "Aberturas de ventilación libres",
+              "Válvulas de succión y descarga totalmente abiertas",
+              "Iluminación de emergencia",
+              "Cañerías sin pérdidas",
+              "Circulación de agua en válvula de alivio",
+              "Fuente de agua totalmente llena",
+              "Presiones de succión y sistema normales"
+            ]
+          ],
+          [
+            "SISTEMA ELÉCTRICO Y ELECTROBOMBA",
+            [
+              "Luz piloto del controlador encendida",
+              "Luz piloto llave de transferencia normal",
+              "Llave seccionadora cerrada",
+              "Presencia de fases / rotación normal",
+              "Temperatura del bobinado",
+              "Nivel de aceite motor vertical",
+              "Bomba jockey – principal – achique"
+            ]
+          ],
+          [
+            "MOTOR DIÉSEL",
+            [
+              "Combustible > 2/3, sin agua, flexibles y conectores",
+              "Selector del controlador en automático",
+              "Nivel y temperatura de aceite; sin pérdidas",
+              "Enfriamiento: nivel, intercambiador, mangueras",
+              "Calefactor de camisas de agua operativo",
+              "Escape: trampas de drenaje de condensado",
+              [
+                "Tensión de baterías (bancos 1 y 2)",
+                "V"
+              ],
+              [
+                "Corriente de carga de baterías (bancos 1 y 2)",
+                "A"
+              ],
+              "Luces piloto de baterías encendidas o de falla apagadas",
+              "Electrolito y terminales sin corrosión",
+              "Luces de alarma apagadas; horómetro operativo",
+              "Inspección general del sistema eléctrico"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 3,
+        "nombre": "Inspección mensual",
+        "tipo": "checklist",
+        "bloques": [
+          [
+            "DATOS DE PLACA (MOTOBOMBA / ELECTROBOMBA / JOCKEY)",
+            [
+              "Marca y año de fabricación",
+              [
+                "Caudal nominal",
+                "m³/h"
+              ],
+              [
+                "Altura manométrica",
+                "m H₂O"
+              ],
+              [
+                "Velocidad",
+                "vueltas/min"
+              ],
+              [
+                "Presión máxima",
+                "MPa"
+              ],
+              "Motor: marca y potencia nominal"
+            ]
+          ],
+          [
+            "ANTES DE LA PUESTA EN MARCHA",
+            [
+              [
+                "Nivel de agua en la reserva",
+                "%"
+              ],
+              [
+                "Temperatura del agua en la reserva",
+                "°C"
+              ],
+              [
+                "Temperatura de la sala antes de la prueba",
+                "°C"
+              ],
+              [
+                "Presión del sistema",
+                "MPa"
+              ],
+              "Válvula de alivio",
+              [
+                "Presión del tanque pulmón",
+                "MPa"
+              ],
+              "Estado automático / manual",
+              "Último cambio de aceite y filtro / último y próximo cambio de combustible",
+              [
+                "Tensión de baterías banco 1 / banco 2",
+                "V"
+              ],
+              [
+                "Corriente de carga banco 1 / banco 2",
+                "A"
+              ],
+              [
+                "Temperatura del agua de enfriamiento con precalentador",
+                "°C"
+              ],
+              "Nivel de combustible",
+              "Nivel de aceite del cárter",
+              "Nivel de electrolito de baterías"
+            ]
+          ],
+          [
+            "DURANTE EL FUNCIONAMIENTO (≥ 10 MIN ELÉCTRICA / ≥ 30 MIN DIÉSEL)",
+            [
+              [
+                "Presión de arranque",
+                "MPa"
+              ],
+              [
+                "Presión de succión",
+                "MPa"
+              ],
+              [
+                "Presión de descarga",
+                "MPa"
+              ],
+              [
+                "Corriente fase R / S / T",
+                "A"
+              ],
+              [
+                "Tiempo hasta velocidad nominal",
+                "s"
+              ],
+              [
+                "Tiempo en etapa de arranque",
+                "s"
+              ],
+              [
+                "Diésel: presión de agua de enfriamiento",
+                "MPa"
+              ],
+              [
+                "Diésel: presión de aceite del motor",
+                "MPa"
+              ],
+              [
+                "Diésel: velocidad",
+                "vueltas/min"
+              ],
+              [
+                "Diésel: temperatura del agua de enfriamiento en funcionamiento",
+                "°C"
+              ],
+              [
+                "Diésel: temperatura del aceite",
+                "°C"
+              ],
+              "Ruidos o vibraciones inusuales",
+              "Flujo de agua de enfriamiento en el intercambiador"
+            ]
+          ],
+          [
+            "DESPUÉS DEL FUNCIONAMIENTO",
+            [
+              "Empaquetadura con suave fuga de agua",
+              [
+                "Presión del sistema",
+                "MPa"
+              ],
+              "Calentamiento de cojinetes o empaquetaduras",
+              "Estado automático / manual",
+              [
+                "Tiempo de funcionamiento",
+                "min"
+              ],
+              [
+                "Temperatura de sala después de la prueba",
+                "°C"
+              ],
+              "Limpieza"
+            ]
+          ],
+          [
+            "BOMBA JOCKEY",
+            [
+              [
+                "Presión de arranque",
+                "MPa"
+              ],
+              [
+                "Presión de parada",
+                "MPa"
+              ],
+              [
+                "Horas acumuladas de uso",
+                "h"
+              ],
+              [
+                "Cantidad de arranques indicada en el panel",
+                "arranques"
+              ],
+              "Empaquetadura y cojinetes",
+              "Estado automático / manual"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 4,
+        "nombre": "Mantenimiento mensual - trimestral",
+        "tipo": "checklist",
+        "bloques": [
+          [
+            "MENSUAL",
+            [
+              "Sistema eléctrico: activar interruptor y seccionar",
+              "Sistema eléctrico: interruptores o fusibles",
+              "Baterías: remover corrosión, limpieza y secado de carcasa",
+              "Baterías: densidad específica o estado de carga",
+              "Baterías: cargador y tasa de carga",
+              "Baterías: ecualizar carga"
+            ]
+          ],
+          [
+            "TRIMESTRAL",
+            [
+              "Combustible: filtros o similares",
+              "Lubricación: venteo de cárter",
+              "Enfriamiento: filtros de agua",
+              "Escape: aislación y riesgo de incendio",
+              "Baterías: limpiar y ajustar terminales",
+              "Sistema eléctrico: rozado de cables donde se muevan"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 5,
+        "nombre": "Mantenimiento semestral - anual",
+        "tipo": "checklist",
+        "bloques": [
+          [
+            "SEMESTRAL",
+            [
+              "Operar medio de arranque manual con energía eléctrica",
+              "Nivel de protección del anticongelante",
+              "Sección flexible del escape",
+              "Operación de seguridades y alarmas del motor",
+              "Cajas, paneles y gabinetes"
+            ]
+          ],
+          [
+            "ANUAL – BOMBA Y TRANSMISIÓN",
+            [
+              "Lubricar cojinetes de la bomba",
+              "Controlar juego en extremo del eje",
+              [
+                "Contraste de instrumentos (cambiar o recalibrar si difiere > 5 %)",
+                "%"
+              ],
+              "Controlar alineamiento del eje",
+              "Lubricar acople",
+              "Lubricar caja de engranajes en ángulo recto"
+            ]
+          ],
+          [
+            "ANUAL – SISTEMA ELÉCTRICO",
+            [
+              "Disparar interruptor",
+              "Operar medios de arranque manual de emergencia sin energía",
+              "Ajustar conexiones eléctricas",
+              "Lubricar partes mecánicas móviles (excepto arrancadores y rieles)",
+              "Calibrar reinicio de presostatos",
+              "Engrasar cojinetes del motor"
+            ]
+          ],
+          [
+            "ANUAL – MOTOR DIÉSEL",
+            [
+              "Agua o material extraño en el tanque de combustible",
+              "Venteo de tanque y cañería de sobreflujo",
+              "Cañería de combustible",
+              [
+                "Cambio de aceite y filtros (50 h o anual)",
+                "h"
+              ],
+              "Cambio de anticongelante",
+              "Limpieza interior del intercambiador; conductos y lumbreras",
+              "Contrapresión del escape; colgantes y soportes",
+              "Ajuste de conexiones de cableado de control y potencia",
+              "Interruptores o fusibles (frecuencia «B», interpretada como bienal)"
+            ]
+          ],
+          [
+            "ANUAL – COMPLEMENTARIAS (NFPA 25, CAPÍTULO 8)",
+            [
+              "Análisis de degradación del combustible (ASTM D975 / D6751)",
+              "Cambio del filtro de combustible",
+              [
+                "Baterías: tensión de arranque (> 9 V en 12 V / > 18 V en 24 V)",
+                "V"
+              ],
+              "Filtro de agua de circulación reemplazado",
+              "Ánodos de sacrificio inspeccionados",
+              "Señal de alta temperatura del agua de enfriamiento probada",
+              "Módulo de control electrónico (ECM) y sensores probados",
+              "Acoples elastoméricos (reemplazo cada 5 años)"
+            ]
+          ]
+        ]
+      },
+      {
+        "n": 6,
+        "nombre": "Pruebas",
+        "tipo": "checklist",
+        "bloques": [
+          [
+            "DATOS DE LA PRUEBA",
+            [
+              "Motivo: prueba anual / reemplazo de componente fundamental (NFPA 20, 14.5.2.1)",
+              "Tablero de control: marca / listado",
+              "Fuente de abastecimiento",
+              "Impulsor",
+              "Supervisión",
+              "Tipo de prueba: mangueras y boquillas / medidor de caudal",
+              "Manómetros de prueba calibrados (± 1 %)",
+              [
+                "Velocidad nominal / medida",
+                "vueltas/min"
+              ],
+              "Operación de la válvula de alivio (si está conectada)"
+            ]
+          ],
+          [
+            "CAUDAL CERO (0,5 h)",
+            [
+              [
+                "Presión de succión",
+                "MPa"
+              ],
+              [
+                "Presión de descarga",
+                "MPa"
+              ],
+              [
+                "Presión neta (≤ 140 % de la nominal)",
+                "MPa"
+              ],
+              "Descarga de la válvula de alivio de circulación",
+              [
+                "Tensión / corriente",
+                "V / A"
+              ]
+            ]
+          ],
+          [
+            "CAUDAL NOMINAL (100 %)",
+            [
+              [
+                "Caudal real",
+                "L/min"
+              ],
+              [
+                "Presión de succión",
+                "MPa"
+              ],
+              [
+                "Presión de descarga",
+                "MPa"
+              ],
+              [
+                "Presión neta",
+                "MPa"
+              ],
+              [
+                "Tensión (−5 % / +10 % de placa)",
+                "V"
+              ],
+              [
+                "Corriente por fase (≤ placa × FS)",
+                "A"
+              ],
+              [
+                "Diámetro y número de boquillas; coeficiente C",
+                "mm"
+              ],
+              [
+                "Presión del Pitot por boquilla",
+                "MPa"
+              ]
+            ]
+          ],
+          [
+            "CAUDAL MÁXIMO (150 %)",
+            [
+              [
+                "Caudal real",
+                "L/min"
+              ],
+              [
+                "Presión de succión (≥ 0 bar con prevención de contraflujo, o mínima de diseño)",
+                "MPa"
+              ],
+              [
+                "Presión de descarga",
+                "MPa"
+              ],
+              [
+                "Presión neta (≥ 65 % de la nominal)",
+                "MPa"
+              ],
+              [
+                "Diámetro y número de boquillas; coeficiente C",
+                "mm"
+              ],
+              [
+                "Presión del Pitot por boquilla",
+                "MPa"
+              ],
+              [
+                "Tensión",
+                "V"
+              ],
+              [
+                "Corriente por fase",
+                "A"
+              ],
+              [
+                "Registro de máximas temperaturas medidas",
+                "°C"
+              ]
+            ]
+          ],
+          [
+            "VERIFICACIONES",
+            [
+              "Transferencia automática a potencia máxima sin apertura de protecciones",
+              "Alarmas locales y remotas",
+              "Condiciones ambientales de la sala",
+              "Comparación con curva de aceptación y años anteriores",
+              "Equipo normalizado en automático y válvulas precintadas"
+            ]
+          ],
+          [
+            "ACEPTACIÓN (NFPA 25, 8.3.7.2.3)",
+            [
+              "Satisface la demanda del sistema más exigente",
+              "Entrega el 100 % del caudal nominal",
+              [
+                "Presión neta en cada punto (≥ 95 % de la curva)",
+                "%"
+              ],
+              "Transferencia: ≥ 2 min con la fuente alternativa y reconexión",
+              "Filtros de succión inspeccionados después de la prueba",
+              "Alineación bomba–motor inspeccionada",
+              "Medidores de caudal calibrados (± 3 %)"
+            ]
+          ]
+        ]
+      }
+    ]
+  },
+  "firmas": {
+    "tecnico": {
+      "etiqueta": "SUPERVISOR DEL MANTENEDOR – FIRMA / ACLARACIÓN",
+      "formato": "PNG"
+    },
+    "responsable": {
+      "etiqueta": "RESPONSABLE DE LA INSTALACIÓN – FIRMA / ACLARACIÓN",
+      "formato": "PNG"
+    }
+  }
+}

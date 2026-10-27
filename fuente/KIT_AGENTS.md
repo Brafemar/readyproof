@@ -1,6 +1,6 @@
-# AGENTS.md — Serie SG-PEM-IFI (BRAFEMAR)
+# AGENTS.md — Serie SG-PEM-IFI (readyproof)
 
-Guía para cualquier agente de IA, o persona, que continúe, corrija o amplíe la serie de Procedimientos Específicos de Mantenimiento de Instalaciones Fijas contra Incendios (SG-PEM-IFI) de BRAFEMAR. Junta todo lo decidido hasta ahora: qué es el proyecto, qué normas mandan, cómo se escribe, cómo se generan los archivos, cómo se hacen las piezas comerciales y qué queda abierto.
+Guía para cualquier agente de IA, o persona, que continúe, corrija o amplíe la serie de Procedimientos Específicos de Mantenimiento de Instalaciones Fijas contra Incendios (SG-PEM-IFI) de readyproof. Junta todo lo decidido hasta ahora: qué es el proyecto, qué normas mandan, cómo se escribe, cómo se generan los archivos, cómo se hacen las piezas comerciales y qué queda abierto.
 
 **Versión vigente: v5 (octubre 2026).**
 
@@ -10,7 +10,7 @@ Para la redacción y el formato de un manual, la referencia de detalle es `PROMP
 
 ## 1. Contexto
 
-- **Empresa:** BRAFEMAR, inspección, prueba y mantenimiento de instalaciones fijas contra incendios. Administración: Jorge Sánchez.
+- **Empresa:** readyproof, inspección, prueba y mantenimiento de instalaciones fijas contra incendios. Administración: Jorge Sánchez.
 - **Autor de la serie y responsable técnico:** Martín Sánchez. Escribió los manuales originales SDI, SBC y SAL, las planillas y el informe SDI, y los borradores de los capítulos 7, 11, 13, 14 y 18 (SRA, STM, SAA, SHC y SDC), junto con la tabla que asigna las NFPA a cada capítulo. **Toda decisión de interpretación normativa la confirma Martín.**
 - **Qué es un manual SG-PEM-IFI:** un documento Word que convierte un capítulo de la IRAM 3546:2011 en un procedimiento de inspección, prueba y mantenimiento, con la estructura, el tono y el formato de la serie. Cada manual tiene asociados:
   - planillas Excel de registro, una por planilla de la norma;
@@ -32,7 +32,7 @@ Para la redacción y el formato de un manual, la referencia de detalle es `PROMP
 | 14 | SHC | Sistema de Hidrantes Contra Incendios | Nuevo (v4), sobre borrador de Martín | 24, 25 (cap. 7, 13, 15), 14 | SHC-1 a 3 (14A a 14C) | SHC-IN |
 | 15 | SEP | Sistema Fijo de Extinción por Polvo | Nuevo | — | SEP-1 a 3 | SEP-IN |
 | 16 | SSA | Sistema Fijo de Extinción por Solución Acuosa | Nuevo | — | SSA-1 a 4 | SSA-IN |
-| 16 | SCC | Sistema Fijo de Extinción para Cocinas Comerciales | Nuevo (v4.1; auditado; revisado en v5), con la UL 300 y la práctica BRAFEMAR | 96 (cap. 6, 8, 10, 12 y 13), UL 300 (2019), 72 (10.6.7.2.1, 17.13, 23.8.5.10) | SCC-1 a 4 (16A a 16D) y SCC-5 (aptitud UL 300 y NFPA 96) | SCC-IN |
+| 16 | SCC | Sistema Fijo de Extinción para Cocinas Comerciales | Nuevo (v4.1; auditado; revisado en v5), con la UL 300 y la práctica readyproof | 96 (cap. 6, 8, 10, 12 y 13), UL 300 (2019), 72 (10.6.7.2.1, 17.13, 23.8.5.10) | SCC-1 a 4 (16A a 16D) y SCC-5 (aptitud UL 300 y NFPA 96) | SCC-IN |
 | 17 | SAL | Sistema de Extinción por Agentes Limpios | Martín, mejorado | 2001 (cap. 10 y 11), 72, 101 | SAL-1 a 4 | SAL-1-IN |
 | 18 | SDC | Sistema de Extinción por Dióxido de Carbono | Nuevo (v4), sobre borrador de Martín | 12 (4.3, 4.5.6, 4.8) | SDC-1 a 5 (18A a 18E) | SDC-IN |
 | — | SIM | Simbología de Seguridad contra Incendios | Nuevo | 170 | SIM-1 y SIM-2 | sin informe |
@@ -75,10 +75,10 @@ La serie cubre los 13 capítulos de sistemas de la IRAM 3546:2011 (6 a 18), más
 | NFPA 70E | 2021 (traducción al español) | confirmar en nfpa.org |
 | NFPA 170 | 2018 | 2024 |
 
-   Antes de cada revisión hay que consultar nfpa.org. Si BRAFEMAR consigue el texto de las ediciones vigentes, se vuelven a verificar las citas contra ellas.
+   Antes de cada revisión hay que consultar nfpa.org. Si readyproof consigue el texto de las ediciones vigentes, se vuelven a verificar las citas contra ellas.
 5. **Nunca se escribe un número que no esté en una norma de referencia.** Si falta el valor, el criterio se expresa respecto del diseño, del fabricante o del registro anterior.
 6. **Normas no disponibles:** NFPA 22 (tanques), NFPA 4, NFPA 1930 (mangueras), IRAM 3576, IRAM 3594 (mangueras), IRAM 3508 (acoples) e IRAM 2529 (cilindros). No se citan valores de ellas. Se mencionan solo como remisión, sin contenido. La NFPA 720 fue incorporada a la NFPA 72: el monóxido de carbono se cita «según la NFPA 72» (NFPA 101, 9.12).
-7. **Copias de normas:** varias copias provistas tienen marcas de distribución no autorizada (capturas de sitios de terceros, canales de mensajería). Se usan solo para extraer criterios y citas breves; no se redistribuyen ni se incluyen en el paquete. Lo ideal es que BRAFEMAR adquiera las ediciones vigentes.
+7. **Copias de normas:** varias copias provistas tienen marcas de distribución no autorizada (capturas de sitios de terceros, canales de mensajería). Se usan solo para extraer criterios y citas breves; no se redistribuyen ni se incluyen en el paquete. Lo ideal es que readyproof adquiera las ediciones vigentes.
 
 ### Requisitos generales IRAM 3546 que van en todos los manuales
 - **Autocontrol:** las tareas de frecuencia menor a un mes las puede hacer el usuario.
@@ -176,7 +176,7 @@ SG-PEM-IFI_Serie_completa_v5/
     ├── simbolos_png/                 ← 123 símbolos de SIM a 600 dpi (los genera simbolos.py)
     ├── modelos/                      ← originales de Martín: manual SDI (modelo matriz), manual SBC (base de la plantilla), SDI-1..4.xlsx y SDI-2-IN.docx
     ├── catalogo/                     ← scripts del catálogo comercial (sección 8 bis) y foto retocada
-    └── identidad/                    ← logotipos de BRAFEMAR, positivo y negativo
+    └── identidad/                    ← logotipos de readyproof, positivo y negativo
 ```
 
 La entrega se reparte en dos zip: **Serie completa** (manuales, registros y PDF, para usar) y **Kit interno** (este archivo, prompt, cotejos, auditorías y `fuente/`, para regenerar). El PDF del catálogo comercial se entrega aparte; sus scripts están en `fuente/catalogo/` (sección 8 bis).
@@ -204,7 +204,7 @@ Requisitos: Python 3 con `python-docx`, `lxml` y `openpyxl`; LibreOffice (`soffi
 | Índice | `python -I add_toc.py <manual.docx>` | Después de `build_manual.py`. Inserta el índice, renderiza con LibreOffice, ubica cada título en el PDF y escribe los números de página. Si Word pagina distinto, alcanza con «Actualizar campo». |
 | Total de páginas | `python -I fix_numpages.py <manual.docx> [manual.pdf]` | Después del índice. Escribe en el campo NUMPAGES del pie el total real (si no, el visor muestra el valor guardado en la plantilla). Sin PDF, renderiza con LibreOffice. |
 | Impresión de planillas | `python -I fix_impresion.py <carpeta>` | Centra horizontalmente todas las planillas `SG-PEM-IFI-*.xlsx` de la carpeta y lleva sus 25 columnas de 5,3 a 6,2, para que al imprimir la tabla quede de margen a margen y a igual distancia de los dos bordes, alineada con los logos del encabezado. Trabaja sobre el XML y conserva el encabezado con logos. Las planillas nuevas ya salen así de `build_planilla.py` (`COLW_IMP` y `horizontalCentered`); `COLW` = 5,3 queda solo para estimar el alto de las filas. |
-| Metadatos de planillas | `python -I limpiar_metadatos.py <carpeta>` | Deja autor y empresa de las planillas en BRAFEMAR, sin rastros de herramientas. |
+| Metadatos de planillas | `python -I limpiar_metadatos.py <carpeta>` | Deja autor y empresa de las planillas en readyproof, sin rastros de herramientas. |
 | Validar | `python validate.py <archivo.docx>` | Validador XSD del skill docx. |
 | Revisar | `bash render.sh <archivo.docx> <carpeta>` | PDF + hoja de contactos de todas las páginas. |
 
@@ -245,11 +245,11 @@ Requisitos: Python 3 con `python-docx`, `lxml` y `openpyxl`; LibreOffice (`soffi
 
 ## 8 bis. Piezas comerciales (catálogo y hojas de servicio)
 
-Son material de venta, no parte de la serie, pero se apoyan en ella. El primero es el catálogo de cocinas comerciales (`BRAFEMAR_Catalogo_Cocinas_Comerciales.pdf`, A4 apaisado, 7 páginas).
+Son material de venta, no parte de la serie, pero se apoyan en ella. El primero es el catálogo de cocinas comerciales (`readyproof_Catalogo_Cocinas_Comerciales.pdf`, A4 apaisado, 7 páginas).
 
-**Identidad (manual de identidad de BRAFEMAR):**
+**Identidad (manual de identidad de readyproof):**
 - Colores: rojo **#D41120** (C9 M100 Y93 K2), negro **#1D1D1B**, gris claro **#DDDEDB**.
-- Tipografías: Impact (logotipo), Century Gothic (principal, regular, itálica, negrita y negrita itálica) y Myriad Pro (secundaria). Sin los archivos de fuente, el catálogo usa sustitutos: Inter Display Black condensada para Impact, TeX Gyre Adventor para Century Gothic e Inter para Myriad. Cuando BRAFEMAR entregue `impact.ttf`, `GOTHIC*.TTF` y Myriad Pro, se reemplazan.
+- Tipografías: Impact (logotipo), Century Gothic (principal, regular, itálica, negrita y negrita itálica) y Myriad Pro (secundaria). Sin los archivos de fuente, el catálogo usa sustitutos: Inter Display Black condensada para Impact, TeX Gyre Adventor para Century Gothic e Inter para Myriad. Cuando readyproof entregue `impact.ttf`, `GOTHIC*.TTF` y Myriad Pro, se reemplazan.
 - Logotipo: los PNG de `identidad/` (positivo y negativo). Sin sombras ni 3D, sin deformar ni recolorear, nunca sobre fondos blancos, complejos o con patrones; tamaño mínimo 2 cm o 100 px; respetar el área de seguridad. Sobre fondo oscuro, la versión con palabra blanca y barras rojas.
 - Recursos de diagramación: barra lateral oscura con índice y marcador ▶, solapas rojas con extremo redondeado, franjas diagonales grises de seguridad y franjas rojas y negras en las tapas.
 
@@ -257,8 +257,8 @@ Son material de venta, no parte de la serie, pero se apoyan en ella. El primero 
 - Contacto: solo WhatsApp, correo, web y dirección (Colón 300 esq. Güemes, Godoy Cruz, Mendoza; atención en Mendoza y San Juan). **No se publica el teléfono fijo.**
 - **Respaldo sin sobrecompromiso** (pedido de Martín): se habla de «normas de referencia» y de documentación del servicio (planillas e informe técnico), no de garantías ni de «todo según norma». No se promete un resultado ni una certificación que dependa de terceros. No se usa el sello IRAM de la web mientras no esté claro su alcance.
 - Sin marcas de fabricantes ni nombres de clientes; en fotos propias se tapan teléfonos y etiquetas de terceros.
-- Ilustraciones: renders isométricos propios, en `fuente/catalogo/iso/`: `iso.py` (motor SVG), `cocina.py` (escena de cocina, variantes fuego y descarga, claro y oscuro), `comps.py` (componentes), `gen2.py` (páginas del catálogo, HTML) y `pdf2.py` (PDF con Chromium y Playwright). `gen2.py` toma los logotipos de `fuente/identidad/` y la foto retocada de `fuente/catalogo/instalacion_cocina_cat.jpg` (teléfono tapado y etiqueta de terceros difuminada). Los renders se pueden reemplazar por fotos propias de BRAFEMAR cuando las haya.
-- Metadatos del PDF: autor y productor BRAFEMAR.
+- Ilustraciones: renders isométricos propios, en `fuente/catalogo/iso/`: `iso.py` (motor SVG), `cocina.py` (escena de cocina, variantes fuego y descarga, claro y oscuro), `comps.py` (componentes), `gen2.py` (páginas del catálogo, HTML) y `pdf2.py` (PDF con Chromium y Playwright). `gen2.py` toma los logotipos de `fuente/identidad/` y la foto retocada de `fuente/catalogo/instalacion_cocina_cat.jpg` (teléfono tapado y etiqueta de terceros difuminada). Los renders se pueden reemplazar por fotos propias de readyproof cuando las haya.
+- Metadatos del PDF: autor y productor readyproof.
 
 ## 9. Decisiones abiertas (las confirma Martín)
 
@@ -291,7 +291,7 @@ Son material de venta, no parte de la serie, pero se apoyan en ella. El primero 
 21. **Unidad de presión en SCC:** las planillas usan bar (lectura habitual de los manómetros de cocina); el SSA usa MPa. Se unifica según decida Martín.
 
 22. **Fuentes y fotos de marca:** pendientes los archivos de Impact, Century Gothic y Myriad Pro, y fotos propias de instalaciones, para reemplazar sustitutos y renders del catálogo.
-23. **NFPA 17A y NFPA 10:** si BRAFEMAR consigue sus textos, se incorporan al SCC (decisión 19).
+23. **NFPA 17A y NFPA 10:** si readyproof consigue sus textos, se incorporan al SCC (decisión 19).
 
 Cuando Martín resuelva una, se actualizan el `content_*.py` o los datos de planillas, se regenera, y se mueve la decisión a `Cambios_manuales_Martin.md` como resuelta.
 
@@ -318,7 +318,7 @@ Pendientes de la revisión: el capítulo 6 (planos y ensayos de aceptación, 17A
 
 ## 10. Límites
 
-- No usar copias de normas encontradas en la web, porque pueden ser no autorizadas. Se usan solo las que provee BRAFEMAR, y solo para extraer criterios fácticos citados.
+- No usar copias de normas encontradas en la web, porque pueden ser no autorizadas. Se usan solo las que provee readyproof, y solo para extraer criterios fácticos citados.
 - No inventar valores, frecuencias ni artículos.
 - No modificar los textos comunes de la plantilla (Objetivo, Alcance, encuadre de Procedimientos).
 - No borrar archivos originales de Martín: se trabaja sobre copias y los respaldos quedan en `bak/`.

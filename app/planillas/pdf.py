@@ -28,7 +28,7 @@ def localizar_libreoffice():
     raise FileNotFoundError("LibreOffice no está instalado o no se encuentra en PATH.")
 
 
-def convertir_pdf(origen, destino, *, timeout=120):
+def convertir_pdf(origen, destino, *, timeout=120, firmas=None):
     """Convierte con Calc; publica el PDF solo si la conversión finaliza correctamente."""
     origen, destino = Path(origen).resolve(), Path(destino).resolve()
     if not origen.is_file() or origen.suffix.lower() != ".xlsx":
@@ -53,7 +53,21 @@ def convertir_pdf(origen, destino, *, timeout=120):
         if result.returncode != 0 or not output.is_file():
             raise RuntimeError(f"LibreOffice no produjo el PDF (código {result.returncode}): {result.stdout} {result.stderr}")
         final = temp / 'con_logos.pdf'
-        reponer_logos(origen, output, final)
+        from .firmas import logo_readyproof
+        reponer_logos(origen, output, final, logo_izquierdo=logo_readyproof())
+        from .marca_agua import incorporar_marca_agua
+        marked=temp/"con_marca_agua.pdf"
+        incorporar_marca_agua(origen,final,marked)
+        final=marked
+        if firmas and any(firmas.values()):
+            from .firmas import incorporar_firmas
+            signed = temp / 'con_firmas.pdf'
+            incorporar_firmas(origen, final, signed, firmas)
+            final = signed
+        from .leyenda_iram import incorporar_leyenda_iram
+        declared=temp/"con_leyenda_iram.pdf"
+        incorporar_leyenda_iram(final,declared)
+        final=declared
         payload = final.read_bytes()
         if not payload.startswith(b"%PDF-"):
             raise RuntimeError("LibreOffice produjo un archivo que no es PDF.")

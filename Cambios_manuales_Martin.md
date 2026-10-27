@@ -258,7 +258,7 @@ El informe completo está en `auditoria3.md`. De la auditoría anterior, 17 hall
 - **Errata de la NFPA 20 en español.** Ya no se menciona en el manual, que cita «NFPA 20, 6.2.2» con el valor de 140 %. La errata corresponde a la versión en español de la edición 2007.
 
 **Decisión nueva para Martín**
-9. **Ediciones vigentes de las NFPA.** Conviene que BRAFEMAR adquiera las ediciones vigentes, al menos NFPA 72 (2025), NFPA 20 (2025) y NFPA 101 (2024), para confirmar la numeración de los artículos citados.
+9. **Ediciones vigentes de las NFPA.** Conviene que readyproof adquiera las ediciones vigentes, al menos NFPA 72 (2025), NFPA 20 (2025) y NFPA 101 (2024), para confirmar la numeración de los artículos citados.
 
 ---
 

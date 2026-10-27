@@ -1,6 +1,6 @@
 """Genera planillas SG-PEM-IFI con el formato de las planillas SDI de Martín.
 El contenido se arma con openpyxl y luego se inyecta el encabezado de página original
-(logo BRAFEMAR, 'SISTEMA DE GESTIÓN INTEGRADO', sello ISO), que openpyxl no soporta.
+(logo readyproof, 'SISTEMA DE GESTIÓN INTEGRADO', sello ISO), que openpyxl no soporta.
 Uso como módulo: build(spec, ruta_salida, ruta_planilla_modelo)"""
 import math, os, re, shutil, tempfile, zipfile
 from openpyxl import Workbook
@@ -68,7 +68,7 @@ def cabecera(s, sp):
         c = 1
         for lab, wl, wv in fila:
             s.cell(c, c + wl - 1, r, r, lab, F(10 if len(lab) > 12 else 11))
-            s.cell(c + wl, c + wl + wv - 1, r, r, 'BRAFEMAR' if lab.startswith('EMPRESA') else '')
+            s.cell(c + wl, c + wl + wv - 1, r, r, 'readyproof' if lab.startswith('EMPRESA') else '')
             c += wl + wv
         r += 1
     s.cell(1, NCOL, r, r, 'SISTEMA / DESIGNACIÓN:', F(11)); s.r = r + 1

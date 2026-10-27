@@ -111,7 +111,7 @@ Ningún ítem introduce valores numéricos inventados. Los únicos números del 
 - **Corrección propuesta:**
   - En **SDI-3**, bloque PRUEBA SEMESTRAL, agregar después de «Accionamiento de detectores de flujo»: `Prueba de detectores en ductos: comprobar el funcionamiento de los detectores instalados en conductos. | SI | NO`.
   - En **SDI-5**, agregar dos filas al final de la grilla semanal: `Manual instructivo en español disponible` y `Planos de la instalación disponibles`.
-  - En **SDI-1 a SDI-4**, reemplazar el encabezado por el de las planillas SBC y SAL: `EMPRESA MANTENEDORA: BRAFEMAR | N.° MANTENEDOR CERTIFICADO: | INSPECTOR:` y `SISTEMA / DESIGNACIÓN:`.
+  - En **SDI-1 a SDI-4**, reemplazar el encabezado por el de las planillas SBC y SAL: `EMPRESA MANTENEDORA: readyproof | N.° MANTENEDOR CERTIFICADO: | INSPECTOR:` y `SISTEMA / DESIGNACIÓN:`.
   - En SDI-2 y SDI-3, agregar la leyenda de codificación y la columna NA (ver A3-M1).
 
 #### A3-C2 · CRÍTICO · Las planillas SBC-3 y SBC-6 omiten campos obligatorios de las planillas 12C y 12F

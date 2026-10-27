@@ -8,6 +8,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 
 def configuracion():
     return {
+        "MAIL_MODO_PRUEBA": os.environ.get("MAIL_MODO_PRUEBA", "true").lower() != "false",
+        "DIRECTORIO_CORREO": str(RAIZ / "out" / "correo_prueba"),
         "DATABASE_URL": os.environ.get("DATABASE_URL"),
         "DIRECTORIO_TEMPORAL": str(RAIZ / "out" / "api_temporales"),
         "MAX_CONTENT_LENGTH": 512 * 1024,

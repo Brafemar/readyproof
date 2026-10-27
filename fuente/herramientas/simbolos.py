@@ -1,5 +1,5 @@
 """Símbolos SG-PEM-IFI-SIM redibujados (vectorial con matplotlib -> PNG 600 dpi) siguiendo la geometría de la NFPA 170.
-Dibujo propio de BRAFEMAR: no se copian imágenes de la norma. Uso: python -I simbolos.py <carpeta_salida>
+Dibujo propio de readyproof: no se copian imágenes de la norma. Uso: python -I simbolos.py <carpeta_salida>
 Cada símbolo se define en un lienzo de 3 x 2 unidades (x de -1.5 a 1.5, y de -1 a 1)."""
 import math, os, sys
 import matplotlib

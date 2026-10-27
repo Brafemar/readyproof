@@ -1,8 +1,9 @@
 """SQLAlchemy sin servicios externos ni creación implícita de bases."""
+from pathlib import Path
+import runpy
 from flask import current_app, g
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .models import Base, VersionEsquema
 
 
 def preparar_db(app):
@@ -23,7 +24,11 @@ def sesion():
 
 
 def crear_esquema(engine):
+    from alembic import command
+    from alembic.config import Config
+    root=Path(__file__).resolve().parents[1]
     with engine.begin() as connection:
-        Base.metadata.create_all(connection)
-        if connection.execute(select(VersionEsquema.numero).where(VersionEsquema.numero == 1)).first() is None:
-            connection.execute(VersionEsquema.__table__.insert().values(numero=1))
+        runpy.run_path(str(root/"migraciones"/"base_etapa4.py"))["upgrade"](connection)
+        config=Config(str(root/"alembic.ini"))
+        config.attributes["connection"]=connection
+        command.upgrade(config,"head")

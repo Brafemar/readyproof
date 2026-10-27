@@ -1,4 +1,4 @@
-"""Deja los metadatos de las planillas .xlsx como los de las planillas originales de BRAFEMAR (sin «openpyxl»).
+"""Deja los metadatos de las planillas .xlsx como los de las planillas originales de readyproof (sin «openpyxl»).
 Uso: python -I limpiar_metadatos.py <carpeta>"""
 import sys, os, re, zipfile, shutil, tempfile
 n = 0
