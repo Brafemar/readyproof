@@ -134,6 +134,8 @@ def test_planilla_nueva_emision(app,client,code,referencias_etapa5):
     reader=PdfReader(BytesIO(pdf.data));assert reader.pages
     assert len(reader.pages)==referencias_etapa5[code]['paginas'],code
     all_text=''.join(''.join(page.extract_text().split()) for page in reader.pages)
+    if code=='SG-PEM-IFI-SCC-1':
+        assert 'MPa' not in all_text and 'bar' in all_text
     for title,items in definition['especificacion']['bloques']:
         assert ''.join(title.split()) in all_text,(code,title)
         for item in items:

@@ -458,3 +458,8 @@ Implementado: cuatro estados del kit (✓/O/X/NA), mantenidos por decisión de J
 ## 2026-10-28 — Etapa 6: transición real pendiente
 
 La habilitación configurable está implementada; el servidor permanece en piloto y correo de prueba. Antes de activarla, Jorge debe confirmar empresa mantenedora y certificado reales y aprobar el checklist de docs/TRANSICION_PILOTO_A_REAL.md. Martín debe resolver SCC-1 MPa vs bar y confirmar los cuatro estados SDI. La migración 016 corresponde a auditoría; una eventual corrección normativa usará el siguiente número disponible. Establecimientos, catálogos dinámicos avanzados y anulación siguen sujetos al backlog; esta entrega no los da por implementados.
+
+
+## 2026-10-28 — Confirmación final de transición y unidades
+
+Jorge autoriza modo REAL, confirma mantenedora READYPROOF y certificado IFI-2024-10001 y aprueba el checklist. Comunica decisión de Martín: bar en presión. Aclara conservar los cuatro estados SDI y crear las versiones necesarias antes del corte. Se resuelve SCC-1 mediante versión 00-26-bar1 y migración 017, sin tocar fuente ni datos históricos. SDI no incorpora mediciones nuevas ni pierde estados. El alcance ampliado del backlog no se declara implementado por esta autorización.

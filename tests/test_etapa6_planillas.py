@@ -53,7 +53,7 @@ def test_saa1_sigue_vinculada(app):
 
 def test_todas_las_planillas_tienen_manual(app):
     with Session(app.extensions["db_engine"]) as session:
-        assert session.scalar(select(func.count()).select_from(Planilla))==83
+        assert session.scalar(select(func.count()).select_from(Planilla))==84
         from app.planillas.catalogo_completo import definiciones_restantes
         assert set(session.scalars(select(Planilla.codigo).where(Planilla.manual_id.is_(None))))==set(definiciones_restantes())
 
@@ -67,7 +67,11 @@ def test_esquema_valido_en_todas_planillas(app):
                 continue
             from app.planillas.catalogo_completo import definiciones_habilitadas as definiciones_multisistema
             physical=definiciones_multisistema().get(row.codigo)
+            if row.codigo=='SG-PEM-IFI-SCC-1' and row.version=='00-26-ms1':
+                from app.planillas.catalogo_completo import definiciones_restantes
+                physical=definiciones_restantes()[row.codigo]
             if physical:
+                assert row.version==physical['version']
                 assert row.definicion==physical['definicion'] and row.huella==physical['huella']
                 continue
             document=json.loads((ROOT/"fuente/planillas"/(row.codigo+".json")).read_text(encoding="utf-8"))

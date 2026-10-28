@@ -32,7 +32,7 @@ def test_todas_planillas_cargan(app,client,catalogo):
     systems=client.get('/api/clientes/'+catalogo[0]['id']+'/sistemas').get_json()
     assert {row['tipo'] for row in systems}==set(__import__('app.config',fromlist=['SISTEMAS_HABILITADOS']).SISTEMAS_HABILITADOS)
     with Session(app.extensions['db_engine']) as db:
-        assert db.scalar(select(func.count()).select_from(Planilla))==83
+        assert db.scalar(select(func.count()).select_from(Planilla))==84
         for row in offered:
             if row['codigo'] not in CODES:continue
             p=db.get(Planilla,row['id']);assert p.manual.codigo=='SG-PEM-IFI-'+row['sistema_tipo']

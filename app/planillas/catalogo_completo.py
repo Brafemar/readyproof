@@ -44,7 +44,10 @@ def definiciones_habilitadas():
     from .multisistema import definiciones_multisistema
     old=definiciones_multisistema();new=definiciones_restantes()
     if old.keys() & new.keys():raise ValueError('No se sobrescriben las planillas existentes.')
-    return {**old,**new}
+    result={**old,**new}
+    from .unidades_autorizadas import CODIGO,scc_en_bar
+    result[CODIGO]=scc_en_bar(new[CODIGO])
+    return result
 
 
 def cargar_restantes(connection):
