@@ -1,0 +1,1380 @@
+{
+  "fecha_transferencia": "2026-10-28T15:08:21.681380+00:00",
+  "fuente_fecha": "mtime máximo del paquete verificado en destino; referencia, no bitácora inmutable",
+  "fecha_verificacion": "2026-10-28T15:15:59.625155+00:00",
+  "destino": "67.205.170.29:/home/readyproof_revision_etapa5",
+  "acceso": "0700 (privado)",
+  "paquete_sha256": "8a3e6f6bbbb609d56d2b0a526aeb0a7b19abb99bf08fef8c86a1850306882936",
+  "archivos": [
+    {
+      "ruta": "alembic.ini",
+      "bytes": 110,
+      "hash_sha256": "a5ede7e55aed87decc8179a87463d3e354228186f3931d9ec3fe76a8d292fbf0",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/__init__.py",
+      "bytes": 7949,
+      "hash_sha256": "b0e7c231fde1774030f07752a0ca58717dff82aa669d7c859f04e79d1411346c",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/auth/__init__.py",
+      "bytes": 4594,
+      "hash_sha256": "4ecd7933f909f9004a4490d008d4bcd23155167fd1bee6a2fdbc55021f25fcf5",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/auth/recuperacion.py",
+      "bytes": 1011,
+      "hash_sha256": "168518ee5c77389bff8d4308f7313eb962d6da2d8ff7a2a86eee6f0c6c383891",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/auth/rutas.py",
+      "bytes": 9918,
+      "hash_sha256": "cf98766c4ed0d3984d2c9e5db649a07751e88d3c825e516ec8d982dfe6ce020c",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/carga/__init__.py",
+      "bytes": 50,
+      "hash_sha256": "6277543bd718fd3cdf3c0569b1513497fead83c727b0b2e12743011fb9967b4a",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/carga/servicios.py",
+      "bytes": 3767,
+      "hash_sha256": "d77320d561e60d6ee150a4264041722b18ac160c0ddb60b554d408792b24a3c5",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/carga/validacion.py",
+      "bytes": 3056,
+      "hash_sha256": "39a27f0d5bbd92fed576eb39fedd32b1aee2c8c44895100ecbedcec57045e476",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/carga_planillas.py",
+      "bytes": 4010,
+      "hash_sha256": "1e31ffb9089a99d2f1321a7a5bc134b8af19b64f10966bf6500127324b7129e6",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/catalogo.py",
+      "bytes": 2626,
+      "hash_sha256": "bdce21782d4476205cc20d795e317c20b84687a2b7aaa902bfe6e7df531c9f13",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/config.py",
+      "bytes": 2175,
+      "hash_sha256": "de23dc7e0f035613b04bd704f97b8d20a942b2be3c8f7cf8d1606bf663dbbe8d",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/correo/__init__.py",
+      "bytes": 14727,
+      "hash_sha256": "ceb00c512efa913237f2df8e33e5ab5ad47d0f0284051418d78dba9943fd928d",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/correo/rutas.py",
+      "bytes": 4803,
+      "hash_sha256": "abb476e53ee67840a25fcacd14a76215dbbd34bf685897ddb3baab73b2596a91",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/db.py",
+      "bytes": 1184,
+      "hash_sha256": "fc2f845a8bf918a5a7186791e78513b80c5dd001b768a025184df3ded2cc8fb4",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/documentacion.py",
+      "bytes": 9081,
+      "hash_sha256": "297aa0a4a7ce38478e3d5a1467e23c264066573b90822a935ac3114bc9b65305",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/gmail_https.py",
+      "bytes": 2369,
+      "hash_sha256": "cee6d2166ba7016c57d9ee6ec19623b05c7bda0e9173bc5871a4a6eca47ba39d",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/models/__init__.py",
+      "bytes": 14381,
+      "hash_sha256": "b55b37338e14062cf5e2d004ae1db2cd1f3c102573a46ea6296c3c3b2782e080",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/__init__.py",
+      "bytes": 0,
+      "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/catalogo_completo.py",
+      "bytes": 3868,
+      "hash_sha256": "613ca39a860f58b7c1754f6a7a62e831912b7c203851039318379f7f5b88c145",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/definiciones/__init__.py",
+      "bytes": 0,
+      "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/definiciones/restantes_v5.json",
+      "bytes": 1859966,
+      "hash_sha256": "522d5cab76b4194843626c08abf3e68fa54a8b8f649791ef86f2c683e02fa387",
+      "tipo": "datos",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/definiciones/saa1.py",
+      "bytes": 584,
+      "hash_sha256": "e947cb3d9e41bbade39e9cbe6cea58a7f16577095b0da6c8c9ab218c1b4cd79d",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/encabezado_pdf.py",
+      "bytes": 7124,
+      "hash_sha256": "fd790216307b280cb4fba95c74e580fde9df35c835b50a3dc1c0530f85f5a056",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/firmantes.py",
+      "bytes": 1812,
+      "hash_sha256": "f2d5a1f6b5f5757a9f0d61c1a73def1fbb7ac4440ff753b850f59d6e616acb44",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/firmas.py",
+      "bytes": 8230,
+      "hash_sha256": "a86a1dcc9520f9eea3c11ee95a4e035042f58ef7491ccb73d881ac9b5994ecdd",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/generador.py",
+      "bytes": 7279,
+      "hash_sha256": "706bdabca3f65d5a5adbe5232d4aeb3db0c55acdee8c575a3b7d4fe18e405534",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/identificacion_pdf.py",
+      "bytes": 2942,
+      "hash_sha256": "5aeb903f7fda341ae209fc7afecb6827594632b1d5dc64dd2bb131281d180b48",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/importacion_excel.py",
+      "bytes": 11074,
+      "hash_sha256": "91a931999d2d69e2531f6ad613fea7860637dee10b1c4bbdd094466771f261a0",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/leyenda_iram.py",
+      "bytes": 3243,
+      "hash_sha256": "30d7e754a98e81c531d5fbbf114de7b690c77035d7151f5f6ad15dce546b413a",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/marca_agua.py",
+      "bytes": 2807,
+      "hash_sha256": "4ad3a9f4c5316199198f146ae968a3cdaab172b31a9276c688da3bcb0625e1cf",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/multisistema.py",
+      "bytes": 8271,
+      "hash_sha256": "3302ebcec458c9bd145c9cca09191933c918b4a509d86b545956ae1c2806df5f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/pdf.py",
+      "bytes": 3550,
+      "hash_sha256": "6294c25b7bc5d29527131ec96cbda28c6b81b4404b2ab16bb5b6e3945ba2db01",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/piloto.py",
+      "bytes": 2178,
+      "hash_sha256": "73e554b0d2696948c34561a06d1f0ede924b230d880aa4df9ed123182d9d2ce5",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/registro_pdf.py",
+      "bytes": 1969,
+      "hash_sha256": "4bbdcdcf79602b9ca348b1ce4eb85f80b42751588c0638c7f90b8c25f4af703d",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/sdi_validacion.py",
+      "bytes": 984,
+      "hash_sha256": "e46d1e5f499f0532f7285692b81626c2b93bb50d3a19991ac34c3be0677320f2",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/planillas/validacion.py",
+      "bytes": 5811,
+      "hash_sha256": "5cb8ff05c5b80bae577346c14aa1262b19c112f84972a063741e38d5ce083d61",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/rutas/__init__.py",
+      "bytes": 0,
+      "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/rutas/api.py",
+      "bytes": 19968,
+      "hash_sha256": "0770cae917e2d900948e8fa22c6ed6429a90bcd71669f78892ac5bceb237fe94",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/rutas/web.py",
+      "bytes": 1038,
+      "hash_sha256": "0923c901e3b41418e4f20707be381d3cb1d2d80b97dfa43e6001cd23183ff952",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/.gitkeep",
+      "bytes": 0,
+      "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/admin.js",
+      "bytes": 4716,
+      "hash_sha256": "8501602a6bcc67abc52a23e6b65c53b03a478c0cd8add71833bbd6cba95eef5f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/auth.js",
+      "bytes": 2401,
+      "hash_sha256": "b61119cc403a5aeb81780dd53218b8f32223695e6747665898979c57434ccd06",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/carga.css",
+      "bytes": 10866,
+      "hash_sha256": "ae430a84a89c0865c67e14fddeda0482ff1a26763575097d8c4975c0dbca8d74",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/carga.js",
+      "bytes": 36068,
+      "hash_sha256": "aaca6b91886a59c16f47a4773daa32798413b1b0d49b94e8f977e2babec7cf10",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/cuenta.css",
+      "bytes": 1798,
+      "hash_sha256": "d177c3ab6c0b08325c21702ad90563572cdd509218508350146e891c9722e9e8",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/cuenta.js",
+      "bytes": 3810,
+      "hash_sha256": "c47f43015497181e7920ef69662a27a8f766378792db698a024cc4226eb79c9a",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/icono.svg",
+      "bytes": 252,
+      "hash_sha256": "5b8db1da5ee7e6d4205c390a7662e34ed187dedb7722d179399bfafb48b194e6",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/logo_readyproof.png",
+      "bytes": 7835,
+      "hash_sha256": "d60aa913281e944c53f38bbaaa57ce003e2cdd840799979e3b54279357c632b0",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/manifest.webmanifest",
+      "bytes": 260,
+      "hash_sha256": "2c983e57beff2246833d41e28c916fa25927e69ff8c92fe8568c26576f51582a",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/static/sw.js",
+      "bytes": 1536,
+      "hash_sha256": "4f325f0cdb1010ecf4e63433e79e1985b15eb48df19c861b358b3148f28d0d77",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/templates/.gitkeep",
+      "bytes": 0,
+      "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/templates/admin.html",
+      "bytes": 3640,
+      "hash_sha256": "80ce87ea4fff2ec6713a81967f137a2a15237be1956b28b0ee1877ac51058327",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/templates/carga.html",
+      "bytes": 8916,
+      "hash_sha256": "45992a748b30f90321c09e19f0b83428f78d4ede3f2989a9a2012567f7899576",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/templates/cuenta.html",
+      "bytes": 3278,
+      "hash_sha256": "b5cbfbc0ee159482353803608b900fa4e9242703d0a4869c71e8b435ff4882f5",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/templates/login.html",
+      "bytes": 2004,
+      "hash_sha256": "0ec578c1f8ce2ee3ead4a130b0284356fd6182581a30f58d732bdb3d8de50df5",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/utils/__init__.py",
+      "bytes": 45,
+      "hash_sha256": "d8b66498cc46dfc63dd6741714781919710d3bf658fe1158817302ab90ec5450",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "app/utils/cuit_validator.py",
+      "bytes": 973,
+      "hash_sha256": "176a113fb02832499dff068fd9854e747efb750d3817f57aeae20c221a799b0f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ACCESO_SERVIDOR_PRIVADO.md",
+      "bytes": 7519,
+      "hash_sha256": "c42ce146109979fe5bcbc0566ae1f33c5061a119f7e78ca875666105f54130f8",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ACCESO_TECNICO_BRAFEMAR.md",
+      "bytes": 5142,
+      "hash_sha256": "2082485c54e040f03718013592aa954b096d9dea118d6818db36c4cf85e6779f",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ADMIN_ENTREGA_TECNICO.md",
+      "bytes": 2209,
+      "hash_sha256": "54d645c5e75a3e45dc1605780646f990977a193ef2ec9f15f8369c964f03b647",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/API_ETAPA2.md",
+      "bytes": 7148,
+      "hash_sha256": "a85ac297a63dd518cab4310fab80cb8017c7885b6c855a5d3206ce50b2d0d739",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/BACKLOG_v1_1.md",
+      "bytes": 3689,
+      "hash_sha256": "8a561c5ee2d4b16c03a20f0e198f5778f6a21fffb442482a881af0f76f002287",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/BACKUP_Y_RESTAURACION.md",
+      "bytes": 9528,
+      "hash_sha256": "ddbb48abae81b9869b3f86a950fa0b9820a756f19d9192e1245598c21624ee86",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/CHECKLIST_ENTREGA_BRAFEMAR.md",
+      "bytes": 10401,
+      "hash_sha256": "f7a64db6d1f8fe6adaea1bdd622804866334c84add9495169ed8c610c4b2dd37",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/CORRECCION_SELECTORES.md",
+      "bytes": 4166,
+      "hash_sha256": "ec594e9707786dc0021e6015475e50bc5155e15e49aa53a86c6ceb475e89d26e",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/DEPLOYMENT_DIGITALOCEAN.md",
+      "bytes": 20850,
+      "hash_sha256": "65a070ac78a63ac88d1f40fad414913f43566d14ed6d387674b2cacbc0a197fa",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/DIAGNOSTICO_ACCESO_ADMIN.md",
+      "bytes": 6698,
+      "hash_sha256": "00b24aba91cd5707b5a03a945ae437d40fdd8886e8849aac3ef7a7ccaa411fc7",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/DIAGNOSTICO_ETAPA0_V1_1.md",
+      "bytes": 18408,
+      "hash_sha256": "b92d207e7db401a34227c90ce20e3b22972bf31f1ed78d8c9d852c01b5afbc43",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ENTREGA_A_BRAFEMAR.md",
+      "bytes": 4525,
+      "hash_sha256": "57d996f41420560efe09dfc57814ba52942b1d814c140b9492184c80f0d04f2d",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ETAPA0_DIAGNOSTICO.md",
+      "bytes": 1048,
+      "hash_sha256": "be44a250ae391e9fa3c9b98cfae74662e8a49b63182910e2013cf1d140bf8b2b",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ETAPA1_BACKUP.md",
+      "bytes": 1237,
+      "hash_sha256": "549172acedf88ae1d8899e6657d05adfb3e5164b0cb8c86de073040744f9e7d7",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ETAPA2_CUIT_Y_SISTEMAS.md",
+      "bytes": 7139,
+      "hash_sha256": "8e3b660488ed814c795db9960a63f342a7be89544a68cc8671c50e3932528b1c",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ETAPA3_IMPORTADOR_Y_VALIDACIONES.md",
+      "bytes": 9372,
+      "hash_sha256": "4177c852dfa76caad3a5b7bdb606820bc3b1dd72724e8450726bb7ded1889187",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ETAPA4_DESBLOQUEO_Y_REVISION.md",
+      "bytes": 8069,
+      "hash_sha256": "b92cc58e225485910382061f53b657d7c59e204fcdba525d538cf2263022915d",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ETAPA5_IMPORTACION_79_PLANILLAS.md",
+      "bytes": 6886,
+      "hash_sha256": "a692c51d751cf56ab252f59cade14780e1d00111d2de64b1214054ab41505abc",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/ETAPA6_PLANILLAS_LOGO.md",
+      "bytes": 5280,
+      "hash_sha256": "489ceb32362ebe38634beef06fc2e36c83d9d2dcf315e86c3f75d9a4d8ede79e",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/FIRMANTES_Y_DOCUMENTACION.md",
+      "bytes": 3119,
+      "hash_sha256": "6a6c567090ee9f2886e7b9d8d061edb136dfcc1d4585a6568455aba35686933c",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/FLUJO_COMPLETO_GMAIL.md",
+      "bytes": 8915,
+      "hash_sha256": "d6f7c04522a45d972cb22568a1702308b7edc74fd0e496eb2bbe850a87270857",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/GMAIL_HTTPS.md",
+      "bytes": 7638,
+      "hash_sha256": "021b72e3e0ec4947414f2e804fc412a2ae226583a7f769b4599831b72d653fda",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/GUIA_ACCESO_BRAFEMAR.md",
+      "bytes": 7554,
+      "hash_sha256": "fde58b6ce7f1cae2209b4c08b2dd7ab57724dd06a356521293da41acc27b5fee",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/IDENTIDAD_READYPROOF.md",
+      "bytes": 4652,
+      "hash_sha256": "9f6985935b955636af4439c6c9a05988e6ff0bec2482a39a8c73ca5bbe889849",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/INSTALACION.md",
+      "bytes": 527,
+      "hash_sha256": "5fa64460bf79ebd236fb2e67d0bf8f2d13c73ce880869251fefd7b85ce2669b0",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/INTERFAZ_ETAPA3.md",
+      "bytes": 7119,
+      "hash_sha256": "2bb8fbdfb4f2ea937e885f83f39f5a908fbf00e0ce9866ae4f6e380dcc50c47e",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/LEYENDA_IRAM_M1.md",
+      "bytes": 3004,
+      "hash_sha256": "930688ac54e7dc45ecb18dcefe7e498e65911b044f7d55cf9b5e012c8a79f3c8",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/MANUALES_SG-PEM-IFI.md",
+      "bytes": 3712,
+      "hash_sha256": "4ceb7aa94348724cdf87a79284674459a1870da691cbec9bc6dfebf42b7f2e18",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/MODELOS_MANUAL_CORREO.md",
+      "bytes": 5270,
+      "hash_sha256": "ebcf22e7b2b358e85b43fa13fada71746d641f91d55824c6aca09b6b1ebe8cd4",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/PEDIDO_AYUDA_CLAUDE_CONTROL_GMAIL.md",
+      "bytes": 27361,
+      "hash_sha256": "97281f22747ceb91694665a587dec9c1401bc6b9e782cf78e2bd5dabf9d7ccae",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/pedido_codex_v1_1/catalogo_referencia_planillas.json",
+      "bytes": 233157,
+      "hash_sha256": "945bc439fecb55bfd415eb97fbdbaf55d18e103d849209958361e57478b0bff8",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/pedido_codex_v1_1/ENCARGO_ETAPAS_1_A_6.md",
+      "bytes": 9612,
+      "hash_sha256": "aea0030c3c8976f27c6e3e2f8ccfb5af83d447f4fdefcf5ac652a510230babb8",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/pedido_codex_v1_1/INSTRUCCION_CODEX_planillas_SG-PEM-IFI.md",
+      "bytes": 27399,
+      "hash_sha256": "9cbe6f3c9427aeef5233ceabdab7f45411e8038551acb183d63828ce0fe921a2",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/PILOTO_SAA1.md",
+      "bytes": 7843,
+      "hash_sha256": "6b4b6c64f9e961cd5d1c12c8a23ad83eedffa60fd13bef59b0b96e52ae8dc4d5",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/PLANILLAS_SDI_SBC_SAL.md",
+      "bytes": 4563,
+      "hash_sha256": "1c74d75bea8baba6b4c3fbce2dbb1d55bdf8d5a90b4ea77182fe462dfd286f86",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/PREPARACION_ETAPA6_JSON.md",
+      "bytes": 2673,
+      "hash_sha256": "d3c02b8667d4a8fa35df77f541cd275f7557a1cfa9300c5a41f7effacaae84a6",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/PRUEBA_IPHONE_ETAPA3.md",
+      "bytes": 4630,
+      "hash_sha256": "e9a35ad1da42d90546e9e09253e500087c38395b4b59c2876ade9dc5a9f0f28f",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/RETOMAR_GMAIL.md",
+      "bytes": 3424,
+      "hash_sha256": "f4ec05782bbbf4fdd80b532d7aaf671a981a5fc709c8e73a916864ff65028d77",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/SMTP_GMAIL.md",
+      "bytes": 9847,
+      "hash_sha256": "ff138c182ff84299c971c80be55d734188adcf99d5aca3fc66c0b71ff9d057fe",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "docs/USUARIOS_ETAPA4.md",
+      "bytes": 8562,
+      "hash_sha256": "c9eac4ef4baa3bdbbf41a75ecf76354707acc639fbbf464b65212f54b6b1455e",
+      "tipo": "documentacion",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/.gitkeep",
+      "bytes": 0,
+      "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/001_etapa2.py",
+      "bytes": 172,
+      "hash_sha256": "36645705d585587d3aaec71e26ced99b2fe1de27eb5828726cb6777c5cdbc57c",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/002_firmas_etapa3.py",
+      "bytes": 238,
+      "hash_sha256": "c08f6b6a0848a6d9b41eed541be67cc2cb5cdf2d43f45dac5cbf827624414ef3",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/003_usuarios_etapa4.py",
+      "bytes": 394,
+      "hash_sha256": "3a4e53ec084fb2ad5f6921e218f879d61dfbdbac05b0417efab0b7e65bfaa12e",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/env.py",
+      "bytes": 952,
+      "hash_sha256": "b9a205efdeff75e5065a58c7610163edcbf77fba0901e1e8d0d7c59797cd83f0",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/003_base_etapa4.py",
+      "bytes": 478,
+      "hash_sha256": "08372e04eab0a8318e500026abc26b70f7045af7a03c515a69b02c6ea6862052",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/004_manual.py",
+      "bytes": 2102,
+      "hash_sha256": "fe1f7d7e021879ec9fcd98a15809d1dff9b133684803165eb1d2463adeb0a52f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/005_correo_modelos.py",
+      "bytes": 2795,
+      "hash_sha256": "a89fab6d151f7ae346c8fd39823a2191eca18fe9bf3e8192d471c3445840f128",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/006_etapa6_planillas.py",
+      "bytes": 2547,
+      "hash_sha256": "ec4ee6d69d77a06d4e833a024794423716aae4810f97cbded34c83184296d225",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/007_smtp_gmail.py",
+      "bytes": 1854,
+      "hash_sha256": "af20d4cc75f45c5d1853b750134bca948b2d096b73953e1690ab70dc936445f6",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/008_documentacion_usuario.py",
+      "bytes": 1646,
+      "hash_sha256": "e7dc176a691f5ce774b623451f17ff91f7fbf0e3c5cd8b993c636138447c441d",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/009_multisistema.py",
+      "bytes": 1748,
+      "hash_sha256": "ed2a40affcd766ab42a2bf1887f733016f02689a56d2c18e655d998eefe77118",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/010_firmantes.py",
+      "bytes": 1625,
+      "hash_sha256": "1505ba997e650ef37aef0dfe03c5f732c7ce4cf44daf37a0500a7b982f5e8168",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/011_cliente_cuit_opcional.py",
+      "bytes": 1217,
+      "hash_sha256": "000827ce33c49823356cbc202ee7ef015963f0728471125c4aab7fb7c6d360e9",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/012_sistema_cliente_activo.py",
+      "bytes": 1116,
+      "hash_sha256": "9b2183125122bedcc146bd719ce7c045dc94ac53b0f237099c88329d876d6fe9",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/013_desbloqueo_revision.py",
+      "bytes": 3436,
+      "hash_sha256": "b2c5b3d49c1fe88ce1702643eddc28b1dbb96b44e579975ee1d0917cc1adf779",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/alembic/versions/014_habilitar_11_sistemas.py",
+      "bytes": 2242,
+      "hash_sha256": "e1613a6fff52bebc03fac943ff161c6c6dd1ca50419154085728723378bf4971",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "migraciones/base_etapa4.py",
+      "bytes": 5331,
+      "hash_sha256": "b102891ebd3893e31cd0338360bb5a3d1cad8cc9176310c11e9a2c030638f707",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "requirements.txt",
+      "bytes": 222,
+      "hash_sha256": "ef78361b17e4c4df4969310d132d5f32252e09453fb0b76502405ed746de0e7f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/abrir_readyproof_privado.ps1",
+      "bytes": 889,
+      "hash_sha256": "7f762ec4198635b0b9c31924682de06f23f89991a397be214b374d8885d219bd",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/abrir_readyproof_tecnico.ps1",
+      "bytes": 1342,
+      "hash_sha256": "34a832ad8317280a49c42c21272bc27de78521b2f79a599c2aae1c51a46bc4a5",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/activar_backup_drive.py",
+      "bytes": 3268,
+      "hash_sha256": "61e3f779da7d18849d287fd2d3d52dadc5d08670890bcccd285504b37f73b088",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/aplicar_etapa2.py",
+      "bytes": 9316,
+      "hash_sha256": "3e2cd597e20d2e52d03eb41702ce3a865801134b74acea39f2646fa92ef775ec",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/aplicar_etapa3.py",
+      "bytes": 8802,
+      "hash_sha256": "b5130c5bb2ab59a29c3592b5d9584c2f5429e20f7830a6a929511c5d01959e8b",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/aplicar_etapa4_revision.py",
+      "bytes": 11160,
+      "hash_sha256": "6819aa8e48ca23c491ff2e16a0c6dc8833315d83c26a53c93154783ccd8f94c2",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/audit_cuit.py",
+      "bytes": 2956,
+      "hash_sha256": "fef82e6a2dfaffb4e7c2cc3cc820523fd3814244ca5c924b3f7abf1168262fa1",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/autorizar_drive_backup.py",
+      "bytes": 7194,
+      "hash_sha256": "85809ef84d8c125ed7d573e13467960d6ca0c38726379e35c34229a8bab0949f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/autorizar_gmail_https.py",
+      "bytes": 5736,
+      "hash_sha256": "d519c08e2d074ca59c491e17ae9663401ec74eb50e46074f1834d765973c0c25",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/backup_readyproof.py",
+      "bytes": 16132,
+      "hash_sha256": "c96634c2a8d7f0348fb58fc973336e13102f65a4f5492b8e2d2a3ee56c8e1385",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/control_etapa5.py",
+      "bytes": 7326,
+      "hash_sha256": "38cb829104f028bd82a8a48bea54558fec8a4c1df9c8342b4d020d2e4780133f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/convertir_planillas_json.py",
+      "bytes": 4902,
+      "hash_sha256": "2e4f7ad16ed161fc2b2d60a9ff1306b6cdd8c5a4c66473dddd75f4da87536c63",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/habilitar_acceso_despliegue.ps1",
+      "bytes": 3473,
+      "hash_sha256": "052e9e01e407de0a3b51e2b7934bbc41e8cb6955f95fb9f74fadf23f3371ac3f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/importador_planillas.py",
+      "bytes": 13169,
+      "hash_sha256": "3ccbb7bdb5b899412da340e99c0d7ca263b69fe4248a273a179e8f98095135b4",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/informe_etapa5.py",
+      "bytes": 4334,
+      "hash_sha256": "a240222d1fbb0a858aa610bd428e6315a54de94af4ba454e101709885c904184",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/iniciar_ejemplo.py",
+      "bytes": 3804,
+      "hash_sha256": "ea45803af16b9f6f4b20286394be8051c4581d12b9001ab5ff767de5da6fe56d",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/prueba_operativa_final.py",
+      "bytes": 15483,
+      "hash_sha256": "f31d1e443613c6592be52f249f612ec87feea5d59e2da0bd9d9c4dcffdd5d7de",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/prueba_restaurada_etapa5.py",
+      "bytes": 3670,
+      "hash_sha256": "9d437c416d0b068d4676b47d9a682b973de946042c3807b8d9a39960130348a1",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/recuperar_admin_local.py",
+      "bytes": 1275,
+      "hash_sha256": "1de16edbc8097541a1f2dfda18aa00a773b354372125a1fa02186dc66780bc51",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/referencias_etapa5.py",
+      "bytes": 2831,
+      "hash_sha256": "eece3955b9968489e316de06728dcfd3a6e44df32a952b6a23bf5a108c515756",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/resguardar_clave_backup_windows.py",
+      "bytes": 3620,
+      "hash_sha256": "5b24c345be7e2196087a7e4ce00aed22867bd5bf1907e6156a980015d5b87e0f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/revision_etapa5.py",
+      "bytes": 8891,
+      "hash_sha256": "b24d24b8a50a31a20a29a658deccf2bdcb91ef6adae310b837a9a46f5cb61ab0",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/revision_visual_etapa5.py",
+      "bytes": 1846,
+      "hash_sha256": "632727384b3dab4e81d10516f004090d0f4fcab06a44dd5f7785563d9ce8ebea",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/servidor_backup/backup_y_subida.sh",
+      "bytes": 134,
+      "hash_sha256": "01e83d4a8f92db19ee973604936ed9ff871f76e868b8c6ad443b268b663c444f",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/servidor_backup/readyproof-backup-alerta.service",
+      "bytes": 416,
+      "hash_sha256": "d619f1307c923883cf84ee234a1ee1449ffbc988cdd2ce0b0ea123373fc91660",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/servidor_backup/readyproof-backup.service",
+      "bytes": 539,
+      "hash_sha256": "638c12b661a549e16c17865f94b79fc6db69bf4e231e40584028925084839374",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/servidor_backup/readyproof-backup.timer",
+      "bytes": 202,
+      "hash_sha256": "398c3ed4505b0451eaf34191afeb72168810f18212a8165cabd6339b94b48812",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/servidor_etapa5.py",
+      "bytes": 11880,
+      "hash_sha256": "cf083cfe75fb7bad1e0cb321d99544e1ff0d503e84a85a63dc1c2591b8280ada",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/verificar_etapa4_revision.py",
+      "bytes": 3631,
+      "hash_sha256": "ffc2b40405cdd6d83e2c292aa350cfb99b145e2fde17ccc570ac40d2cb626a54",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/verificar_pdf_saa1.py",
+      "bytes": 2440,
+      "hash_sha256": "c3adbaae2cb7e6c2a640bee239d07badd166c96cedbadda73c0bb64b3c241323",
+      "tipo": "codigo_o_recurso",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/__init__.py",
+      "bytes": 0,
+      "hash_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/browser/a4_historica.cjs",
+      "bytes": 4035,
+      "hash_sha256": "a0c2b259b902582b000e2c28c28cbb0fb2a85ba5e64a2d82235ac5476728c76f",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/browser/auth.cjs",
+      "bytes": 3747,
+      "hash_sha256": "ffab958735e598375f7881e54e3381bc8571b13da040cc32300cd49a40179177",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/browser/documentacion.cjs",
+      "bytes": 2744,
+      "hash_sha256": "11a8573ac74970a02372c83a236d54394180dfbc665a28dbaf72b576dd18561b",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/browser/interfaz.cjs",
+      "bytes": 13028,
+      "hash_sha256": "eccc5dbdfb43b854ebccce7883ef22862eb16d1d241ab1b2d5d74bf4d42247c2",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/browser/multisistema.cjs",
+      "bytes": 3607,
+      "hash_sha256": "559c48eedfe2d943c783b14d6dcf2a93aee7ef59681375533073532b2f3b6ed6",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/browser/selectores.cjs",
+      "bytes": 4468,
+      "hash_sha256": "b08524734a1993edd6959dc03cba5a66ca91ff9856f7164f0d66df3b039f3cc8",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/browser/service_worker.cjs",
+      "bytes": 1770,
+      "hash_sha256": "0565f753753d125b606ba0baa90fdc18170c03624083848ffd7f65c479c4e8fd",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/conftest.py",
+      "bytes": 6194,
+      "hash_sha256": "858bc86002a4ed7971d3e98d3dc5c247e4935419748f145b6ef5784cdc352b3c",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/referencias/SAA-1_v5.xlsx",
+      "bytes": 53925,
+      "hash_sha256": "5bccc6d516beea34dc03ea50e042638cbe1b746f2de5eb284ab102b82fe20b4f",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_a4.py",
+      "bytes": 2260,
+      "hash_sha256": "94729b69d194c8e43ab6e6a828da9976da0baeff226826a26d23a0c050f23d81",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_a4_historica.py",
+      "bytes": 3376,
+      "hash_sha256": "7bd3aa630bafa227503a7826c83e5f82f09f394f982303b814c70d5d6296ce9b",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_api.py",
+      "bytes": 9550,
+      "hash_sha256": "e2a77d35e6f6c70ec65277390b907bac3d972a063e77ff1662a1cff0704b3535",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_auth.py",
+      "bytes": 12885,
+      "hash_sha256": "e30626d11386f69b4064e732c43028c910aea76708b33e8f4e378880ab1469f5",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_backup_drive.py",
+      "bytes": 5540,
+      "hash_sha256": "a04f3fef64bd775c04a5a4bd4839e42a57e88c7b15649ea822babcbe4a96addb",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_base.py",
+      "bytes": 128,
+      "hash_sha256": "0646351ceb81269b36c1849771eb1a0183b0fbaa4b70e2992bf9497bf575f681",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_cuit_sistemas.py",
+      "bytes": 6498,
+      "hash_sha256": "3605b016558c43897f836b5f0e1cc788dfa682e12a6aa3ad94401c76e314c3ad",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_desbloqueo_revision.py",
+      "bytes": 10936,
+      "hash_sha256": "bcf033f17cad0eaa0fa2e8063eae841ab611b42af48ff22ad9ff830c2ab50b16",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_documentacion.py",
+      "bytes": 8640,
+      "hash_sha256": "462f082b2bb63119c8ce6ea112c6e7aa488afd36418f0ef239d2dce22d5b8c38",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_envio_pdf_interfaz.py",
+      "bytes": 6404,
+      "hash_sha256": "1db9e32949fcc698b164bb794660e6e592f0da7de0a633a0c51888c65a10e7ee",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_etapa5_planillas.py",
+      "bytes": 9117,
+      "hash_sha256": "a9774c7b98e502728ceb8a318954def1bcd8b7c9242c52b32e4cffff38241201",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_etapa6_planillas.py",
+      "bytes": 7906,
+      "hash_sha256": "d2c4fc915478d51fe733cfb3a0e7c0ff3b93e613f76cb7007ed6722939fb5ce4",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_firmantes.py",
+      "bytes": 6512,
+      "hash_sha256": "e4487f9a212b48eb5c7c3517250d6bed7d9d42c64dc1fab18bc7cc482ed449d4",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_firmas.py",
+      "bytes": 7473,
+      "hash_sha256": "06b90c6d305979519c64f6a71bf18318b441727f56d5c26bb719aa32f4141b44",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_flujo.py",
+      "bytes": 1899,
+      "hash_sha256": "058fe99c50eaeb80b2f1cad5b39d1db3aa1dfba055b690940c6a79d45b46d892",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_generacion.py",
+      "bytes": 14799,
+      "hash_sha256": "5cb87dec31dd9a6476c063b8fb44991626b3a2750004cde1a2519aebe49b525b",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_gmail_https.py",
+      "bytes": 2786,
+      "hash_sha256": "2a0f3a1304a026fb3541ab7bb0163a19f5c2aeff06ab80fe67f3154c34389ebc",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_importador_excel.py",
+      "bytes": 6751,
+      "hash_sha256": "8059381ae67a54e4973d8b25e38fe0b2bda5dba3556ebb8b8105a0171fe6850f",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_interfaz.py",
+      "bytes": 3724,
+      "hash_sha256": "f1bfb2692de5cea4233430f2590b43d77269c8d39035b8d12ab9d4cbe0ae89df",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_m1.py",
+      "bytes": 2842,
+      "hash_sha256": "2f558929d737905e408ac6719c877121281b2a09c44b650265d75ec8329b8209",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_marca_agua.py",
+      "bytes": 1816,
+      "hash_sha256": "2f5ba94a2923bdff27e794f16fe83b13b629a3cc5f4b36f1d3a7cc3c040f24be",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_modelos_manual_correo.py",
+      "bytes": 7095,
+      "hash_sha256": "960c72e9204c551b68ff415d3f2314a134292cca7d05264010d76434c4988c10",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_multisistema.py",
+      "bytes": 7716,
+      "hash_sha256": "8f4cd0f174baa443a2296757a09c8f749398c29d9e8048827935b4776321f2f5",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_preparacion_etapa6.py",
+      "bytes": 2228,
+      "hash_sha256": "93f4b7fea1b73b1fa4ac676dca6fc8e30332c9790c4b4b7f68624c40ecd679d8",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_prueba_operativa_final.py",
+      "bytes": 4614,
+      "hash_sha256": "e211fcf66f20892f971f48375343b70ca64a37160ed5512c53a60b72266c9bb0",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_recuperacion_admin.py",
+      "bytes": 3537,
+      "hash_sha256": "f7fa62ff5ff9ca1ae1bac4c8933f62e6002175b7d756e430b3008b9321b19645",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_reglas_verificacion.py",
+      "bytes": 6316,
+      "hash_sha256": "a1e6b5aa754e37eb0453b76a3a829b767c2442e5aeacd5f9890b929e41af1023",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_selectores.py",
+      "bytes": 2593,
+      "hash_sha256": "efa32c8542a673852570173a7f07eb956b954efce8e8694f9fd7c95aafa6983f",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_siglas_planillas.py",
+      "bytes": 3394,
+      "hash_sha256": "0c0e7355a78762ecfd484ed18860dba8f8ae231f32b4e207707f88c622613a01",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "tests/test_smtp_gmail.py",
+      "bytes": 13214,
+      "hash_sha256": "2dadcde86e6d309e7a9fe5b01cfdae9f6bfbf8dcd4e47b6cb934dbda2e885a09",
+      "tipo": "prueba",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "seleccion_pruebas.json",
+      "bytes": 42965,
+      "hash_sha256": "7b6ef2fd4230c5190313714d7a3bdc36eb9ff768aaa69f072398e9781120a213",
+      "tipo": "datos",
+      "origen": "paquete_revision_privada"
+    },
+    {
+      "ruta": "scripts/auditoria_punto6_runner.py",
+      "bytes": 1622,
+      "hash_sha256": "2ee87cc5778042b9bae9d0727533d92e35f2c0d3fcb3d8f8b75547f836d558c2",
+      "tipo": "control_pruebas",
+      "origen": "transferencia_de_control_auditoria"
+    },
+    {
+      "ruta": "scripts/auditoria_punto6_runner_v2.py",
+      "bytes": 1652,
+      "hash_sha256": "c7cea7e102c213067b3e75dc9550959a06d0f008402e19f1f8325f8bbfee79e4",
+      "tipo": "control_pruebas",
+      "origen": "transferencia_de_control_auditoria"
+    }
+  ],
+  "total_archivos": 189,
+  "total_bytes": 3169884,
+  "verificacion_destino": {
+    "diferencias": [],
+    "extras": [
+      {
+        "ruta": "scripts/auditoria_punto6_runner.py",
+        "bytes": 1622,
+        "hash_sha256": "2ee87cc5778042b9bae9d0727533d92e35f2c0d3fcb3d8f8b75547f836d558c2",
+        "tipo": "control_pruebas",
+        "origen": "transferencia_de_control_auditoria"
+      },
+      {
+        "ruta": "scripts/auditoria_punto6_runner_v2.py",
+        "bytes": 1652,
+        "hash_sha256": "c7cea7e102c213067b3e75dc9550959a06d0f008402e19f1f8325f8bbfee79e4",
+        "tipo": "control_pruebas",
+        "origen": "transferencia_de_control_auditoria"
+      }
+    ],
+    "permisos": [
+      {
+        "ruta": "/var/backups/readyproof",
+        "modo": "0700"
+      },
+      {
+        "ruta": "/home/readyproof_revision_etapa5",
+        "modo": "0700"
+      },
+      {
+        "ruta": "/home/readyproof/app",
+        "modo": "0755"
+      }
+    ],
+    "fecha_ultimo_archivo_destino": "2026-10-28T15:08:21.681380+00:00"
+  },
+  "excluidos": [
+    ".env",
+    ".env.local",
+    ".env.*.local",
+    "contraseñas",
+    "tokens",
+    "bases de datos",
+    "*.pyc",
+    ".git"
+  ],
+  "alcance": "Último paquete de etapa 5 utilizado en auditoría y dos controladores privados de prueba. El manifiesto histórico de 185 archivos se conserva en out/auditoria_punto6/manifest_etapa5_verificado.json."
+}

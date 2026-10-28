@@ -1,0 +1,67 @@
+{
+  "fecha": "2026-10-28T12:21:21.231278-03:00",
+  "punto_6_seguridad": {
+    "secretos": {
+      "hallados": 0,
+      "corregidos": 0,
+      "estado": "OK",
+      "referencias_revisadas": 53,
+      "valores_secretos_publicados": false
+    },
+    "env_en_repo": {
+      "hallado": false,
+      "estado": "OK",
+      "tracked": []
+    },
+    "fuente_cambios_necesarios": {
+      "cantidad": 5,
+      "documentados": true,
+      "revertidos": false,
+      "autorizados": true,
+      "estado": "CONSERVADO",
+      "base_git": "4cb1599840419b3faa18496349758b663265dcca",
+      "sha256_conservados": true
+    },
+    "gitignore": {
+      "estado": "CORREGIDO",
+      "patron_agregado": ".env.*.local",
+      "verificacion": {
+        ".env": true,
+        ".env.local": true,
+        ".env.prueba.local": true
+      }
+    },
+    "permisos": {
+      "estado": "CORREGIDO",
+      "corregidos": 1,
+      "directorios": [
+        {
+          "ruta": "/var/backups/readyproof",
+          "antes": "0700",
+          "despues": "0700",
+          "modificado": false
+        },
+        {
+          "ruta": "/home/readyproof_revision_etapa5",
+          "antes": "0700",
+          "despues": "0700",
+          "modificado": false
+        },
+        {
+          "ruta": "/home/readyproof/app",
+          "antes": "0750",
+          "despues": "0755",
+          "modificado": true
+        }
+      ]
+    },
+    "compilacion": {
+      "estado": "OK",
+      "codigo": 0,
+      "alcance": "app/, tests/, scripts/, migraciones/; ejecución final",
+      "fuente_resultado": "out/auditoria_punto6/diagnostico_servidor.json"
+    }
+  },
+  "veredicto": "PUNTO_6_COMPLETADO",
+  "validacion_post_correcciones": "525 aprobadas; 0 fallos; 0 omitidas; dos plataformas."
+}

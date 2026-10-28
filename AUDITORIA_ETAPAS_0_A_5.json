@@ -1,0 +1,1716 @@
+{
+  "fecha": "2026-10-28T12:21:21.231278-03:00",
+  "auditorias_etapas_0_5": "COMPLETADA_EN_MODO_PILOTO",
+  "punto_6_seguridad": {
+    "secretos": {
+      "hallados": 0,
+      "corregidos": 0,
+      "estado": "OK",
+      "referencias_revisadas": 53,
+      "valores_secretos_publicados": false
+    },
+    "env_en_repo": {
+      "hallado": false,
+      "estado": "OK",
+      "tracked": []
+    },
+    "fuente_cambios_necesarios": {
+      "cantidad": 5,
+      "documentados": true,
+      "revertidos": false,
+      "autorizados": true,
+      "estado": "CONSERVADO",
+      "base_git": "4cb1599840419b3faa18496349758b663265dcca",
+      "sha256_conservados": true
+    },
+    "gitignore": {
+      "estado": "CORREGIDO",
+      "patron_agregado": ".env.*.local",
+      "verificacion": {
+        ".env": true,
+        ".env.local": true,
+        ".env.prueba.local": true
+      }
+    },
+    "permisos": {
+      "estado": "CORREGIDO",
+      "corregidos": 1,
+      "directorios": [
+        {
+          "ruta": "/var/backups/readyproof",
+          "antes": "0700",
+          "despues": "0700",
+          "modificado": false
+        },
+        {
+          "ruta": "/home/readyproof_revision_etapa5",
+          "antes": "0700",
+          "despues": "0700",
+          "modificado": false
+        },
+        {
+          "ruta": "/home/readyproof/app",
+          "antes": "0750",
+          "despues": "0755",
+          "modificado": true
+        }
+      ]
+    },
+    "compilacion": {
+      "estado": "OK",
+      "codigo": 0,
+      "alcance": "app/, tests/, scripts/, migraciones/; ejecución final",
+      "fuente_resultado": "out/auditoria_punto6/diagnostico_servidor.json"
+    }
+  },
+  "veredicto_punto_6": "PUNTO_6_COMPLETADO",
+  "puntos_1_5": {
+    "1_codigo_migraciones": {
+      "estado": "OK",
+      "comparaciones": [
+        {
+          "ruta": "alembic.ini",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "431098814ab39b0d6e028e3c50c20d61767b95b7e2688bbc57da6c03c0515fb7"
+        },
+        {
+          "ruta": "app/__init__.py",
+          "estado": "IGUAL",
+          "sha256_destino": "b0e7c231fde1774030f07752a0ca58717dff82aa669d7c859f04e79d1411346c"
+        },
+        {
+          "ruta": "app/auth/__init__.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "24f3c1e301b72971fd346635c9fe5bae2390cf745a3c27f1b144f2f5372aa9c3"
+        },
+        {
+          "ruta": "app/auth/recuperacion.py",
+          "estado": "IGUAL",
+          "sha256_destino": "168518ee5c77389bff8d4308f7313eb962d6da2d8ff7a2a86eee6f0c6c383891"
+        },
+        {
+          "ruta": "app/auth/rutas.py",
+          "estado": "IGUAL",
+          "sha256_destino": "cf98766c4ed0d3984d2c9e5db649a07751e88d3c825e516ec8d982dfe6ce020c"
+        },
+        {
+          "ruta": "app/carga/__init__.py",
+          "estado": "IGUAL",
+          "sha256_destino": "6277543bd718fd3cdf3c0569b1513497fead83c727b0b2e12743011fb9967b4a"
+        },
+        {
+          "ruta": "app/carga/servicios.py",
+          "estado": "IGUAL",
+          "sha256_destino": "d77320d561e60d6ee150a4264041722b18ac160c0ddb60b554d408792b24a3c5"
+        },
+        {
+          "ruta": "app/carga/validacion.py",
+          "estado": "IGUAL",
+          "sha256_destino": "39a27f0d5bbd92fed576eb39fedd32b1aee2c8c44895100ecbedcec57045e476"
+        },
+        {
+          "ruta": "app/carga_planillas.py",
+          "estado": "IGUAL",
+          "sha256_destino": "1e31ffb9089a99d2f1321a7a5bc134b8af19b64f10966bf6500127324b7129e6"
+        },
+        {
+          "ruta": "app/catalogo.py",
+          "estado": "IGUAL",
+          "sha256_destino": "bdce21782d4476205cc20d795e317c20b84687a2b7aaa902bfe6e7df531c9f13"
+        },
+        {
+          "ruta": "app/config.py",
+          "estado": "IGUAL",
+          "sha256_destino": "de23dc7e0f035613b04bd704f97b8d20a942b2be3c8f7cf8d1606bf663dbbe8d"
+        },
+        {
+          "ruta": "app/correo/__init__.py",
+          "estado": "IGUAL",
+          "sha256_destino": "ceb00c512efa913237f2df8e33e5ab5ad47d0f0284051418d78dba9943fd928d"
+        },
+        {
+          "ruta": "app/correo/rutas.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "5c3029e125bf32c51b8c05c31c79ff891d424c8e969192dba2623b25a4b07afb"
+        },
+        {
+          "ruta": "app/db.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "2c53fea549511641a67710a27ef7dec73d2b408b7930cf9526452d9d2c26ad6a"
+        },
+        {
+          "ruta": "app/documentacion.py",
+          "estado": "IGUAL",
+          "sha256_destino": "297aa0a4a7ce38478e3d5a1467e23c264066573b90822a935ac3114bc9b65305"
+        },
+        {
+          "ruta": "app/gmail_https.py",
+          "estado": "IGUAL",
+          "sha256_destino": "cee6d2166ba7016c57d9ee6ec19623b05c7bda0e9173bc5871a4a6eca47ba39d"
+        },
+        {
+          "ruta": "app/models/__init__.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "7235cf0bbfed4405805b0784800c69b44413465b6e5efdc5e8a15a76751d19f7"
+        },
+        {
+          "ruta": "app/planillas/__init__.py",
+          "estado": "IGUAL",
+          "sha256_destino": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "ruta": "app/planillas/catalogo_completo.py",
+          "estado": "IGUAL",
+          "sha256_destino": "613ca39a860f58b7c1754f6a7a62e831912b7c203851039318379f7f5b88c145"
+        },
+        {
+          "ruta": "app/planillas/definiciones/__init__.py",
+          "estado": "IGUAL",
+          "sha256_destino": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "ruta": "app/planillas/definiciones/restantes_v5.json",
+          "estado": "IGUAL",
+          "sha256_destino": "522d5cab76b4194843626c08abf3e68fa54a8b8f649791ef86f2c683e02fa387"
+        },
+        {
+          "ruta": "app/planillas/definiciones/saa1.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "a1860df0792ba0b8a9d5faf82ac0156cb59bc63c9ebac34077ab185144e3ff0c"
+        },
+        {
+          "ruta": "app/planillas/encabezado_pdf.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "cebdaa4910b1f04cd91f7508d51eee914779a9df00e202fb06ef1c50603d5281"
+        },
+        {
+          "ruta": "app/planillas/firmantes.py",
+          "estado": "IGUAL",
+          "sha256_destino": "f2d5a1f6b5f5757a9f0d61c1a73def1fbb7ac4440ff753b850f59d6e616acb44"
+        },
+        {
+          "ruta": "app/planillas/firmas.py",
+          "estado": "IGUAL",
+          "sha256_destino": "a86a1dcc9520f9eea3c11ee95a4e035042f58ef7491ccb73d881ac9b5994ecdd"
+        },
+        {
+          "ruta": "app/planillas/generador.py",
+          "estado": "IGUAL",
+          "sha256_destino": "706bdabca3f65d5a5adbe5232d4aeb3db0c55acdee8c575a3b7d4fe18e405534"
+        },
+        {
+          "ruta": "app/planillas/identificacion_pdf.py",
+          "estado": "IGUAL",
+          "sha256_destino": "5aeb903f7fda341ae209fc7afecb6827594632b1d5dc64dd2bb131281d180b48"
+        },
+        {
+          "ruta": "app/planillas/importacion_excel.py",
+          "estado": "IGUAL",
+          "sha256_destino": "91a931999d2d69e2531f6ad613fea7860637dee10b1c4bbdd094466771f261a0"
+        },
+        {
+          "ruta": "app/planillas/leyenda_iram.py",
+          "estado": "IGUAL",
+          "sha256_destino": "30d7e754a98e81c531d5fbbf114de7b690c77035d7151f5f6ad15dce546b413a"
+        },
+        {
+          "ruta": "app/planillas/marca_agua.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "0b05248a8bbc7bc1c389907879166e9cfc2ff5de7b0be85dbda2959dbf2e1d8c"
+        },
+        {
+          "ruta": "app/planillas/multisistema.py",
+          "estado": "IGUAL",
+          "sha256_destino": "3302ebcec458c9bd145c9cca09191933c918b4a509d86b545956ae1c2806df5f"
+        },
+        {
+          "ruta": "app/planillas/pdf.py",
+          "estado": "IGUAL",
+          "sha256_destino": "6294c25b7bc5d29527131ec96cbda28c6b81b4404b2ab16bb5b6e3945ba2db01"
+        },
+        {
+          "ruta": "app/planillas/piloto.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "64b14cc09deabd637a557ca6a15182e02a2460c110267e7eaf35ca259a69ec23"
+        },
+        {
+          "ruta": "app/planillas/registro_pdf.py",
+          "estado": "IGUAL",
+          "sha256_destino": "4bbdcdcf79602b9ca348b1ce4eb85f80b42751588c0638c7f90b8c25f4af703d"
+        },
+        {
+          "ruta": "app/planillas/sdi_validacion.py",
+          "estado": "IGUAL",
+          "sha256_destino": "e46d1e5f499f0532f7285692b81626c2b93bb50d3a19991ac34c3be0677320f2"
+        },
+        {
+          "ruta": "app/planillas/validacion.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "49ff68e812e4da94fe99de0285e76121ebaf59d61b7e18cf7ff9e37f44551282"
+        },
+        {
+          "ruta": "app/rutas/__init__.py",
+          "estado": "IGUAL",
+          "sha256_destino": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "ruta": "app/rutas/api.py",
+          "estado": "IGUAL",
+          "sha256_destino": "0770cae917e2d900948e8fa22c6ed6429a90bcd71669f78892ac5bceb237fe94"
+        },
+        {
+          "ruta": "app/rutas/web.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "e28b3348e60d5b392da9ccaad9236134f439571dfe48946bd2836ec315ad4d02"
+        },
+        {
+          "ruta": "app/static/admin.js",
+          "estado": "IGUAL",
+          "sha256_destino": "8501602a6bcc67abc52a23e6b65c53b03a478c0cd8add71833bbd6cba95eef5f"
+        },
+        {
+          "ruta": "app/static/auth.js",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "6d02344ed55a6ff9c3ab92945a4318d12451bd39c9e0aab5ef5e43deb9e86e76"
+        },
+        {
+          "ruta": "app/static/carga.css",
+          "estado": "IGUAL",
+          "sha256_destino": "ae430a84a89c0865c67e14fddeda0482ff1a26763575097d8c4975c0dbca8d74"
+        },
+        {
+          "ruta": "app/static/carga.js",
+          "estado": "IGUAL",
+          "sha256_destino": "aaca6b91886a59c16f47a4773daa32798413b1b0d49b94e8f977e2babec7cf10"
+        },
+        {
+          "ruta": "app/static/cuenta.css",
+          "estado": "IGUAL",
+          "sha256_destino": "d177c3ab6c0b08325c21702ad90563572cdd509218508350146e891c9722e9e8"
+        },
+        {
+          "ruta": "app/static/cuenta.js",
+          "estado": "IGUAL",
+          "sha256_destino": "c47f43015497181e7920ef69662a27a8f766378792db698a024cc4226eb79c9a"
+        },
+        {
+          "ruta": "app/static/icono.svg",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "05c90148b9eea140d0910e429767d465d7948e4bf7d3e30d3258aa44cbdfe96c"
+        },
+        {
+          "ruta": "app/static/logo_readyproof.png",
+          "estado": "IGUAL",
+          "sha256_destino": "d60aa913281e944c53f38bbaaa57ce003e2cdd840799979e3b54279357c632b0"
+        },
+        {
+          "ruta": "app/static/manifest.webmanifest",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "c83e639ce87768dcc5744bb913e8a2bd95e1f1bd75a323101ec83d94e1bfa201"
+        },
+        {
+          "ruta": "app/static/sw.js",
+          "estado": "IGUAL",
+          "sha256_destino": "4f325f0cdb1010ecf4e63433e79e1985b15eb48df19c861b358b3148f28d0d77"
+        },
+        {
+          "ruta": "app/templates/admin.html",
+          "estado": "IGUAL",
+          "sha256_destino": "80ce87ea4fff2ec6713a81967f137a2a15237be1956b28b0ee1877ac51058327"
+        },
+        {
+          "ruta": "app/templates/carga.html",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "c76890e69a9fa024411003ed950e551b03e4ed4db60fcc22eb73bd05e0cb4684"
+        },
+        {
+          "ruta": "app/templates/cuenta.html",
+          "estado": "IGUAL",
+          "sha256_destino": "b5cbfbc0ee159482353803608b900fa4e9242703d0a4869c71e8b435ff4882f5"
+        },
+        {
+          "ruta": "app/templates/login.html",
+          "estado": "IGUAL",
+          "sha256_destino": "0ec578c1f8ce2ee3ead4a130b0284356fd6182581a30f58d732bdb3d8de50df5"
+        },
+        {
+          "ruta": "app/utils/__init__.py",
+          "estado": "IGUAL",
+          "sha256_destino": "d8b66498cc46dfc63dd6741714781919710d3bf658fe1158817302ab90ec5450"
+        },
+        {
+          "ruta": "app/utils/cuit_validator.py",
+          "estado": "IGUAL",
+          "sha256_destino": "176a113fb02832499dff068fd9854e747efb750d3817f57aeae20c221a799b0f"
+        },
+        {
+          "ruta": "fuente/herramientas/add_toc.py",
+          "estado": "IGUAL",
+          "sha256_destino": "d1c62e2a4c5cf395d966f50dfe779a1f574d8a085fb1c10f0b16fa41fedccb07"
+        },
+        {
+          "ruta": "fuente/herramientas/alcances.py",
+          "estado": "IGUAL",
+          "sha256_destino": "d61337ffc63c5ed6e7e75ae3ded73b65b063ca16f92104c7f2cca8f4f65be2ba"
+        },
+        {
+          "ruta": "fuente/herramientas/build_informe.py",
+          "estado": "IGUAL",
+          "sha256_destino": "7244b68b667e47898ad11afe929307cb14d0f5d582bae06818b6232d93bfe369"
+        },
+        {
+          "ruta": "fuente/herramientas/build_manual.py",
+          "estado": "IGUAL",
+          "sha256_destino": "77f21869dfade1c9ceefdd4d697a0dea18bcfed042a741ece0e85b9497277d12"
+        },
+        {
+          "ruta": "fuente/herramientas/build_planilla.py",
+          "estado": "IGUAL",
+          "sha256_destino": "523cb7af043fee003c2b92c1b70f65a6fa81704d50a9a6f0655f7fe61ca213bb"
+        },
+        {
+          "ruta": "fuente/herramientas/build_template.py",
+          "estado": "IGUAL",
+          "sha256_destino": "f45ca826a590d64c34697706e385394ee04eb23c57a06ea40fa14b042a505379"
+        },
+        {
+          "ruta": "fuente/herramientas/fix_audit.py",
+          "estado": "IGUAL",
+          "sha256_destino": "afeb3001952fe4beb91dc1a41f0bafbb81be0549350f62ef923a2543185251b8"
+        },
+        {
+          "ruta": "fuente/herramientas/fix_audit2_sbc_sal.py",
+          "estado": "IGUAL",
+          "sha256_destino": "f81ac34e49f38efaf697f0955e5e39a93850dfecb92f887317caf4943bd57583"
+        },
+        {
+          "ruta": "fuente/herramientas/fix_audit2_sdi.py",
+          "estado": "IGUAL",
+          "sha256_destino": "562ab0d2198ad53bb8de75288e2e778d9c4103188c2d8fdf49939cab4c0d018b"
+        },
+        {
+          "ruta": "fuente/herramientas/fix_audit3_manuales.py",
+          "estado": "IGUAL",
+          "sha256_destino": "4d149a35dbf47587a41ffdc40eeaaca5742f3410c744a62fb04abda75fefdba9"
+        },
+        {
+          "ruta": "fuente/herramientas/fix_audit3_planillas.py",
+          "estado": "IGUAL",
+          "sha256_destino": "2db3af6975f7717795305dfcfdd229c6dc35e7b99755fc1404eaefb127602533"
+        },
+        {
+          "ruta": "fuente/herramientas/fix_nfpa_ediciones.py",
+          "estado": "IGUAL",
+          "sha256_destino": "4759fb0ea80bd312329e2ae44f6845c17ba92439bbe9033a35a53d8a7e583f87"
+        },
+        {
+          "ruta": "fuente/herramientas/fix_numpages.py",
+          "estado": "IGUAL",
+          "sha256_destino": "4a26d7e1e0693c221ed3b3b934413049107d25c4e8578fcc7943280a52cd2eaf"
+        },
+        {
+          "ruta": "fuente/herramientas/fix_v4_nfpa101.py",
+          "estado": "IGUAL",
+          "sha256_destino": "dc88add3b557fd1d039b8e7744fa2bad98223605a65291ae32cdc49a62b71692"
+        },
+        {
+          "ruta": "fuente/herramientas/informes_data.py",
+          "estado": "IGUAL",
+          "sha256_destino": "66aa72ebd0616ce9e30ddd5374754ce6fc875eb3f3becc583b09d8eb54c033bf"
+        },
+        {
+          "ruta": "fuente/herramientas/insert_symbols.py",
+          "estado": "IGUAL",
+          "sha256_destino": "0a12a0fd7d17b2917d42dc31fffed99781f4d94fbbb2da2c64a6366fb098565e"
+        },
+        {
+          "ruta": "fuente/herramientas/limpiar_metadatos.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "0924d391db0f4c2f9771961bd0f57ff00eb10d89beffa13b779ca2ec8369fb63"
+        },
+        {
+          "ruta": "fuente/herramientas/planillas_data.py",
+          "estado": "IGUAL",
+          "sha256_destino": "f01efccb70b492ec99e091d89395c2c7f9cb43b90abe55169446b9c21e26fcbe"
+        },
+        {
+          "ruta": "fuente/herramientas/planillas_data2.py",
+          "estado": "IGUAL",
+          "sha256_destino": "2fa99330a0d4d9316f70c993d6e835d555ed57122cabc9d5f7f433a651a383d1"
+        },
+        {
+          "ruta": "fuente/herramientas/planillas_data3.py",
+          "estado": "IGUAL",
+          "sha256_destino": "1b4d7a51a7615ea0cc0572f08d7f5ee7bf99d9b635932f8a05665d34058b0de2"
+        },
+        {
+          "ruta": "fuente/herramientas/planillas_data4.py",
+          "estado": "IGUAL",
+          "sha256_destino": "aff1f5e4d812bf3f92bd89a1410b7a4a85808b26855b4b5d58f0c9c7ae2aa0c8"
+        },
+        {
+          "ruta": "fuente/herramientas/run_planillas.py",
+          "estado": "IGUAL",
+          "sha256_destino": "81303506184d7f776cded95d30eda12cc597ad824d989bf0cf0530da23aae396"
+        },
+        {
+          "ruta": "fuente/herramientas/simbolos.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "261b30a3bcbe3c4febc1dc480ba7e7e9112b0f48769bbf307aa49a58b7593a3d"
+        },
+        {
+          "ruta": "fuente/herramientas/upgrade_template.py",
+          "estado": "IGUAL",
+          "sha256_destino": "4bbc853fa25dab6663bfd686914f2c9ee286f6a61138f96d941ac86b1ee267b9"
+        },
+        {
+          "ruta": "fuente/modelos/SDI-1.xlsx",
+          "estado": "IGUAL",
+          "sha256_destino": "efffbd42bd22dfddb0c3e192d3e10258ba3408dbbaaae9d6df1b9993528c40d8"
+        },
+        {
+          "ruta": "fuente/planillas/SAA-1.json",
+          "estado": "IGUAL",
+          "sha256_destino": "21b55c626bb1e2dd536887a5c0d8b43b3c0a6bbe6d5b990f4dee6a003bea111e"
+        },
+        {
+          "ruta": "fuente/planillas/SAL.json",
+          "estado": "IGUAL",
+          "sha256_destino": "c9663926de80698763bc9e57974b4b875d6d7a29ed9a18d070ddb8c0f3267cfd"
+        },
+        {
+          "ruta": "fuente/planillas/SBC.json",
+          "estado": "IGUAL",
+          "sha256_destino": "d743b871ccf4cc30215cd6f5928674fd9ba53fe62f13390b552aa956cfbf91f3"
+        },
+        {
+          "ruta": "fuente/planillas/SDI.json",
+          "estado": "IGUAL",
+          "sha256_destino": "e3062e44ac5c607e4288241c955ef57ba3ab74e46dd930273298bd329ffc2020"
+        },
+        {
+          "ruta": "migraciones/001_etapa2.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "41027e520dcab0f703469ea1003fbc4c016efff53b4b0f0c7f10d581ab3630d9"
+        },
+        {
+          "ruta": "migraciones/002_firmas_etapa3.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "fa2626392ea194a06833a892f683284788898184e66d9fc42af23b2cdf839303"
+        },
+        {
+          "ruta": "migraciones/003_usuarios_etapa4.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "8c63b580ab40c7796413a2c8c090fcd25be3c5aca49ed340397bd39e6feaf596"
+        },
+        {
+          "ruta": "migraciones/alembic/env.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "1b181182d025a3434a65308fc5ad66f8f6200c5d81d8195d5ff3020eeb52820e"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/003_base_etapa4.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "8dcf66b1ac912fb621152caf61eb31b458cb139614b5342a8cc1b86d600979ae"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/004_manual.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "f98a6aa3f47eb4e50ba8eac1d0cf5e589f22cc6c26edecfeda44d3070c5b033b"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/005_correo_modelos.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "ff233db34e06d14669668f6d23c2b195bf934786e1c316dbc2fed81a2ec0a0f1"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/006_etapa6_planillas.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "287b6ab80f84301e4af9d9a48a11bff391853f2cb4091601f23c299e072331f3"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/007_smtp_gmail.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "569e5abd0c090d3fa835f566e9df7b2eb80eb913b68c32380f15cb46c5b57c71"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/008_documentacion_usuario.py",
+          "estado": "IGUAL",
+          "sha256_destino": "e7dc176a691f5ce774b623451f17ff91f7fbf0e3c5cd8b993c636138447c441d"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/009_multisistema.py",
+          "estado": "IGUAL",
+          "sha256_destino": "ed2a40affcd766ab42a2bf1887f733016f02689a56d2c18e655d998eefe77118"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/010_firmantes.py",
+          "estado": "IGUAL",
+          "sha256_destino": "1505ba997e650ef37aef0dfe03c5f732c7ce4cf44daf37a0500a7b982f5e8168"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/011_cliente_cuit_opcional.py",
+          "estado": "IGUAL",
+          "sha256_destino": "000827ce33c49823356cbc202ee7ef015963f0728471125c4aab7fb7c6d360e9"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/012_sistema_cliente_activo.py",
+          "estado": "IGUAL",
+          "sha256_destino": "9b2183125122bedcc146bd719ce7c045dc94ac53b0f237099c88329d876d6fe9"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/013_desbloqueo_revision.py",
+          "estado": "IGUAL",
+          "sha256_destino": "b2c5b3d49c1fe88ce1702643eddc28b1dbb96b44e579975ee1d0917cc1adf779"
+        },
+        {
+          "ruta": "migraciones/alembic/versions/014_habilitar_11_sistemas.py",
+          "estado": "IGUAL",
+          "sha256_destino": "e1613a6fff52bebc03fac943ff161c6c6dd1ca50419154085728723378bf4971"
+        },
+        {
+          "ruta": "migraciones/base_etapa4.py",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "3843badc6baddb001c3d491c7167ac771116657f6938afd579c056700541b09a"
+        },
+        {
+          "ruta": "requirements.txt",
+          "estado": "SOLO_FIN_DE_LINEA",
+          "sha256_destino": "381e884b82b416a90f3e4e2b90ed57aa188c732c4f3f0032461282d38d750a26"
+        },
+        {
+          "ruta": "scripts/backup_readyproof.py",
+          "estado": "IGUAL",
+          "sha256_destino": "c96634c2a8d7f0348fb58fc973336e13102f65a4f5492b8e2d2a3ee56c8e1385"
+        }
+      ],
+      "resumen": {
+        "SOLO_FIN_DE_LINEA": 28,
+        "IGUAL": 75
+      },
+      "diferencias": [],
+      "schema": "014_habilitar_11_sistemas",
+      "head_local": "014_habilitar_11_sistemas",
+      "migraciones_no_ejecutadas_por_auditoria": true,
+      "alcance_git": "Árbol de trabajo e instalación privada; no se incorporan automáticamente otros cambios previos a los commits de auditoría."
+    },
+    "2_base_datos": {
+      "estado": "OK",
+      "consulta_solo_lectura": true,
+      "counts": {
+        "alembic_version": 1,
+        "cargas": 45,
+        "clientes": 1,
+        "emisiones_carga": 0,
+        "envios": 7,
+        "envios_documentacion": 1,
+        "firmas_carga": 45,
+        "intentos": 7,
+        "manuales": 5,
+        "numero_registro_contador": 1,
+        "planillas": 88,
+        "registros_acceso": 670,
+        "retenciones": 7,
+        "revisiones_carga": 153,
+        "sesiones_usuario": 2,
+        "sistemas": 15,
+        "usuarios": 2,
+        "usuarios_clientes": 1,
+        "versiones_esquema": 14
+      },
+      "planillas_activas": 79,
+      "sistemas_activos": [
+        "SAA",
+        "SAL",
+        "SAP",
+        "SBC",
+        "SCC",
+        "SDC",
+        "SDI",
+        "SEP",
+        "SGE",
+        "SHC",
+        "SIM",
+        "SRA",
+        "SRE",
+        "SSA",
+        "STM"
+      ],
+      "restricciones_no_validadas": [],
+      "triggers_historial": [
+        "emisiones_inmutables"
+      ],
+      "clientes_no_ejemplo": 0
+    },
+    "3_pdf_binarios": {
+      "estado": "OK",
+      "total": 130,
+      "pdf_validos": 48,
+      "png_validos": 82,
+      "paginas_por_pdf": {
+        "2": 30,
+        "3": 4,
+        "1": 14
+      },
+      "dimensiones_paginas": {
+        "(841.9, 595.3)": 86
+      },
+      "invalidos": [],
+      "hashes_no_coincidentes": [],
+      "pdf_legacy_sin_hash_persistido": 0,
+      "huellas": [
+        {
+          "tabla": "cargas",
+          "id": "c9192d1d-d9fc-54d2-ad03-33a5d20df607",
+          "columna": "pdf",
+          "bytes": 123040,
+          "sha256": "b2636ffbcbe961eb7558af52f56a0de46956be8572365550e152b7925629172f"
+        },
+        {
+          "tabla": "cargas",
+          "id": "1a1cfc7c-0f86-454d-810e-4be1a90e9ba9",
+          "columna": "pdf",
+          "bytes": 122049,
+          "sha256": "f4978d1ac6d853e395afd7d01dfcc2fb061648cc7300d09f524036213873a87f"
+        },
+        {
+          "tabla": "cargas",
+          "id": "64fdaaf5-a3b4-5d9b-a766-0228c04bf88b",
+          "columna": "pdf",
+          "bytes": 121693,
+          "sha256": "c565b08f454877a17323c4ff7c49edbd4c123bb482fd84c18c645554f2914f66"
+        },
+        {
+          "tabla": "cargas",
+          "id": "176974d9-a2d1-44bb-b5c6-0e8e4b3efe9f",
+          "columna": "pdf",
+          "bytes": 130664,
+          "sha256": "616cce94fb9bb78bf18ded2be4d5187a315807af29ccea805d23352c262f5aea"
+        },
+        {
+          "tabla": "cargas",
+          "id": "b6e078e1-d21a-5323-9f98-61aa6eeee301",
+          "columna": "pdf",
+          "bytes": 142010,
+          "sha256": "ffaf34f1fcdda5f4f25a03b6826d9c4bb6bed8db81e5de0040d5dc17b0115998"
+        },
+        {
+          "tabla": "cargas",
+          "id": "80c7c0bf-402c-4cad-85de-314975328a3e",
+          "columna": "pdf",
+          "bytes": 121997,
+          "sha256": "f9dc355fc6fe6f7188706ef43405e5ff823e973528cc57eae540bd0656b2ebfd"
+        },
+        {
+          "tabla": "cargas",
+          "id": "9aa004d8-ec62-56dc-a12d-08e817671c59",
+          "columna": "pdf",
+          "bytes": 137594,
+          "sha256": "2e8f0513aaadc92a5fe66de167d671ade1e770a11f82821421a8e6a1cdecc2d9"
+        },
+        {
+          "tabla": "cargas",
+          "id": "19232f5e-b1c9-5e11-b20f-88dce0d57b5d",
+          "columna": "pdf",
+          "bytes": 136151,
+          "sha256": "8cec41ca95da14a02aba636402cdcfc7f943a2c3fd9a9ed5460af1b0b8387390"
+        },
+        {
+          "tabla": "cargas",
+          "id": "4fa1d011-4561-5345-b674-3e4200efd98f",
+          "columna": "pdf",
+          "bytes": 141080,
+          "sha256": "db1073cc8c28eda3a5bafef92c9f14db6d40f98fd1689f344d85cbcda84af5bb"
+        },
+        {
+          "tabla": "cargas",
+          "id": "acd43b31-252c-4a15-bdf8-2d0cc9b770f6",
+          "columna": "pdf",
+          "bytes": 130530,
+          "sha256": "67f7f08dc43debcbe75dea83759c34b8a81467df78d4537f52b707f12341b891"
+        },
+        {
+          "tabla": "cargas",
+          "id": "e91f8d38-b19d-5c38-9c62-fc365cf4cb2e",
+          "columna": "pdf",
+          "bytes": 119597,
+          "sha256": "922aa5e249e11489a85a5591d45a93c9d7760661674f04c59d7f747d28edbfe0"
+        },
+        {
+          "tabla": "cargas",
+          "id": "5554a4e9-3cda-5710-885d-c73ee2e6ac04",
+          "columna": "pdf",
+          "bytes": 121951,
+          "sha256": "e7efe97da62da945bdbf00440f6a5d6e864a0e55f781b0e395289ca616ab5252"
+        },
+        {
+          "tabla": "cargas",
+          "id": "8df4352f-0483-4879-931a-fe24ad332904",
+          "columna": "pdf",
+          "bytes": 128133,
+          "sha256": "c34f1f0ac21cd07a632ac15edf51e531a3ccc1fbb388d9740d1300b81c1b7b21"
+        },
+        {
+          "tabla": "cargas",
+          "id": "94f3f3b7-00ed-5d6d-8521-e26e7e58e061",
+          "columna": "pdf",
+          "bytes": 119521,
+          "sha256": "4306e0b137fbbed5abe784b5726f1d41aac22d680c871b9fb7858a25fd1f3039"
+        },
+        {
+          "tabla": "cargas",
+          "id": "4cd1f2b7-d3e7-5b57-8acd-5fcf2711b89f",
+          "columna": "pdf",
+          "bytes": 118632,
+          "sha256": "a352a58d951914e8d17423618f9ec23fd27086082e4222a61fd217405e1de486"
+        },
+        {
+          "tabla": "cargas",
+          "id": "8b424e8b-0afe-5415-8739-98a2c6675ad8",
+          "columna": "pdf",
+          "bytes": 115972,
+          "sha256": "46af5ad3edbfb304e97d6015cc4db80f841d25423a90cd9314422d1038c127e2"
+        },
+        {
+          "tabla": "cargas",
+          "id": "689117ba-ec7c-5599-b563-98ae4369ad69",
+          "columna": "pdf",
+          "bytes": 129289,
+          "sha256": "d3749381c19300c4746057f2cb266158a61cdb30f1990fee48202a407e746a54"
+        },
+        {
+          "tabla": "cargas",
+          "id": "16e92c92-3979-5cdb-b264-5422af4a01b3",
+          "columna": "pdf",
+          "bytes": 117009,
+          "sha256": "49386971290b8689c4b4bd823b4591b85856c975cc0a2311e932a4dc2c7236bc"
+        },
+        {
+          "tabla": "cargas",
+          "id": "cce6f125-03e6-5628-808a-0e28a8b65e2e",
+          "columna": "pdf",
+          "bytes": 134639,
+          "sha256": "17443a25dfcf97e075539abdf53a80aedb76335a89663ee1c2bb052a87cfcaa0"
+        },
+        {
+          "tabla": "cargas",
+          "id": "62982e24-7586-5778-bc0a-d87c173b643e",
+          "columna": "pdf",
+          "bytes": 123773,
+          "sha256": "3f573003d21ba3e900a63f47f53fc675e352cc629b8b2eb7d3630b0c3aa18026"
+        },
+        {
+          "tabla": "cargas",
+          "id": "58f8b9ca-d2ad-5170-90fb-fc53168dda4a",
+          "columna": "pdf",
+          "bytes": 139618,
+          "sha256": "3bd54a56bfe22ab46fba53c9b9a8f199eb26a94451c6a6a4d4e942ef67fd5eec"
+        },
+        {
+          "tabla": "cargas",
+          "id": "d9d2727c-9ff8-5251-b715-aebb74cf2629",
+          "columna": "pdf",
+          "bytes": 124592,
+          "sha256": "5f165245d92a8a0786c5ec8db922b3e74b9524ad389f2ac8dd1ed1c8a34a280e"
+        },
+        {
+          "tabla": "cargas",
+          "id": "14e05860-3b40-5813-8952-7b99790ec299",
+          "columna": "pdf",
+          "bytes": 123221,
+          "sha256": "36a5eca0b9177bc2c3d790ebe0f177faadfd767d32e758aecc5c9315fa395776"
+        },
+        {
+          "tabla": "cargas",
+          "id": "08749a29-0fca-5c1a-aaf6-f3eb39b634ff",
+          "columna": "pdf",
+          "bytes": 137190,
+          "sha256": "b6587538650cf7f3a2be58f4ee81ad6ad8aeb8e7e957dc6ab4376d755d5b01b9"
+        },
+        {
+          "tabla": "cargas",
+          "id": "22185d5f-9808-52d6-8b88-3e8c29637091",
+          "columna": "pdf",
+          "bytes": 149514,
+          "sha256": "c8122560c4b336055e572930cfeb42cb6ff39c2d4583db633ca0505209ea9e93"
+        },
+        {
+          "tabla": "cargas",
+          "id": "bbd3978e-7873-5b67-8433-d1dce514dd62",
+          "columna": "pdf",
+          "bytes": 119465,
+          "sha256": "fe95c50a20be75908f709fc3df9e3fa9b2c64bcb2b4eeb5353432ba1502d1b98"
+        },
+        {
+          "tabla": "cargas",
+          "id": "e7069c01-3b79-55b0-b076-5c7c48f36772",
+          "columna": "pdf",
+          "bytes": 126261,
+          "sha256": "c65487cff8f7a1cc323c68bc57bac2caa8b1bacc67c9bad5ffa604b2f33d310f"
+        },
+        {
+          "tabla": "cargas",
+          "id": "c6188be2-b060-47ed-b6bb-58ed2caf0c97",
+          "columna": "pdf",
+          "bytes": 168416,
+          "sha256": "3ccee1d881e3c539d588911a8a5755d05e1f428119292a2badd000cec54e23b6"
+        },
+        {
+          "tabla": "cargas",
+          "id": "9c05dd3f-1e75-5ed7-9309-d0b52b4baaee",
+          "columna": "pdf",
+          "bytes": 121019,
+          "sha256": "ee2c342a0751399acc138cde0f3ba1be47ae61cf4d0074bd9578acdb3ff62f8a"
+        },
+        {
+          "tabla": "cargas",
+          "id": "5da14e67-3ed9-524a-a545-f5660e0898e6",
+          "columna": "pdf",
+          "bytes": 143522,
+          "sha256": "4cfdbeac05fd965c65396c8af98c2ee6a7a9c9df4266fd399645f6ff4a5ae2d9"
+        },
+        {
+          "tabla": "cargas",
+          "id": "9216f773-6054-55fa-aba4-a379375828a3",
+          "columna": "pdf",
+          "bytes": 117470,
+          "sha256": "95283c78ce13531d4d4431adbc0b402fae5250933dc2e5da84d1d9a397da23a4"
+        },
+        {
+          "tabla": "cargas",
+          "id": "fcee823d-7d33-591f-9d2e-c6fbe2330484",
+          "columna": "pdf",
+          "bytes": 120124,
+          "sha256": "b4d4f819df233136c7497d668be55d19cd34c14d399554a71578ac4d51597dd3"
+        },
+        {
+          "tabla": "cargas",
+          "id": "66aec40d-6030-548e-a917-0bfe55746e68",
+          "columna": "pdf",
+          "bytes": 130795,
+          "sha256": "326a2412d5b74e31cc572476a5704c618526ae48c2181f8794163b7716c5fe04"
+        },
+        {
+          "tabla": "cargas",
+          "id": "196c69ce-73b7-5afb-9b78-aec3cda3b553",
+          "columna": "pdf",
+          "bytes": 139114,
+          "sha256": "85c4fa4183b51eabb39b679609324803455ad6fcfb4ad5b954b0061aa36bde1a"
+        },
+        {
+          "tabla": "cargas",
+          "id": "51112998-a29a-597a-98c3-7367ba74ef94",
+          "columna": "pdf",
+          "bytes": 118547,
+          "sha256": "9ab8a1285e5b4ca41886f952dc50ae9158fa9cba531aa05da002d390e1c67625"
+        },
+        {
+          "tabla": "cargas",
+          "id": "119850c7-8434-50ce-b86e-c3302624e24a",
+          "columna": "pdf",
+          "bytes": 125291,
+          "sha256": "e2500271384f3184bbba67a86ed2a7825bd553dbe153cec97efaa2e0ae60f42a"
+        },
+        {
+          "tabla": "cargas",
+          "id": "4f046a4b-0407-57cd-8648-516473de3916",
+          "columna": "pdf",
+          "bytes": 151054,
+          "sha256": "7ad90ed067cb6523007d12e2249471cef00625d129166e0b0dff93071ae7238f"
+        },
+        {
+          "tabla": "cargas",
+          "id": "ab121aef-6374-54b4-9ca7-6fd233249af5",
+          "columna": "pdf",
+          "bytes": 120963,
+          "sha256": "0116bf83c6c53388df09790ab9142e549564297b2ec8f715ea9f04cc7d67d7ca"
+        },
+        {
+          "tabla": "cargas",
+          "id": "fcd8d397-8d7c-5853-a3e5-2e4e1439af77",
+          "columna": "pdf",
+          "bytes": 138702,
+          "sha256": "ea2c8c25b597e8f9451d6f92b3fcef24cb3fce5c1c76547f204bd4a87a26cedb"
+        },
+        {
+          "tabla": "cargas",
+          "id": "c3003215-92d9-521e-9efc-6f2510f68da2",
+          "columna": "pdf",
+          "bytes": 127721,
+          "sha256": "97f564f011c3c96df3e2f1e54ff62c034f703ac8a5f7552b4341237cea1e6b48"
+        },
+        {
+          "tabla": "cargas",
+          "id": "6c33d40b-68da-4bdd-9d73-7d31258d5060",
+          "columna": "pdf",
+          "bytes": 164059,
+          "sha256": "84f805a3dc19e38d9fed5948ca038758b1e22bc30e385907234f9fd6b4ab3f24"
+        },
+        {
+          "tabla": "envios",
+          "id": "7a420378-3a2d-460d-9c00-58fc2100c3c1",
+          "columna": "pdf_copia",
+          "bytes": 122049,
+          "sha256": "f4978d1ac6d853e395afd7d01dfcc2fb061648cc7300d09f524036213873a87f"
+        },
+        {
+          "tabla": "envios",
+          "id": "2a8c99cb-6a87-4f55-9a2a-ded01df7d244",
+          "columna": "pdf_copia",
+          "bytes": 128133,
+          "sha256": "c34f1f0ac21cd07a632ac15edf51e531a3ccc1fbb388d9740d1300b81c1b7b21"
+        },
+        {
+          "tabla": "envios",
+          "id": "b546c17c-4f85-42fd-83cf-68658f41d325",
+          "columna": "pdf_copia",
+          "bytes": 121997,
+          "sha256": "f9dc355fc6fe6f7188706ef43405e5ff823e973528cc57eae540bd0656b2ebfd"
+        },
+        {
+          "tabla": "envios",
+          "id": "089a926b-fead-47ba-85b1-34f4a2b57b34",
+          "columna": "pdf_copia",
+          "bytes": 168416,
+          "sha256": "3ccee1d881e3c539d588911a8a5755d05e1f428119292a2badd000cec54e23b6"
+        },
+        {
+          "tabla": "envios",
+          "id": "3937e7f1-1548-5f3e-a276-59d574de8cf3",
+          "columna": "pdf_copia",
+          "bytes": 121951,
+          "sha256": "e7efe97da62da945bdbf00440f6a5d6e864a0e55f781b0e395289ca616ab5252"
+        },
+        {
+          "tabla": "envios",
+          "id": "e68fbcad-c064-55b2-a143-706b48917c9c",
+          "columna": "pdf_copia",
+          "bytes": 119597,
+          "sha256": "922aa5e249e11489a85a5591d45a93c9d7760661674f04c59d7f747d28edbfe0"
+        },
+        {
+          "tabla": "envios",
+          "id": "49cc5daa-b41b-46c4-b997-7fef7f14fb03",
+          "columna": "pdf_copia",
+          "bytes": 164059,
+          "sha256": "84f805a3dc19e38d9fed5948ca038758b1e22bc30e385907234f9fd6b4ab3f24"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "1a1cfc7c-0f86-454d-810e-4be1a90e9ba9",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "1a1cfc7c-0f86-454d-810e-4be1a90e9ba9",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "19232f5e-b1c9-5e11-b20f-88dce0d57b5d",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "19232f5e-b1c9-5e11-b20f-88dce0d57b5d",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "176974d9-a2d1-44bb-b5c6-0e8e4b3efe9f",
+          "columna": "tecnico_png",
+          "bytes": 10972,
+          "sha256": "778eb286059d982a0a30b60a659ccb075142b6a18c7d0b7e7335685276085f26"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "176974d9-a2d1-44bb-b5c6-0e8e4b3efe9f",
+          "columna": "responsable_png",
+          "bytes": 11037,
+          "sha256": "5de87559f094970959a3ec1d72f4c084cf2fb0541dd04aa610d93a07e18fbb12"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "80c7c0bf-402c-4cad-85de-314975328a3e",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "80c7c0bf-402c-4cad-85de-314975328a3e",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "acd43b31-252c-4a15-bdf8-2d0cc9b770f6",
+          "columna": "tecnico_png",
+          "bytes": 9879,
+          "sha256": "c2598ddf2eda468cc1ca68f0f69e4df7c40956e0fb248fb2b24be89f9377b4c7"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "acd43b31-252c-4a15-bdf8-2d0cc9b770f6",
+          "columna": "responsable_png",
+          "bytes": 7944,
+          "sha256": "876c821a233c91be08ff2e40c9512cf0d4028f3aeacea1a71cd11c6953667045"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "5554a4e9-3cda-5710-885d-c73ee2e6ac04",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "5554a4e9-3cda-5710-885d-c73ee2e6ac04",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "e91f8d38-b19d-5c38-9c62-fc365cf4cb2e",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "e91f8d38-b19d-5c38-9c62-fc365cf4cb2e",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "8df4352f-0483-4879-931a-fe24ad332904",
+          "columna": "tecnico_png",
+          "bytes": 9879,
+          "sha256": "c2598ddf2eda468cc1ca68f0f69e4df7c40956e0fb248fb2b24be89f9377b4c7"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "8df4352f-0483-4879-931a-fe24ad332904",
+          "columna": "responsable_png",
+          "bytes": 7944,
+          "sha256": "876c821a233c91be08ff2e40c9512cf0d4028f3aeacea1a71cd11c6953667045"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "94f3f3b7-00ed-5d6d-8521-e26e7e58e061",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "94f3f3b7-00ed-5d6d-8521-e26e7e58e061",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "c9192d1d-d9fc-54d2-ad03-33a5d20df607",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "c9192d1d-d9fc-54d2-ad03-33a5d20df607",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "4cd1f2b7-d3e7-5b57-8acd-5fcf2711b89f",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "4cd1f2b7-d3e7-5b57-8acd-5fcf2711b89f",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "689117ba-ec7c-5599-b563-98ae4369ad69",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "689117ba-ec7c-5599-b563-98ae4369ad69",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "8b424e8b-0afe-5415-8739-98a2c6675ad8",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "8b424e8b-0afe-5415-8739-98a2c6675ad8",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "64fdaaf5-a3b4-5d9b-a766-0228c04bf88b",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "64fdaaf5-a3b4-5d9b-a766-0228c04bf88b",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "b6e078e1-d21a-5323-9f98-61aa6eeee301",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "b6e078e1-d21a-5323-9f98-61aa6eeee301",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "9aa004d8-ec62-56dc-a12d-08e817671c59",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "9aa004d8-ec62-56dc-a12d-08e817671c59",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "16e92c92-3979-5cdb-b264-5422af4a01b3",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "16e92c92-3979-5cdb-b264-5422af4a01b3",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "cce6f125-03e6-5628-808a-0e28a8b65e2e",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "cce6f125-03e6-5628-808a-0e28a8b65e2e",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "58f8b9ca-d2ad-5170-90fb-fc53168dda4a",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "58f8b9ca-d2ad-5170-90fb-fc53168dda4a",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "62982e24-7586-5778-bc0a-d87c173b643e",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "62982e24-7586-5778-bc0a-d87c173b643e",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "22185d5f-9808-52d6-8b88-3e8c29637091",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "22185d5f-9808-52d6-8b88-3e8c29637091",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "08749a29-0fca-5c1a-aaf6-f3eb39b634ff",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "08749a29-0fca-5c1a-aaf6-f3eb39b634ff",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "bbd3978e-7873-5b67-8433-d1dce514dd62",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "bbd3978e-7873-5b67-8433-d1dce514dd62",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "e7069c01-3b79-55b0-b076-5c7c48f36772",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "e7069c01-3b79-55b0-b076-5c7c48f36772",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "4fa1d011-4561-5345-b674-3e4200efd98f",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "4fa1d011-4561-5345-b674-3e4200efd98f",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "c6188be2-b060-47ed-b6bb-58ed2caf0c97",
+          "columna": "tecnico_png",
+          "bytes": 16064,
+          "sha256": "3b252bd2864314c7e28f9eed3ad4b5f94f4aac1ec425736a48faa6c7b5ac1937"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "c6188be2-b060-47ed-b6bb-58ed2caf0c97",
+          "columna": "responsable_png",
+          "bytes": 15261,
+          "sha256": "024444bd7abafa80e61aa2a33a8765402c97f0c38aa684a2db6231c7158257f7"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "9c05dd3f-1e75-5ed7-9309-d0b52b4baaee",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "9c05dd3f-1e75-5ed7-9309-d0b52b4baaee",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "d9d2727c-9ff8-5251-b715-aebb74cf2629",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "d9d2727c-9ff8-5251-b715-aebb74cf2629",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "fcee823d-7d33-591f-9d2e-c6fbe2330484",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "fcee823d-7d33-591f-9d2e-c6fbe2330484",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "66aec40d-6030-548e-a917-0bfe55746e68",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "66aec40d-6030-548e-a917-0bfe55746e68",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "9216f773-6054-55fa-aba4-a379375828a3",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "9216f773-6054-55fa-aba4-a379375828a3",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "14e05860-3b40-5813-8952-7b99790ec299",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "14e05860-3b40-5813-8952-7b99790ec299",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "5da14e67-3ed9-524a-a545-f5660e0898e6",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "5da14e67-3ed9-524a-a545-f5660e0898e6",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "196c69ce-73b7-5afb-9b78-aec3cda3b553",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "196c69ce-73b7-5afb-9b78-aec3cda3b553",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "51112998-a29a-597a-98c3-7367ba74ef94",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "51112998-a29a-597a-98c3-7367ba74ef94",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "119850c7-8434-50ce-b86e-c3302624e24a",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "119850c7-8434-50ce-b86e-c3302624e24a",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "4f046a4b-0407-57cd-8648-516473de3916",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "4f046a4b-0407-57cd-8648-516473de3916",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "fcd8d397-8d7c-5853-a3e5-2e4e1439af77",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "fcd8d397-8d7c-5853-a3e5-2e4e1439af77",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "ab121aef-6374-54b4-9ca7-6fd233249af5",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "ab121aef-6374-54b4-9ca7-6fd233249af5",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "c3003215-92d9-521e-9efc-6f2510f68da2",
+          "columna": "tecnico_png",
+          "bytes": 3908,
+          "sha256": "bc8f127d65fa72802ffa323489e56146778777c788b3203e54eb03de9d28ed81"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "c3003215-92d9-521e-9efc-6f2510f68da2",
+          "columna": "responsable_png",
+          "bytes": 3580,
+          "sha256": "1b711582392e6d6b77fc1bd30b7a118217e7bf9c5120d76b0d46e5d48642b072"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "6c33d40b-68da-4bdd-9d73-7d31258d5060",
+          "columna": "tecnico_png",
+          "bytes": 8307,
+          "sha256": "70717e6a686e86ca6828f0aa817a1f5fe3e33367c3efa3787b8da47bdedb62ce"
+        },
+        {
+          "tabla": "firmas_carga",
+          "id": "6c33d40b-68da-4bdd-9d73-7d31258d5060",
+          "columna": "responsable_png",
+          "bytes": 15155,
+          "sha256": "a609403e88f88db84a4ec077ffa3a4f9bfde50ddd13eb2850c58583cba2e9929"
+        }
+      ],
+      "historicos_reescritos": false
+    },
+    "4_tests": {
+      "estado": "OK",
+      "total_coleccion": 525,
+      "aprobados": 525,
+      "fallidos": 0,
+      "omitidos": 0,
+      "no_ejecutados": 0,
+      "plataformas": {
+        "linux": 479,
+        "windows": 46
+      },
+      "ejecucion_unica": false,
+      "evidencia": [
+        "out/auditoria_punto6/linux_v2.xml",
+        "out/auditoria_punto6/windows_v2.xml"
+      ],
+      "caso_focalizado": {
+        "estado": "PASSED",
+        "segundos": 41.24,
+        "evidencia": "out/auditoria_punto6/a4_corregido.xml"
+      },
+      "fallo_inicial_conservado": "out/auditoria_punto6/windows.xml",
+      "diagnostico_original_sin_cambio": "out/auditoria_punto6/diagnostico_a4.xml"
+    },
+    "5_respaldos": {
+      "estado": "respaldo_y_restauracion_auditoria_OK",
+      "backup": {
+        "estado": "respaldo_verificado_en_drive",
+        "remote": "readyproof-drive:readyproof-backups/daily/readyproof-2026-10-28.tar.enc",
+        "schema": "014_habilitar_11_sistemas",
+        "counts": {
+          "cargas": 45,
+          "firmas_carga": 45,
+          "envios": 7,
+          "planillas": 88,
+          "sistemas": 15
+        },
+        "blobs": 130,
+        "cipher_sha256": "d98b596e6c3eca127ab3f8b070ccde97fb3f6e5b9076b2a1fc5ad5f56b1b206c",
+        "created_utc": "2026-10-28T15:12:33.820886+00:00"
+      },
+      "restauracion": {
+        "estado": "restauracion_verificada",
+        "database": "readyproof_test_etapa5_20261028T151304",
+        "schema": "014_habilitar_11_sistemas",
+        "remote": "readyproof-drive:readyproof-backups/daily/readyproof-2026-10-28.tar.enc",
+        "cipher_sha256": "d98b596e6c3eca127ab3f8b070ccde97fb3f6e5b9076b2a1fc5ad5f56b1b206c",
+        "snapshot_created_utc": "2026-10-28T15:12:33.820886+00:00",
+        "counts": {
+          "cargas": 45,
+          "firmas_carga": 45,
+          "envios": 7,
+          "planillas": 88,
+          "sistemas": 15
+        },
+        "tablas_comparadas": 19,
+        "blobs_comparados": 130,
+        "pdf_exportados_comparados": 48,
+        "produccion_modificada": false
+      },
+      "timer_activo": true,
+      "aplicacion_activa": true
+    }
+  },
+  "tests_post_correcciones": {
+    "estado": "OK",
+    "total_coleccion": 525,
+    "aprobados": 525,
+    "fallidos": 0,
+    "omitidos": 0,
+    "no_ejecutados": 0,
+    "plataformas": {
+      "linux": 479,
+      "windows": 46
+    },
+    "ejecucion_unica": false,
+    "evidencia": [
+      "out/auditoria_punto6/linux_v2.xml",
+      "out/auditoria_punto6/windows_v2.xml"
+    ],
+    "caso_focalizado": {
+      "estado": "PASSED",
+      "segundos": 41.24,
+      "evidencia": "out/auditoria_punto6/a4_corregido.xml"
+    },
+    "fallo_inicial_conservado": "out/auditoria_punto6/windows.xml",
+    "diagnostico_original_sin_cambio": "out/auditoria_punto6/diagnostico_a4.xml"
+  },
+  "faltantes_corregidos": [
+    ".env.*.local excluido",
+    ".env sin seguimiento",
+    "Permisos app/ 0755; carpetas privadas 0700",
+    "CAMBIOS_AUTORIZADOS_EN_FUENTE.md",
+    "docs/ETAPA0_DIAGNOSTICO.md",
+    "docs/ETAPA1_BACKUP.md",
+    "PREGUNTAS_ABIERTAS.md: SCC y SDI",
+    "REGISTRO_DE_CAMBIOS.md: etapas 0–5 con migraciones reales",
+    "manifiesto_etapa5.json y out/etapa5_planillas/manifiesto.json",
+    "Espera y clic de vista previa/emisión gestionados juntos en prueba A4"
+  ],
+  "manifiesto": {
+    "archivo": "manifiesto_etapa5.json",
+    "total_archivos": 189,
+    "diferencias": 0
+  },
+  "diagnostico_a4": {
+    "mensaje_original": "Contexto cerrado durante waitForResponse; promesa de emisión no gestionada al fallar una acción anterior.",
+    "correccion": "Promise.all para clic/respuesta; esperar cierre del diálogo y botón habilitado; espera explícita de vista previa lista.",
+    "limite_diagnostico": "La reproducción original pasó; el disparador inicial de la intermitencia no quedó recuperado. Se corrigió el manejo de promesas y la sincronización observables, sin atribuirlo a corrupción del PDF ni aumentar indiscriminadamente timeouts.",
+    "aplicacion_modificada": false,
+    "commit": "b750f79cbc1700b411aba245481dbd003bf2b0a5"
+  },
+  "commits": [
+    {
+      "tipo": "arreglo_test",
+      "hash": "b750f79cbc1700b411aba245481dbd003bf2b0a5"
+    },
+    {
+      "tipo": "seguridad_documentacion_reportes",
+      "referencia": "Commit que incorpora este informe; consultar git log. Se omite su propia huella para evitar autorreferencia."
+    }
+  ],
+  "hallazgos_no_resolubles": [],
+  "bloqueos_resueltos": [
+    "Cinco cambios necesarios de fuente conservados por autorización expresa.",
+    "Caso A4 corregido y suite posterior completa aprobada."
+  ],
+  "pendientes_normativos_y_alcance": [
+    "Martín confirma SCC-1 MPa vs bar antes de etapa 6 y uso real; migración 016 solo si corresponde.",
+    "Martín confirma SDI 3 vs 4 estados antes de uso real; se mantienen los cuatro del kit.",
+    "Manuales reales/asociaciones, calendario S1–S5 y alcance ampliado de establecimientos, precargas, datos dinámicos y anulación."
+  ],
+  "modo_real_habilitado": false,
+  "etapa6_iniciada": false,
+  "veredicto": "AUDITORIA_COMPLETA_OK",
+  "alcance_veredicto": "Verificaciones solicitadas sobre el corte de etapas 0–5 en piloto; no constituye habilitación normativa ni aprobación para uso real.",
+  "entrega_git": {
+    "alcance": "Commit del arreglo de prueba y commit de seguridad/documentación/reportes de auditoría.",
+    "trabajo_preexistente_fuera_de_estos_commits": true,
+    "push_realizado": false
+  }
+}

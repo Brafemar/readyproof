@@ -288,3 +288,168 @@ Cabecera cuenta los 11 campos comunes y Firmas los 2 espacios del pie por planil
 - PNG simple readyproof 600×150 disponible y verificado, con fondo blanco y texto gris #333333 en Helvetica-Bold 48 pt. Original anterior respaldado.
 - Metadatos PDF /Author, /Creator y /Producer: readyproof, confirmados en código y en una emisión nueva de prueba.
 - 151 passed in 429.45s (0:07:09); compileall app/ tests/ código 0. Sin pendiente nuevo de estos dos hallazgos. Continúan los pendientes anteriores del proyecto.
+
+## 2026-10-27 — Documentación de entrega y nueva prueba operativa
+
+**Corrección posterior de selectores:** se confirmó que el servidor ofrece un cliente ficticio, un sistema y una planilla operativa. Los listeners ya existían. Se agregó indicador de disponibilidad, manejo de errores de selección y corrección reproducible del service worker ante falta de red/caché. Cuatro archivos aplicados con respaldo y reinicio exclusivo de readyproof, sin borrar IndexedDB ni agregar datos al servidor. Jorge confirmó luego de Ctrl+F5 que las listas abren y el indicador aparece. Suite final: 158 passed in 487.56s, compileall código 0; cuatro hashes desplegados coincidentes y sin valores de secretos expuestos. La consola personal F12 no fue inspeccionada; el service worker quedó validado mediante pruebas aisladas. No se requiere borrar datos del navegador. Detalle en docs/CORRECCION_SELECTORES.md.
+
+**Estado vigente de servidor privado:** Jorge autorizó expresamente compartir 67.205.170.29. Instalación privada completada en /home/readyproof, servicio sin root en 127.0.0.1:8000, PostgreSQL exclusivo loopback, claves aleatorias generadas en el servidor y msanchez creado por formulario HTTP normal. Login y flujo SAA-1/PDF/EML sin SMTP comprobados en Ubuntu; backup diario local y restauración en base separada aprobados. Túnel temporal respondió HTTP 200 desde Windows y se cerró al finalizar. No se publicaron puertos, dominio o HTTPS ni se tocaron Docker/Traefik existentes. El bloqueo previo de decisión de servidor queda resuelto por esa autorización. Instrucciones: docs/ACCESO_SERVIDOR_PRIVADO.md. Pendientes: Jorge abre su túnel, consulta la clave temporal solo por consola y la cambia; dominio propio/publicación, SMTP real del servidor, backup externo, datos reales y revisión de dispositivo/canvas.
+
+Actualización de infraestructura: acceso SSH por clave confirmado. La inspección de 67.205.170.29 encontró brafemar-server, varios servicios Docker, 80/443 ocupados y solo 624 MB de RAM disponible sin swap. No es el servidor separado previsto. Instalación detenida sin cambios remotos; pendiente elección expresa de Jorge entre otro Droplet o preparación privada compartida. El bloqueo anterior de acceso SSH queda superado; no se hicieron instalaciones.
+
+Despliegue solicitado posteriormente: Jorge eligió preparar en privado el servidor 67.205.170.29, sin dominio ni publicación. No utilizar readyproof.brafemar.com.ar. El acceso SSH sin contraseña interactiva fue rechazado; debe ejecutar scripts/habilitar_acceso_despliegue.ps1 en su consola privada para autorizar una clave. No se efectuaron cambios remotos. Luego corresponde inspeccionar el servidor y preparar instalación privada; dominio propio/HTTPS siguen pendientes.
+
+Actualización posterior: el reporte local de la nueva prueba ya registra ejecución con msanchez, SMTP enviado (un intento ok) y recepción/apertura declaradas manualmente por el operador. PDF y huella comprobados nuevamente, sin repetir el envío. Queda resuelto el pendiente de ejecución/confirmación por consola descrito debajo; permanecen pendientes la inspección independiente del mensaje nuevo en Enviados, canvas/dispositivo y producción. Evidencia: `out/prueba_operativa_final/resultado.json`; carga `0ab4612f-3e33-4251-b79a-825fc3bd39fd`.
+
+- SAL resuelto para el resumen: Jorge confirmó «Sistema de Extinción por Agentes Limpios», según el kit. No corresponde a alumbrado.
+- Acceso administrador: Jorge confirmó que ya tiene acceso a msanchez. Esta declaración actualiza el pendiente histórico de recuperación; no se volvió a cambiar su clave ni se solicitó por chat.
+- Jorge indicó que todavía no ejecutó el nuevo script `scripts/prueba_operativa_final.py`. Pendiente: ejecución interactiva con su cuenta, PDF descargado, aceptación SMTP y confirmación de recepción/apertura. La prueba recibida el 26/10 conserva su evidencia independiente y no se usa para aprobar esta ejecución nueva.
+- Documentos preparados: guía de acceso, deployment DigitalOcean, checklist y resumen de manuales. La guía de acceso explica que todavía no existe botón de correo en la interfaz y diferencia las firmas canvas de los PNG ficticios por API.
+- No hay despliegue, HTTPS productivo, backup restaurado ni monitoreo configurados en esta tarea. Dominio, tamaño/región/costo del Droplet, destino externo cifrado de respaldo y operadores requieren definición/aprobación de Jorge antes de instalar. Continúan pendientes el ensayo Ubuntu, proxy/CSRF y la habilitación para datos reales.
+- Gunicorn 26.2.0 se documenta únicamente como dependencia justificada del servicio WSGI propuesto. No se agregó a requisitos ni se instaló en Windows. No se crearon servicios, cuentas ni recursos externos.
+- Validación documental/local cerrada: 156 pruebas aprobadas, compileall código 0 y revisión sin valores de secretos expuestos ni enlaces locales rotos. Evidencias en out/entrega_documentacion_pytest_final.txt y out/entrega_documentacion_revision.json. No modifica los pendientes operativos o productivos enumerados arriba.
+
+## 2026-10-27 — Entrega técnica y Gmail HTTPS resueltos para el piloto
+
+- Usuario definitivo tecnico_readyproof creado y probado; no se creó tecnico_brafemar. Clave temporal solo en archivo root 0600, canal privado separado, y cambio en Mi cuenta al primer ingreso. Casilla guardada para esta prueba: jorgesanchezing@gmail.com; reemplazar por el correo propio del técnico al entregar.
+- Acceso individual de otra PC/Android preparado con readyproof_tunel_tecnico y clave restringida; sin compartir root. Paquete y guías listos. Túnel y restricciones comprobados desde Windows; configuración/prueba física de Android y canvas siguen pendientes del técnico/Jorge.
+- Botón de documentación activo en Mi cuenta, correo propio y controles de duplicación/CSRF. No envía contraseñas ni claves. Gmail HTTPS autorizado y configurado por decisión de Jorge para superar el bloqueo SMTP del proveedor; no se activó correo real de planillas.
+- Prueba real readyproof.ar@gmail.com -> jorgesanchezing@gmail.com: dos guías y logo, SENT verificado por MCP y recepción confirmada por Jorge. Mensaje Gmail 1a17dee776fd216c. No repetir para verificar; Gmail reescribe el Message-ID y se conserva el identificador real en la evidencia.
+- Validación final: 177 pruebas aprobadas, compileall código 0. Entrega privada de prueba lista; READY FOR GO-LIVE productivo no corresponde todavía. Continúan datos ficticios, dominio/HTTPS pendiente, backup externo pendiente, capacidad y demás decisiones abiertas de la serie.
+- Revisar vigencia/renovación y estado de publicación del OAuth de Google antes de comprometer operación continua; la autorización inicial se realizó como aplicación propia en prueba. Los secretos permanecen fuera del código, adjuntos y paquete técnico. Procedimiento GMAIL_HTTPS.md; entrega y acceso en ENTREGA_A_BRAFEMAR.md y ACCESO_TECNICO_BRAFEMAR.md.
+
+
+## 2026-10-27 — PDF por correo desde la carga
+
+Botón instalado en la app privada, envío a la casilla de prueba de Jorge aceptado por Gmail y PDF confirmado en Enviados. Recepción manual de esta nueva prueba pendiente; no repetir por ese motivo. Resuelto por pedido de Jorge: SAA-1 se emite en una sola A4 horizontal, versión rp2, con copia de cargas históricas. Verificado en servidor y en Gmail Enviados. La recepción manual de la nueva prueba A4 sigue pendiente. Informar a Martín del ajuste de impresión; no cambian filas, campos ni contenido normativo.
+
+
+## 2026-10-27 — Alcance de las cuatro familias
+
+Resuelto por Jorge: habilitar todas las planillas de SDI (5), SBC (6) y SAL (4), junto a SAA-1. Conservar la paginación del kit en A4 horizontal para las nuevas, sin reducirlas obligatoriamente a una hoja. SAL es Agentes Limpios. Cuatro familias equivalen a 16 planillas operativas; los contenedores y versiones previas permanecen en la base. Resuelto y verificado: migración 009 aplicada en el servidor privado, 16 formularios y PDF descargados por la API normal con datos ficticios; 208 tests aprobados. Se conservan 25 registros totales por el historial. Sin pendientes bloqueantes para esta habilitación; siguen vigentes los pendientes generales de producción y de revisión normativa de la serie.
+
+
+## 2026-10-27 — Firmantes: DNI y alcance v1.0
+
+Resuelto por Jorge: DNI de 8 a 15 dígitos, sin puntos ni guiones. Se agregan nombre y DNI obligatorios del responsable, cargo opcional y la identidad autenticada del técnico, con sus datos visibles en PDF. Se mantiene SAL como Agentes Limpios y las 16 planillas agrupadas por sistema. CUIT/CUIL y numeración quedan en el backlog v1.1, sujetos a las decisiones allí enumeradas. Resuelto y verificado: 232 tests aprobados, migración 010 aplicada, 16 PDF con identidades y rechazo de finalización incompleta comprobados en el servidor privado. No se transmitieron correos nuevos. Sin bloqueos de esta ampliación; siguen los pendientes generales del piloto y las decisiones de backlog v1.1.
+
+
+## 2026-10-28 — Diagnóstico v1.1 y decisiones del nuevo encargo
+
+- Resuelto por el encargo recibido: mantener UUID de cliente y agregar CUIT normalizado, validado, único y obligatorio; migrar en dos pasos sin inventar datos faltantes.
+- Resuelto: número global únicamente al emitir, sin reinicio anual ni huecos; contador con bloqueo transaccional, UUID e históricos conservados. Los borradores sincronizados no consumen número.
+- Resuelto el alcance de las 63 pendientes: cinco SAA y 58 de once sistemas aún no habilitados. SAL sigue siendo Agentes Limpios.
+- Antes de migrar: Jorge debe autorizar Drive de readyproof.ar@gmail.com; luego completar respaldo cifrado, retención, aviso de fallos y restauración separada de la versión vigente. El dump observado contiene 009 y la BD consultada está en 010. La restauración antigua no acredita esta versión.
+- Antes de exigir CUIT: completar y revisar el cliente ficticio existente mediante flujo administrativo; actualmente no existe columna CUIT en clientes. No se informó una comprobación de duplicados inexistente.
+- Antes de modelar visitas semanales: confirmar la convención calendario S1–S5 para no inventar una sexta columna o equivalencia ISO. Propuesta de coexistencia con matrices históricas en `docs/DIAGNOSTICO_ETAPA0_V1_1.md`.
+- Antes de cambiar opciones de las grillas: resolver con Martín cualquier contradicción entre tres estados pedidos y las leyendas del kit; conservar versiones previas.
+- Antes de ampliar altas dinámicas: definir permisos del técnico para cliente, establecimiento, sistema y responsables. Antes de uso real: confirmar empresa mantenedora/certificado y autorización expresa de Jorge. Piloto no se cambia en esta etapa.
+- Sigue pendiente la prueba física en teléfono; la evidencia Chromium aislada no equivale a Android o iPhone reales. La recepción humana del último correo A4 no está confirmada en su evidencia, aunque existe envío real previo por Gmail HTTPS.
+- Cierre: Etapa 0 completada sin cambios de aplicación ni de datos. La instrucción recibida exige detenerse y reportar; no se inició la Etapa 1.
+
+
+## 2026-10-28 — Resuelto: respaldo externo y restauración 010
+
+- Drive fue autorizado por Jorge para readyproof.ar@gmail.com. Copia cifrada externa y restauración final verificadas contra el mismo snapshot: esquema 010, 17 tablas y todos los hashes de PDF/firmas coincidentes. El respaldo anterior 009 deja de ser el único respaldo observado.
+- Timer nuevo activo y probado bajo systemd. Retención 30 diarios/12 mensuales y aviso Gmail configurados. Evidencia en out/etapa1_backup/verificacion_drive_restore.json.
+- Clave generada con aleatoriedad criptográfica en archivo privado del servidor; copia DPAPI verificada para el usuario Windows de Jorge, fuera del repositorio. Para recuperación independiente de esa PC, custodiar además en el gestor de contraseñas; no compartirla por chat.
+- Siguen pendientes las decisiones de etapas posteriores del nuevo encargo: alcance de mediciones obligatorias; confirmación de Martín sobre 3/4 estados; datos definitivos de mantenedora/certificado y autorización expresa del modo real. No se habilitó modo real ni se aplicaron migraciones.
+
+
+## 2026-10-28 — Etapa 2 completada
+
+- Resuelto: CUIT opcional normalizado, único y validado en modelo; migraciones 011–012 aplicadas. UUID/referencias preservados y sistemas activos con cliente obligatorio.
+- Auditoría real de solo lectura: un cliente ficticio sin CUIT; ningún duplicado, inválido, no normalizado ni sistema sin cliente. El faltante es esperado en esta migración opcional; no se inventa ni se hace NOT NULL todavía. Alta/edición de CUIT en interfaz y revisión administrativa siguen pendientes de etapas posteriores.
+- Respaldo actual en 012, descargado y restaurado en base separada. Copia previa 010 preservada y recuperable. Integridad: 980 filas históricas sin diferencias. Modo piloto conservado; no se cargó dato real.
+- Aclaración del ejemplo del encargo: 82000000000 no pasa módulo 11 (verificador calculado 7). Se usa como caso inválido, sin debilitar la validación. No se atribuye CUIT a IRAM ni se acredita inscripción ante ARCA.
+- Para Etapa 3: confirmar si la medición obligatoria corresponde solo a ítems de verificación (ver) con unidad o también a todos los campos generales con unidad. O sin observación debe rechazarse; no se inventa texto para completarla.
+- Para etapas siguientes se mantienen pendientes la confirmación de Martín sobre estados de grillas, datos definitivos de mantenedora/certificado y autorización de modo real. Verificar además vigencia renovable del consentimiento OAuth antes de depender de respaldos desatendidos a largo plazo.
+
+
+## 2026-10-28 — Etapa 3: decisión confirmada y cierre local
+
+- Resuelto por Jorge: mediciones obligatorias solo en verificación (ver) con unidad, salvo NA. O sin observación se rechaza; no se completa automáticamente. General con unidad no recibe obligatoriedad nueva. Implementado y probado localmente.
+- Código del importador validado con los 79 originales y catálogo (1.539 ítems, cero diferencias). Simulación e idempotencia verificadas en BD aislada; los 16 existentes no se sobrescriben y los históricos no se eliminan para ajustar conteos.
+- Pendiente operativo: autorización específica para transferir código, catálogo y ZIP interno al servidor compartido 67.205.170.29, ruta privada /var/backups/readyproof/revision-etapa3. La revisión automática rechazó el intento por ese motivo; no hubo transferencia ni despliegue de Etapa 3. Consulta enviada a Jorge; no se infiere aprobación por tiempo transcurrido.
+- Pruebas actuales: 300 casos conciliados por identificador; SBC-2 tuvo un 503 de conversión en la corrida completa y pasó aisladamente. Causa exacta original no registrada. Se conservan ambas evidencias para no ocultar la incidencia.
+- Los 63 códigos nuevos aún no se importaron en la base activa ni se habilitaron; quedan para Etapa 5. Sus manuales deben asociarse cuando existan las ediciones correctas; no se crean contenidos ficticios para simular manuales reales.
+- Siguen pendientes las confirmaciones de Martín sobre estados de grilla y demás decisiones de las etapas 4–6. El servidor conserva el último estado operativo confirmado de Etapa 2 hasta completar la autorización, comprobaciones y aplicación de Etapa 3.
+
+
+## 2026-10-28 — Etapa 3 aplicada; autorización de transferencia resuelta
+
+- Resuelto: Jorge autorizó expresamente código, catálogo y los 79 Excel al servidor 67.205.170.29 en revisión privada. Se ejecutó y verificó; ya no está pendiente aquella aprobación automática.
+- Reglas e importador instalados y comprobados. Cotejo real: 16 existentes y 63 pendientes, sin cambios. No se sobrescribieron definiciones ni se habilitaron nuevas familias. Fuente/ y originales sin modificaciones.
+- Backups y restauración posteriores al código nuevo verificados, esquema 012 y datos íntegros. Evidencia en out/etapa3_importador/resultado_servidor.json; los resultados locales anteriores conservan su estado histórico.
+- Para Etapa 4: confirmar avance con permisos de desbloqueo creador/admin y si se mantienen cuatro estados del kit (✓/O/X/NA). Reducir a tres requiere la confirmación de Martín prevista por el encargo, conservar versiones históricas y evitar una reinterpretación automática.
+- Siguen pendientes calendario S1–S5, manuales reales/asociaciones para las familias nuevas, habilitación de 63 en Etapa 5 y autorización/configuración del modo real en Etapa 6. Ninguno se dio por resuelto por esta instalación.
+
+
+## 2026-10-28 — Etapa 4: decisiones confirmadas por Jorge
+
+- Resuelto: avanzar con desbloqueo solo para creador/admin; conservar ✓/O/X/NA del kit. No se reduce a tres estados ni se reinterpretan frecuencias.
+- El PDF anterior se conserva de forma independiente antes de desbloquear. El registro se asigna únicamente al emitir y se mantiene en reemisiones; no se modifica la numeración de documentos históricos.
+- Pendientes: cierre de verificaciones de esta etapa; confirmación independiente de Etapa 5 para importar/habilitar las 63 restantes; calendario S1–S5, asociaciones de manuales reales y transición a modo real con mantenedora/certificado autorizados.
+
+
+## 2026-10-28 — Cierre verificado de desbloqueo y revisión
+
+- Resuelto: tareas enumeradas de etapa 4 aplicadas en 013, cuatro estados conservados, historial PDF inmutable, permisos y motivo comprobados. Backup y restauración posteriores verificados; 325 casos actuales conciliados sin fallos pendientes.
+- Alcance todavía abierto del instructivo ampliado: establecimientos, listas dinámicas con búsqueda/alta, precarga de equipos/datos fijos y operación de anulación. No se implementaron en este corte y no se declaran resueltos. Debe acordarse/completarse ese alcance antes de dar por entregada la etapa ampliada o habilitar uso real.
+- Confirmación de etapa 5 aún pendiente: importar y habilitar las otras 63. No se avanzó automáticamente. Continúan S1–S5, manuales reales/asociaciones y autorización/configuración de modo real.
+
+
+## 2026-10-28 — Etapa 5 autorizada; discrepancias pendientes de aclaración
+
+- Jorge autorizó importar las 63 restantes, habilitar 11 familias, agregar 189 pruebas y verificar respaldo/restauración. Revisión previa sin código ni BD modificados: 79 Excel oficiales del ZIP, 1.539 ítems y cero diferencias con el catálogo. Fuente/planillas contiene cuatro JSON; los originales completos están en el ZIP verificado, que el importador ya admite sin extracción.
+- El pedido contiene nombres incompatibles con el kit: SAP es Agua Pulverizada, SDC Dióxido de Carbono, SEP Extinción por Polvo, SGE Generador de Espuma, SIM Simbología de Seguridad contra Incendios, SRA Rociadores Automáticos, SRE Rociadores de Espuma, SSA Extinción por Solución Acuosa y STM Tuberías y Mangueras. SCC y SHC deben usar sus denominaciones completas del kit. Consulta enviada a Jorge para confirmar conservar los nombres oficiales; no se aplicaron denominaciones ajenas a las planillas.
+- Consulta pendiente: la etapa 4 usa original revisión pública 0 y primera corrección 1; el pedido nuevo exige 1 al emitir. No se cambia esta regla ni se reescriben históricos hasta recibir la aclaración.
+- Corrección aritmética: 325 casos actuales + 189 nuevos = 514 mínimos, no 421. Se conservarán los casos existentes; tres por planilla es el mínimo autorizado.
+- El pedido indica versión 00-26-ms1 para las nuevas, mientras el importador actual genera versiones v5 basadas en SHA. Al implementar se debe respetar la nueva versión solicitada sin sobrescribir las 16 aprobadas ni debilitar el cotejo determinista y de huellas.
+- Evidencia previa: out/etapa5_planillas/cotejo_79_sin_bd.json y etapa5_planillas.json. No se declara completada la importación, migración, habilitación, pruebas nuevas ni restauración de etapa 5.
+
+
+## 2026-10-28 — Etapa 5: nombres/revisión resueltos; siglas originales sin paréntesis
+
+- Jorge confirmó nombres oficiales del kit y consistencia histórica: original revisión pública 0, primera corrección 1. Las dos consultas anteriores quedan resueltas.
+- Nuevo requisito de Jorge: extraer (XXX) de primeras 20 filas, comparar con nombre del archivo, rechazar ausencia o contradicción y mapear instalaciones por tipo.
+- Auditoría de los 79 originales: 0 contienen (XXX) en las primeras 20 filas; los 79 sí contienen su código interno SG-PEM-IFI-XXX-N, coincidente con catálogo y archivo. No se corrigieron ni reescribieron originales para fabricar coincidencias. Evidencia: out/etapa5_planillas/auditoria_siglas_originales.json.
+- Pendiente respuesta: autorizar el código interno como alternativa únicamente ante ausencia de paréntesis, rechazando siempre siglas contradictorias, o mantener el requisito literal y esperar nuevos originales. Se consultó conforme a la regla de AGENTS.md de detener cambios contradictorios con el kit. No se infiere autorización por la confirmación anterior, que no contemplaba esta ausencia comprobada.
+- Trabajo independiente: detector estricto y consulta de sistemas activos por sigla/cliente implementados localmente; cuatro pruebas nuevas aprobadas. El detector aún no se conecta a la importación real, que rechazaría los 79 con la regla literal. La ampliación del lector conserva contenido, definiciones y huellas: prueba existente de los 79 aprobada. Compilación sin errores.
+- Conteo mínimo corregido por la tarea nueva: 325 previas + 4 de siglas + 189 por planilla = 518; las cinco ejecuciones de este corte incluyen una prueba existente y no agregan cinco casos nuevos. No se declara la suite completa ejecutada ni las 63 importadas.
+
+## 2026-10-28 — Etapa 5: importación verificada y pendientes vigentes
+
+- Resueltas por Jorge: nombres oficiales del kit; revisión original 0/corrección 1; siglas desde código interno, paréntesis o archivo con coincidencia de al menos dos fuentes y rechazo de paréntesis contradictorios. Los 79 originales se validaron sin alteraciones: código interno, archivo y catálogo coinciden.
+- Resuelta la autorización específica de transferencia: Jorge autorizó código, pruebas, catálogo y documentación interna hacia `/home/readyproof_revision_etapa5` en 67.205.170.29, acceso privado 0700 y manifiesto, excluyendo secretos y bases. La revisión automática había rechazado el intento anterior por falta de esa autorización específica; después de obtenerla se completó la transferencia. No queda bloqueada por aquella revisión.
+- Importación/migración 014 verificadas: 63 nuevas, 16 existentes, cero diferencias; 79 activas, 88 filas históricas y 15 familias. Suite consolidada 525/525; respaldo Drive y restauración aislada verificados. Los 189 recorridos adicionales sobre clones de la restauración aprobaron sin modificar su base original.
+- Las nuevas planillas mantienen `manual_id` pendiente cuando no existe la edición real correspondiente. No se inventaron manuales ni vínculos para simular cobertura documental. Asociarlos a los manuales correctos antes de la entrega definitiva de ese alcance.
+- **Unidades de SCC:** la revisión visual de SCC-1 oficial muestra presiones en MPa, mientras el encargo general indica bar para SCC. Se conserva el dato fuente literal; no se convirtieron valores ni se modificaron unidades. Se consultó a Jorge si se mantiene esa fidelidad en el piloto y se deja a Martín la corrección antes del uso real. La diferencia normativa no se declara resuelta por las pruebas de importación.
+- Continúan abiertos: calendario S1–S5, normas/confirmaciones de Martín, establecimientos, datos dinámicos con búsqueda/alta, precargas y operación de anulación del instructivo ampliado. La etapa 5 no resuelve ese alcance previo.
+- El modo real permanece deshabilitado. Etapa 6 y puesta en marcha real requieren confirmación independiente. Se conservaron los tres recorridos mínimos por planilla y se agregaron regresiones específicas; no se redujo la suite a 421 casos.
+
+## 2026-10-28 — SCC-1: conservación literal confirmada por Jorge
+
+- Resuelta la consulta operativa: conservar MPa tal como aparece en el Excel oficial, sin alterar unidades ni valores. Jorge confirma que esta inconsistencia reportada no bloquea la etapa 5 en modo piloto.
+- Reporte: `unidad_encontrada: MPa`, `unidad_esperada: bar`, `estado: REVISAR_CON_MARTIN`. La unidad esperada proviene del encargo general; no constituye una corrección normativa aprobada.
+- Antes de etapa 6 y de habilitar uso real, Martín debe confirmar MPa vs bar. Si confirma que corresponde corregir, Jorge indica una migración 016 independiente; no se implementa ahora ni se reescriben documentos históricos.
+
+
+## 2026-10-28 — Auditoría: cambios necesarios conservados y decisiones normativas
+
+- Resuelto por Jorge: conservar las cinco diferencias de fuente/ frente a la base Git, ajuste A4 SAA-1 y versiones/huellas de cuatro JSON. No son accidentales ni cambios de etapa 5. Se reanuda la auditoría sin revertirlas; ver CAMBIOS_AUTORIZADOS_EN_FUENTE.md.
+
+### SCC-1: unidad MPa vs bar (migración 016 si corresponde)
+
+Excel oficial: MPa. Encargo general: bar. Se conserva el kit literal. Martín confirma si corresponde corregir antes de etapa 6 y de habilitar uso real; una eventual migración 016 no se implementa en esta auditoría.
+
+### SDI: 3 vs 4 estados en grillas (validación si corresponde)
+
+Implementado: cuatro estados del kit (✓/O/X/NA), mantenidos por decisión de Jorge. Pendiente: Martín confirma si corresponden tres o cuatro antes del uso real. No se reducen ni reinterpretan estados ni se reescriben registros históricos.
+
+
+## 2026-10-28 — Auditoría 0–5 cerrada en piloto
+
+- Resuelto el bloqueo por test A4: corrección de promesas y sincronización, caso focalizado aprobado y suite posterior completa de 525 casos aprobada sin omisiones. Ver docs/DIAGNOSTICO_TEST_A4_HISTORICA.md y AUDITORIA_ETAPAS_0_A_5.json. La traza inicial no conservó el disparador primario de la intermitencia; esa limitación queda documentada, sin atribuirlo a datos dañados.
+- Resueltos los controles técnicos auditados: exclusión de entornos, permisos, conservación autorizada de fuente, código/migraciones, BD, binarios, respaldo/restauración y documentación. Los resultados iniciales se conservan como evidencia histórica.
+- Permanecen SCC-1 MPa vs bar y SDI tres/cuatro estados para Martín, manuales reales/asociaciones, S1–S5 y el alcance ampliado ya registrado. La auditoría técnica no autoriza etapa 6 ni uso real. Los commits de auditoría no consolidan automáticamente todo el trabajo previo pendiente del proyecto.
