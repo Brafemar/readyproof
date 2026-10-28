@@ -83,3 +83,8 @@ Fecha: 28/10/2026. Esta lista debe revisarse con Jorge y Martín. Tener código 
 Jorge designa una persona responsable por turno. Revisar errores y cambios de auditoría cada dos horas durante la operación, los envíos y resultados indeterminados, y el respaldo nocturno al comenzar la jornada siguiente. Registrar incidentes sin contraseñas, tokens ni firmas en capturas públicas. No se crea una automatización de avisos por este documento.
 
 Ante inconsistencias de datos, permisos, numeración, hash o respaldo: detener nuevas emisiones/envíos, preservar evidencia y avisar a Jorge. Escalar las dudas normativas a Martín. No borrar cargas, renumerar, reenviar un resultado ambiguo ni restaurar sobre producción para probar. Una reversión de configuración debe quedar autorizada y documentada, conservando los registros y PDF ya emitidos.
+
+
+## Aprobación y ejecución posterior
+
+Jorge aprobó el checklist el 28/10/2026 y autorizó la transición con READYPROOF / IFI-2024-10001. Confirmó bar para presión y los cuatro estados de SDI. La ejecución y evidencia están en [TRANSICION_EXITOSA.md](TRANSICION_EXITOSA.md). Esta lista se conserva como plantilla de revisión; no declara implementadas funciones adicionales del backlog.

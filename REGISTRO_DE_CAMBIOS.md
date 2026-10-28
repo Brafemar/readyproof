@@ -1412,3 +1412,18 @@ Búsqueda autenticada por número de registro y auditoría transaccional de alta
 Suite final: 541 aprobadas (494 Ubuntu, 47 Windows), sin fallos ni omisiones; cobertura de líneas Python app/ 93,04 %. Compilación código 0. Coverage 7.17.0 se agrega solo a desarrollo para medir el criterio solicitado. Se conservan los cinco cambios de fuente previamente autorizados; atributos Git preservan sus bytes y la huella del catálogo.
 
 Despliegue privado en piloto con migración ensayada y respaldo previo. El primer arranque detectó un permiso insuficiente en app/auditoria por umask 0077; corregido a 0750 y registrado en el instalador. Verificación posterior y restauración documentadas en el reporte final. No se activa modo real, no se envían correos reales de prueba y no se publican cambios. Pendientes: empresa/certificado, decisiones de Martín y autorización final según checklist.
+
+
+## 2026-10-28 — Transición autorizada a producción real
+
+Activación efectiva: 2026-10-28T14:40:22.502176-03:00. Jorge confirmó READYPROOF, certificado IFI-2024-10001 y checklist aprobado. MODO_PILOTO=false y MAIL_MODO_PRUEBA=false en .env y .env.local privados; se verificó el proceso después de responder HTTP. No se versionan esos archivos ni se cambian credenciales.
+
+Migración aditiva 017 y SCC-1 00-26-bar1, J21 en bar, conservando la versión en MPa y todos los valores anteriores. SDI mantiene cuatro estados. Fuente íntegra. Cargas, firmas, PDF y usuarios comparados sin cambios. La copia A4 se restringe a SAA-1 para impedir trasladar números de MPa a bar; los borradores SCC anteriores requieren una nueva carga revisada.
+
+543 pruebas finales aprobadas (496 Linux + 47 Windows), cero fallos u omisiones; los 541 casos anteriores permanecen. Tres verificaciones posteriores de interfaz también aprobadas, sin sumarlas dos veces. Compilación código 0. Se corrigió una referencia nula al terminar la sincronización después de cerrar sesión y se agregó reproducción controlada en la prueba existente. Pie de pantalla condicionado al modo real.
+
+La primera comprobación del entorno del proceso se hizo antes de terminar el arranque; la configuración se revirtió de forma automática. Se corrigió la sincronización del verificador para esperar HTTP antes de comprobar los cuatro parámetros. Diagnósticos preservados en out/transicion_real_20261028/ y en la carpeta privada de respaldos. Un 503 de conversión Windows no se reprodujo en la comprobación instrumentada ni en la tanda final aprobada; no se modificó el convertidor por ese episodio.
+
+Respaldos cifrados antes de 017, antes del corte y después. Restauración posterior aislada: 20 tablas, 130 binarios y 48 PDF cotejados; 89 versiones de planilla y 79 activas. Sin restaurar producción ni enviar correos reales de prueba. Monitoreo manual de 24/48 h documentado; no se crea automatización nueva.
+
+Documentación: docs/TRANSICION_EXITOSA.md y TRANSICION_REAL_REPORTE.json. Tag solicitado: v1.1-real-20261028T1353. Los pendientes del backlog ampliado conservan su alcance documentado.

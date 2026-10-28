@@ -1,6 +1,6 @@
 # Configuración del modo real y piloto
 
-La aplicación arranca en piloto si `MODO_PILOTO` no está definido. Esta entrega no cambia el entorno activo a modo real ni incorpora datos reales de mantenedora o certificado.
+La aplicación arranca en piloto si `MODO_PILOTO` no está definido. La etapa 6 se entregó en piloto. La activación posterior autorizada se registra en [TRANSICION_EXITOSA.md](TRANSICION_EXITOSA.md).
 
 | Variable | Valor por defecto | Efecto |
 |---|---|---|
@@ -19,7 +19,7 @@ Conservar `MODO_PILOTO=true`. Por defecto el correo queda en prueba. El transpor
 
 Los nuevos PDF incluyen «Modo PILOTO» al pie y metadata `/ReadyproofModo=PILOTO`; mantienen IRAM, firmas, logos, páginas del kit, número y revisión. No se agrega la marca a PDF anteriores ni se regeneran para cambiarles el modo.
 
-## Modo real preparado, sin activar
+## Modo real
 
 La configuración futura requiere `MODO_PILOTO=false`, `EMPRESA_MANTENEDORA` y `CERTIFICADO_N` confirmados. Para transmitir correos reales, además debe estar confirmado `MAIL_MODO_PRUEBA=false` y el transporte configurado. Se admite correo de prueba durante una revisión controlada del modo real: no se transmite.
 
@@ -29,6 +29,6 @@ En modo real se admiten nombres y textos sin prefijo de ejemplo, clientes no fic
 
 El cambio no convierte clientes ficticios en reales ni elimina su historial. Los documentos del piloto siguen siendo históricos y no se emiten nuevamente como reales; deben crearse cargas del cliente correspondiente. Configurar la empresa o el modo tampoco modifica documentos ya emitidos.
 
-## Activación posterior
+## Procedimiento de activación
 
 Completar `TRANSICION_PILOTO_A_REAL.md`, obtener las confirmaciones normativas y la autorización expresa de Jorge. Entonces una persona autorizada edita el archivo privado de entorno, reinicia la aplicación y revisa la primera emisión y su destinatario. No se versiona `.env`, no se comparten valores secretos y no se confunde un commit de código con una activación del entorno. Recargar la interfaz en línea después del cambio, conservando los borradores pendientes hasta resolverlos.

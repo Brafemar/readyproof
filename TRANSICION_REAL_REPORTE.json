@@ -1,0 +1,73 @@
+{
+  "estado": "MODO_REAL_ACTIVO",
+  "fecha_autorizacion": "2026-10-28T13:53:00-03:00",
+  "fecha_activacion_argentina": "2026-10-28T14:40:22.502176-03:00",
+  "empresa_mantenedora": "READYPROOF",
+  "certificado_n": "IFI-2024-10001",
+  "modo_piloto": false,
+  "mail_modo_prueba": false,
+  "pruebas": {
+    "tests_pasando": 543,
+    "tests_fallidos": 0,
+    "omitidos": 0,
+    "linux": 496,
+    "windows": 47,
+    "nota": "541 casos previos más 2 casos de unidades; tandas finales separadas por plataforma."
+  },
+  "compilacion_codigo": 0,
+  "schema": "017_scc1_presion_bar",
+  "planillas_activas": 79,
+  "versiones_planilla": 89,
+  "unidades": {
+    "scc1_vigente": "00-26-bar1",
+    "scc1_anterior_conservada": "00-26-ms1",
+    "campo_corregido": "J21: presión normal a 20 °C, bar",
+    "sdi_estados": [
+      "✓",
+      "O",
+      "X",
+      "NA"
+    ]
+  },
+  "fuente_modificada": false,
+  "datos_historicos_modificados": false,
+  "firmantes_modificados": false,
+  "usuarios_modificados": false,
+  "respaldo_pre_017": "readyproof-drive:readyproof-backups/pre-migrations/readyproof-pre-017-20261028T173018.tar.enc",
+  "respaldo_pre_real": "readyproof-drive:readyproof-backups/pre-migrations/readyproof-pre-real-20261028T173935.tar.enc",
+  "restauracion": {
+    "estado": "restauracion_verificada",
+    "database": "readyproof_test_restore_20261028T174137",
+    "schema": "017_scc1_presion_bar",
+    "remote": "readyproof-drive:readyproof-backups/daily/readyproof-2026-10-28.tar.enc",
+    "cipher_sha256": "9c1682ec5702a78cf94fe62fb74227a8aba44e6b03ba133f8e3c55bb00c18a51",
+    "snapshot_created_utc": "2026-10-28T17:41:07.361894+00:00",
+    "counts": {
+      "cargas": 45,
+      "firmas_carga": 45,
+      "envios": 7,
+      "planillas": 89,
+      "sistemas": 15,
+      "auditoria": 0
+    },
+    "tablas_comparadas": 20,
+    "blobs_comparados": 130,
+    "pdf_exportados_comparados": 48,
+    "produccion_modificada": false
+  },
+  "timer_backup": "active",
+  "correo_transporte": "gmail_api",
+  "correos_prueba_transmitidos": false,
+  "configuracion_privada": "/home/readyproof/.env y .env.local; no versionados",
+  "monitoreo": {
+    "responsable": "Jorge Sánchez",
+    "inicio": "2026-10-28T14:40:22.502176-03:00",
+    "revision_24h": "2026-10-29T14:40:22.502176-03:00",
+    "revision_48h": "2026-10-30T14:40:22.502176-03:00",
+    "modalidad": "Manual; sin automatización nueva",
+    "auditoria": "Cada 2 horas durante operación",
+    "backup": "Verificar respaldo nocturno y alertas existentes"
+  },
+  "tag": "v1.1-real-20261028T1353",
+  "evidencias": "out/transicion_real_20261028/"
+}

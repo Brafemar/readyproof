@@ -167,4 +167,9 @@ La migración `009_multisistema` habilita cuatro sistemas y 16 planillas individ
 
 ### Etapa 6: operación piloto y transición
 
-Búsqueda: GET /api/carga/buscar?numero=12345; auditoría admin: GET /api/auditoria. Ver [API](docs/API.md), [auditoría](docs/AUDITORIA.md), [configuración](docs/CONFIG_MODO_REAL.md), [transición](docs/TRANSICION_PILOTO_A_REAL.md) y [pruebas](docs/PRUEBAS_ETAPA6.md). El modo real requiere configuración validada y autorización final; permanece desactivado en esta entrega.
+Búsqueda: GET /api/carga/buscar?numero=12345; auditoría admin: GET /api/auditoria. Ver [API](docs/API.md), [auditoría](docs/AUDITORIA.md), [configuración](docs/CONFIG_MODO_REAL.md), [transición](docs/TRANSICION_PILOTO_A_REAL.md) y [pruebas](docs/PRUEBAS_ETAPA6.md). El modo real requiere configuración validada y autorización final. La transición posterior está registrada en [Transición exitosa](docs/TRANSICION_EXITOSA.md).
+
+
+### Estado de operación — 28/10/2026
+
+Modo REAL activo en el servidor privado, con READYPROOF / IFI-2024-10001. SCC-1 vigente en bar; históricos y fuente conservados. Ver [transición verificada](docs/TRANSICION_EXITOSA.md) y [reporte](TRANSICION_REAL_REPORTE.json).
