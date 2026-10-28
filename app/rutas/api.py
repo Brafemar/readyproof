@@ -14,7 +14,7 @@ from ..catalogo import huella_saa1
 from ..carga_planillas import CODIGOS, VERSION_CATALOGO
 from ..db import sesion
 from ..models import Cliente, Sistema, Planilla, Carga, RevisionCarga, FirmaCarga, UsuarioCliente, RegistroAcceso, EmisionCarga, ahora
-from ..carga.servicios import desbloquear_carga, preparar_numero_emision, archivar_emision
+from ..carga.servicios import desbloquear_carga, preparar_numero_emision, archivar_emision, snapshot_carga, registrar_auditoria
 from ..auth import autorizar_cliente
 from ..planillas.generador import generar_saa1, generar_multisistema
 from ..planillas.multisistema import ejemplo_multisistema
@@ -23,6 +23,7 @@ from ..planillas.pdf import convertir_pdf
 from ..planillas.firmas import validar_firmas, ROLES
 from ..planillas.firmantes import validar_responsable, CAMPOS
 from ..planillas.validacion import DatosInvalidos, campos_permitidos, mapa, validar_datos, datos_para_excel
+from ..modo import es_piloto, validar_emision_modo
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -66,16 +67,19 @@ def plantilla_actual(carga):
     return planilla
 
 
-def ejemplo_relacionado(carga, datos, *, emitir=False):
+def ejemplo_relacionado(carga, datos, *, emitir=False, historico=False):
     sistema = obtener(Sistema, carga.sistema_id)
     cliente = obtener(Cliente, sistema.cliente_id)
-    if not cliente.es_ejemplo or not cliente.nombre.startswith("[Ejemplo] ") or not sistema.designacion.startswith("[Ejemplo] "):
+    if es_piloto() and (not cliente.es_ejemplo or not cliente.nombre.startswith("[Ejemplo] ") or not sistema.designacion.startswith("[Ejemplo] ")):
         abort(403, description="El uso real no está habilitado; solo se admiten clientes y datos de ejemplo.")
+    if not es_piloto() and cliente.es_ejemplo and not historico:
+        abort(403, description='En modo REAL usá un cliente real; las cargas del piloto se conservan como históricas.')
     name = datos.get("cabecera", {}).get("cliente")
     if name is not None and name != cliente.nombre:
         raise DatosInvalidos("El cliente de la cabecera debe coincidir con el cliente del sistema.")
     if emitir and name != cliente.nombre:
-        raise DatosInvalidos("La emisión de ejemplo requiere identificar al cliente ficticio en la cabecera.")
+        raise DatosInvalidos("La emisión requiere identificar al cliente del sistema en la cabecera.")
+    if emitir and not historico:validar_emision_modo(datos)
 
 
 def firmas_guardadas(carga):
@@ -129,7 +133,7 @@ def exigir_firmantes(carga):
         raise DatosInvalidos('Volvé a firmar como técnico en un borrador para registrar tu identidad.')
 
 
-def registrar(carga, evento):
+def registrar(carga, evento, anterior=None):
     if evento != "creada":
         carga.actualizada_en = ahora()
     sesion().flush()
@@ -143,6 +147,8 @@ def registrar(carga, evento):
         sesion().add(RegistroAcceso(usuario_id=g.usuario.id, evento="emision", ruta=request.url_rule.rule,
             metodo=request.method, estado_http=201, cliente_id=sistema.cliente_id, carga_id=carga.id,
             planilla_codigo=obtener(Planilla,carga.planilla_id).codigo, destinatario=None))
+    registrar_auditoria('carga', carga.id, 'INSERT' if evento == 'creada' else 'DESBLOQUEO' if evento == 'desbloqueada' else 'UPDATE',
+        g.usuario.id, anterior, snapshot_carga(carga), motivo=carga.motivo_desbloqueo if evento == 'desbloqueada' else None)
     sesion().commit()
 
 
@@ -161,7 +167,7 @@ def serializar(carga):
 
 @api.get("/clientes")
 def clientes():
-    query = select(Cliente).where(Cliente.es_ejemplo.is_(True), Cliente.nombre.startswith("[Ejemplo] ")).order_by(Cliente.nombre)
+    query = select(Cliente).where(or_(not es_piloto(), Cliente.es_ejemplo.is_(True) & Cliente.nombre.startswith("[Ejemplo] "))).order_by(Cliente.nombre)
     if g.usuario.rol != "admin":
         query = query.join(UsuarioCliente,UsuarioCliente.cliente_id==Cliente.id).where(UsuarioCliente.usuario_id==g.usuario.id)
     return jsonify([{ "id":c.id,"nombre":c.nombre,"es_ejemplo":c.es_ejemplo } for c in sesion().scalars(query)])
@@ -170,9 +176,9 @@ def clientes():
 @api.get("/clientes/<cliente_id>/sistemas")
 def sistemas(cliente_id):
     cliente = obtener(Cliente, cliente_id)
-    if not cliente.es_ejemplo or not cliente.nombre.startswith("[Ejemplo] "):
+    if es_piloto() and (not cliente.es_ejemplo or not cliente.nombre.startswith("[Ejemplo] ")):
         abort(403, description="Solo se admiten clientes ficticios en esta etapa.")
-    return jsonify([{ "id": s.id, "cliente_id": s.cliente_id, "tipo": s.tipo, "designacion": s.designacion } for s in sesion().scalars(select(Sistema).where(Sistema.cliente_id == cliente_id, Sistema.activo.is_(True), Sistema.designacion.startswith("[Ejemplo] ")).order_by(Sistema.designacion))])
+    return jsonify([{ "id": s.id, "cliente_id": s.cliente_id, "tipo": s.tipo, "designacion": s.designacion } for s in sesion().scalars(select(Sistema).where(Sistema.cliente_id == cliente_id, Sistema.activo.is_(True), or_(not es_piloto(), Sistema.designacion.startswith("[Ejemplo] "))).order_by(Sistema.designacion))])
 
 
 @api.get("/planillas")
@@ -237,7 +243,7 @@ def crear_carga():
 @api.get("/cargas/<carga_id>")
 def consultar_carga(carga_id):
     carga = obtener(Carga, carga_id)
-    ejemplo_relacionado(carga, carga.datos)
+    ejemplo_relacionado(carga, carga.datos, historico=True)
     return jsonify(serializar(carga))
 
 
@@ -247,6 +253,7 @@ def guardar_borrador(carga_id):
     firmas = validar_firmas(data["firmas"]) if "firmas" in data else None
     responsable = validar_responsable(data['responsable']) if 'responsable' in data else None
     carga = obtener(Carga, carga_id)
+    anterior = snapshot_carga(carga)
     revisar_revision(carga, data["revision"])
     if carga.estado != "borrador":
         abort(409, description="Una carga finalizada o emitida no admite edición.")
@@ -256,7 +263,7 @@ def guardar_borrador(carga_id):
     carga.datos = datos
     guardar_firmas(carga, firmas)
     guardar_responsable(carga, responsable)
-    registrar(carga, "borrador_guardado")
+    registrar(carga, "borrador_guardado", anterior)
     return jsonify(serializar(carga))
 
 
@@ -264,6 +271,7 @@ def guardar_borrador(carga_id):
 def finalizar(carga_id):
     data = objeto({"revision"})
     carga = obtener(Carga, carga_id)
+    anterior = snapshot_carga(carga)
     revisar_revision(carga, data["revision"])
     if carga.estado != "borrador":
         abort(409, description="Solo se finalizan borradores.")
@@ -275,7 +283,7 @@ def finalizar(carga_id):
     exigir_firmantes(carga)
     carga.estado = "finalizada"
     carga.finalizada_en = ahora()
-    registrar(carga, "finalizada")
+    registrar(carga, "finalizada", anterior)
     return jsonify(serializar(carga))
 
 
@@ -283,6 +291,7 @@ def finalizar(carga_id):
 def emitir(carga_id):
     data = objeto({"revision"})
     carga = obtener(Carga, carga_id)
+    anterior = snapshot_carga(carga)
     revisar_revision(carga, data["revision"])
     if carga.estado != "finalizada":
         abort(409, description="Solo se emiten cargas finalizadas.")
@@ -307,7 +316,7 @@ def emitir(carga_id):
     except Exception:
         sesion().rollback()
         raise
-    registrar(carga, "emitida")
+    registrar(carga, "emitida", anterior)
     return jsonify(serializar(carga)), 201
 
 
@@ -315,12 +324,13 @@ def emitir(carga_id):
 def desbloquear(carga_id):
     data = objeto({'revision', 'motivo'})
     carga = obtener(Carga, carga_id)
+    anterior = snapshot_carga(carga)
     plantilla_actual(carga)
     ejemplo_relacionado(carga, carga.datos)
     with sesion().no_autoflush:
         carga = desbloquear_carga(carga_id, g.usuario.id, data['motivo'],
             revision=data['revision'], firmantes=firmantes_guardados(carga))
-    registrar(carga, 'desbloqueada')
+    registrar(carga, 'desbloqueada', anterior)
     return jsonify(serializar(carga))
 
 
@@ -353,7 +363,7 @@ def descargar(carga_id):
     if carga.estado != "emitida" or carga.pdf is None:
         abort(409, description="La carga todavía no tiene un PDF emitido.")
     validar_datos(carga.datos, obtener(Planilla, carga.planilla_id).definicion)
-    ejemplo_relacionado(carga, carga.datos, emitir=True)
+    ejemplo_relacionado(carga, carga.datos, emitir=True, historico=True)
     response = send_file(BytesIO(carga.pdf), mimetype="application/pdf", as_attachment=True, download_name=f"{obtener(Planilla,carga.planilla_id).codigo.removeprefix('SG-PEM-IFI-')}_{carga.id}.pdf", etag=carga.pdf_sha256, max_age=0)
     response.headers["Cache-Control"] = "no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -378,11 +388,14 @@ def generar_pdf_carga(carga, datos):
         identidad=firmantes_guardados(carga)
         identidad.update(empresa=obtener(Cliente, obtener(Sistema,carga.sistema_id).cliente_id).nombre,
                          fecha=datos.get('cabecera',{}).get('fecha',carga.creada_en.date().isoformat()))
+        if not es_piloto():identidad['empresa_mantenedora']=current_app.config['EMPRESA_MANTENEDORA']
         result = convertir_pdf(source, Path(directory) / "planilla.pdf", firmas=firmas_guardadas(carga), firmantes=identidad)
         payload = result.read_bytes()
         if carga.numero_registro is not None:
             from ..planillas.registro_pdf import incorporar_registro
             payload = incorporar_registro(payload, carga.numero_registro, carga.revision_publica)
+        from ..planillas.registro_pdf import incorporar_modo
+        payload = incorporar_modo(payload, 'PILOTO' if es_piloto() else 'REAL')
         return payload
 
 

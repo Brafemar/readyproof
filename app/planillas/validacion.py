@@ -48,7 +48,8 @@ def texto(value, *, ejemplo=True):
         raise DatosInvalidos("Se requiere texto no vacío de hasta 500 caracteres.")
     if any(ord(c) < 32 and c not in "\n\r\t" for c in value):
         raise DatosInvalidos("El texto contiene caracteres de control.")
-    if ejemplo and not value.startswith("[Ejemplo] "):
+    from ..modo import es_piloto
+    if ejemplo and es_piloto() and not value.startswith("[Ejemplo] "):
         raise DatosInvalidos("Esta etapa solo admite textos ficticios identificados con [Ejemplo].")
     return value
 

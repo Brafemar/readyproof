@@ -17,6 +17,7 @@ from pypdf import PdfReader
 from sqlalchemy import select
 
 from ..models import Carga, Cliente, Envio, Intento, Planilla, RegistroAcceso, Retencion, Sistema, Usuario, UsuarioCliente, ahora
+from ..modo import es_piloto, validar_configuracion_real
 
 INTERVALO = timedelta(minutes=15)
 MAX_INTENTOS = 3
@@ -38,8 +39,15 @@ def autorizado(session, envio):
     sistema=session.get(Sistema, carga.sistema_id)
     cliente=session.get(Cliente, sistema.cliente_id)
     permiso=user and user.activo and (user.rol=="admin" or session.get(UsuarioCliente,(user.id,cliente.id)))
-    return bool(permiso and cliente.es_ejemplo and cliente.nombre.startswith("[Ejemplo] ")
-        and sistema.designacion.startswith("[Ejemplo] ") and carga.estado=="emitida")
+    if not es_piloto():validar_configuracion_real()
+    origen=(cliente.es_ejemplo and cliente.nombre.startswith('[Ejemplo] ') and sistema.designacion.startswith('[Ejemplo] ')) if es_piloto() else not cliente.es_ejemplo
+    return bool(permiso and origen and carga.estado=='emitida')
+
+
+def resolver_destinatario(value):
+    direccion(value)
+    configured=current_app.config.get('DESTINATARIO_PRUEBA','') if es_piloto() else ''
+    return direccion(configured) if configured else value
 
 
 def programacion(session, envio):
@@ -51,7 +59,7 @@ def programacion(session, envio):
 
 
 def preparar_envio(session, carga, destinatario, usuario_id, asunto, cuerpo, *, envio_id=None):
-    direccion(destinatario)
+    destinatario=resolver_destinatario(destinatario)
     if not isinstance(asunto,str) or not asunto.strip() or len(asunto)>200 or any(c in asunto for c in "\r\n"):
         raise ValueError("El asunto debe tener entre 1 y 200 caracteres, sin saltos de línea.")
     if not isinstance(cuerpo,str) or not cuerpo.strip() or len(cuerpo)>20000:
@@ -146,6 +154,11 @@ def send_email(session, envio, *, encolar=False, fecha=None, transporte=None):
     bloqueado = envio.mensaje_eml is not None and retry.reintentado_en is None and not encolar
     if bloqueado or envio.intentos_reservados>=MAX_INTENTOS or (retry.reintentado_en is not None and retry.reintentado_en>fecha):
         session.commit();return envio
+    if not es_piloto() and modo_prueba():transporte=None
+    if es_piloto() and (not modo_prueba() or transporte=='gmail_api'):
+        allowed=[value.strip() for value in current_app.config.get('PLANILLAS_DESTINATARIOS_PRUEBA','').split(',') if value.strip()]
+        if current_app.config.get('DESTINATARIO_PRUEBA'):allowed.append(current_app.config['DESTINATARIO_PRUEBA'])
+        if envio.destinatario not in allowed:raise ValueError('El piloto solo transmite a destinatarios de prueba configurados.')
     if not envio.mensaje_eml:
         envio.mensaje_eml=crear_mensaje(envio);envio.eml_sha256=sha256(envio.mensaje_eml).hexdigest()
     if sha256(envio.mensaje_eml).hexdigest()!=envio.eml_sha256 or sha256(envio.pdf_copia).hexdigest()!=envio.pdf_sha256:

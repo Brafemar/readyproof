@@ -9,7 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import crear_esquema
-from app.models import FirmaCarga, VersionEsquema, RegistroAcceso
+from app.models import Carga, FirmaCarga, VersionEsquema, RegistroAcceso
 from sqlalchemy import select
 from tests.test_api import crear
 from app.planillas.firmantes import ejemplo_responsable
@@ -94,7 +94,10 @@ def test_creacion_con_identificador_local_no_duplica(client,catalogo,datos_api):
 
 
 def test_migracion_aditiva_conserva_datos(client,catalogo,datos_api,app):
-    carga=crear(client,catalogo,datos_api).get_json()
+    # Representa un registro anterior a la auditoría, sin fabricar eventos retroactivos.
+    with Session(app.extensions["db_engine"]) as db:
+        previa=Carga(sistema_id=catalogo[1]['id'],planilla_id=catalogo[2]['id'],datos=datos_api)
+        db.add(previa);db.flush();carga={'id':previa.id,'datos':datos_api};db.commit()
     engine=app.extensions["db_engine"]
     from alembic import command
     from alembic.config import Config

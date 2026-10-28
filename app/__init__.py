@@ -35,7 +35,9 @@ def create_app(test_config=None):
     from .rutas.api import api
     app.register_blueprint(api)
     from .carga.rutas import carga_api
+    from .auditoria.rutas import auditoria_api
     app.register_blueprint(carga_api)
+    app.register_blueprint(auditoria_api)
     from .correo.rutas import correo_api
     app.register_blueprint(correo_api)
     from .rutas.web import web

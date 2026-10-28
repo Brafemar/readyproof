@@ -12,11 +12,17 @@ from ..models import Cliente, RegistroAcceso, Sistema, Usuario, UsuarioCliente, 
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import objeto, obtener
 from ..config import SISTEMAS_HABILITADOS
+from ..modo import es_piloto
 
 auth = Blueprint("auth", __name__)
 
 
 def ejemplo_texto(value, maximum=120):
+    if not es_piloto():
+        from ..planillas.validacion import texto
+        result=texto(value,ejemplo=False)
+        if len(result)>maximum:raise DatosInvalidos('El nombre supera el largo admitido.')
+        return result
     if not isinstance(value,str) or not value.startswith("[Ejemplo] ") or not value[10:].strip() or len(value)>maximum:
         raise DatosInvalidos("Usá un nombre ficticio que comience con [Ejemplo].")
     return value
@@ -124,7 +130,7 @@ def validar_asignaciones(ids):
         raise DatosInvalidos("cliente_ids debe ser una lista de identificadores distintos.")
     for key in ids:
         client=obtener(Cliente,key)
-        if not client.es_ejemplo:abort(403,description="Solo se administran clientes ficticios.")
+        if es_piloto() and not client.es_ejemplo:abort(403,description="Solo se administran clientes ficticios en piloto.")
     return ids
 
 
@@ -171,15 +177,19 @@ def restablecer_clave(usuario_id):
 
 @auth.post("/api/admin/clientes")
 def crear_cliente():
-    exigir_admin();data=objeto({"nombre"})
-    client=Cliente(nombre=ejemplo_texto(data["nombre"],200),es_ejemplo=True);sesion().add(client);sesion().flush();g.evento_auth="cliente_creado"
-    return jsonify(id=client.id,nombre=client.nombre,es_ejemplo=True),201
+    exigir_admin();data=objeto({"nombre"},{'cuit'})
+    client=Cliente(nombre=ejemplo_texto(data["nombre"],200),es_ejemplo=es_piloto())
+    if 'cuit' in data:
+        try:client.cuit=data['cuit']
+        except ValueError as error:raise DatosInvalidos(str(error)) from None
+    sesion().add(client);sesion().flush();g.evento_auth="cliente_creado"
+    return jsonify(id=client.id,nombre=client.nombre,es_ejemplo=client.es_ejemplo,cuit=client.cuit),201
 
 
 @auth.post("/api/admin/clientes/<cliente_id>/sistemas")
 def crear_sistema(cliente_id):
     exigir_admin();client=obtener(Cliente,cliente_id);data=objeto({"designacion","tipo"})
-    if not client.es_ejemplo or not isinstance(data['tipo'],str) or data['tipo'] not in SISTEMAS_HABILITADOS:raise DatosInvalidos("Seleccioná uno de los 15 sistemas habilitados para datos de ejemplo.")
+    if (es_piloto() and not client.es_ejemplo) or not isinstance(data['tipo'],str) or data['tipo'] not in SISTEMAS_HABILITADOS:raise DatosInvalidos("Seleccioná uno de los 15 sistemas habilitados.")
     system=Sistema(cliente_id=client.id,tipo=data["tipo"],designacion=ejemplo_texto(data["designacion"],200));sesion().add(system);sesion().flush();g.evento_auth="sistema_creado"
     return jsonify(id=system.id,cliente_id=client.id,tipo=system.tipo,designacion=system.designacion),201
 

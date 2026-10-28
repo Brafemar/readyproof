@@ -27,7 +27,7 @@ def entorno_correo(app, monkeypatch, tmp_path):
     monkeypatch.setenv("SMTP_USER","[Ejemplo] cuenta simulada")
     monkeypatch.setenv("SMTP_PASSWORD",secrets.token_urlsafe(24))
     monkeypatch.setenv("MAIL_FROM","readyproof@example.invalid")
-    app.config.update(MAIL_MODO_PRUEBA=False,DIRECTORIO_CORREO=str(tmp_path/"correo"))
+    app.config.update(MAIL_MODO_PRUEBA=False,PLANILLAS_DESTINATARIOS_PRUEBA="cliente@example.invalid",DIRECTORIO_CORREO=str(tmp_path/"correo"))
 
 
 @pytest.fixture

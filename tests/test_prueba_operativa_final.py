@@ -26,6 +26,7 @@ class APIPrueba:
 @pytest.mark.parametrize('smtp',[False,True])
 def test_flujo_archivo_o_smtp_sustituido_sin_procesar_otra_cola(app,usuario_admin,tmp_path,monkeypatch,smtp):
     app.config['DIRECTORIO_CORREO']=str(tmp_path/'eml')
+    app.config['PLANILLAS_DESTINATARIOS_PRUEBA']='prueba@example.invalid'
     monkeypatch.setenv('MAIL_FROM','readyproof@example.invalid')
     monkeypatch.setenv('SMTP_HOST','smtp.gmail.com')
     monkeypatch.setenv('SMTP_PORT','587')

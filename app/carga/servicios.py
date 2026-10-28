@@ -6,8 +6,28 @@ from flask import abort
 from sqlalchemy import select
 
 from ..db import sesion
-from ..models import Carga, Usuario, EmisionCarga, NumeroRegistroContador, FirmaCarga
+from ..models import Auditoria, Carga, Usuario, EmisionCarga, NumeroRegistroContador, FirmaCarga
 from ..planillas.validacion import DatosInvalidos
+
+
+def snapshot_carga(carga):
+    fields = ('id', 'sistema_id', 'planilla_id', 'creada_por_id', 'estado', 'revision', 'numero_registro',
+        'revision_publica', 'pdf_hash', 'desbloqueado_por', 'motivo_desbloqueo', 'estado_anulada')
+    result = {key:getattr(carga, key) for key in fields}
+    result['datos'] = deepcopy(carga.datos)
+    for key in ('creada_en', 'actualizada_en', 'finalizada_en', 'emitida_en'):
+        value = getattr(carga,key);result[key] = value.isoformat() if value else None
+    return result
+
+
+def registrar_auditoria(tabla, registro_id, accion, usuario_id, datos_anterior, datos_nuevo, *, motivo=None):
+    nuevo = deepcopy(datos_nuevo)
+    if motivo is not None:
+        nuevo['motivo_desbloqueo'] = motivo
+    row = Auditoria(tabla=tabla, registro_id=registro_id, accion=accion, usuario_id=usuario_id,
+        datos_anterior=deepcopy(datos_anterior), datos_nuevo=nuevo)
+    sesion().add(row)
+    return row
 
 
 def archivar_emision(carga, firmantes):

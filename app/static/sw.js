@@ -1,4 +1,4 @@
-const CACHE = "readyproof-ui-v9";
+const CACHE = "readyproof-ui-v10";
 const SHELL = ["/", "/static/carga.css", "/static/carga.js", "/static/auth.js", "/static/cuenta.css", "/static/icono.svg", "/static/manifest.webmanifest"];
 self.addEventListener("install", event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener("activate", event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith("readyproof-") && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));

@@ -17,9 +17,16 @@ SISTEMAS_HABILITADOS = {
 
 
 def configuracion():
+    raw_mode=os.environ.get('MODO_PILOTO','true').lower()
+    if raw_mode not in ('true','false'):raise RuntimeError('MODO_PILOTO debe ser true o false.')
+    piloto=raw_mode=='true'
     return {
+        'MODO_PILOTO':piloto,
+        'EMPRESA_MANTENEDORA':os.environ.get('EMPRESA_MANTENEDORA','[Ejemplo] readyproof').strip(),
+        'CERTIFICADO_N':os.environ.get('CERTIFICADO_N','IFI-2024-00000').strip(),
+        'DESTINATARIO_PRUEBA':os.environ.get('DESTINATARIO_PRUEBA','').strip(),
         'SISTEMAS_HABILITADOS': dict(SISTEMAS_HABILITADOS),
-        "MAIL_MODO_PRUEBA": os.environ.get("MAIL_MODO_PRUEBA", "true").lower() != "false",
+        "MAIL_MODO_PRUEBA": os.environ.get("MAIL_MODO_PRUEBA", "true" if piloto else "false").lower() != "false",
         "DOCUMENTACION_MODO_PRUEBA": os.environ.get("DOCUMENTACION_MODO_PRUEBA", os.environ.get("MAIL_MODO_PRUEBA", "true")).lower() != "false",
         "DOCUMENTACION_TRANSPORTE": os.environ.get("DOCUMENTACION_TRANSPORTE", "smtp"),
         "PLANILLAS_TRANSPORTE": os.environ.get("PLANILLAS_TRANSPORTE", "cola"),

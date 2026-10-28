@@ -7,7 +7,8 @@ from ..db import sesion
 from ..models import Carga, Envio, Planilla
 from ..rutas.api import obtener, objeto
 from ..planillas.validacion import DatosInvalidos
-from . import preparar_envio, send_email, direccion
+from . import preparar_envio, send_email, direccion, resolver_destinatario
+from ..modo import es_piloto
 
 correo_api=Blueprint("correo_api",__name__,url_prefix="/api")
 
@@ -31,14 +32,16 @@ def enviar(carga_id):
 
 
 def destinatarios_prueba():
-    return [value.strip() for value in current_app.config["PLANILLAS_DESTINATARIOS_PRUEBA"].split(",") if value.strip()]
+    values=[value.strip() for value in current_app.config["PLANILLAS_DESTINATARIOS_PRUEBA"].split(",") if value.strip()]
+    if current_app.config.get('DESTINATARIO_PRUEBA'):values.append(current_app.config['DESTINATARIO_PRUEBA'])
+    return list(dict.fromkeys(values))
 
 
 @correo_api.get("/correo/configuracion")
 def configuracion_correo():
     allowed=destinatarios_prueba()
-    return jsonify(habilitado=current_app.config["PLANILLAS_TRANSPORTE"]=="gmail_api" and bool(allowed),
-                   destinatarios=allowed)
+    return jsonify(habilitado=current_app.config["PLANILLAS_TRANSPORTE"]=="gmail_api" and (not es_piloto() or bool(allowed)),
+                   destinatarios=allowed if es_piloto() else [], modo_piloto=es_piloto(),modo_prueba=current_app.config['MAIL_MODO_PRUEBA'])
 
 
 def resumen(envio):
@@ -58,11 +61,11 @@ def enviar_inmediato(carga,data):
     if current_app.config["PLANILLAS_TRANSPORTE"]!="gmail_api":
         abort(503,description="El envío desde la pantalla todavía no está configurado.")
     try:
-        recipient=direccion(data["destinatario"])
+        recipient=resolver_destinatario(data["destinatario"])
         key=request.headers.get("Idempotency-Key","")
         if str(UUID(key))!=key:raise ValueError("Se requiere un identificador de solicitud UUID válido.")
     except ValueError as error:raise DatosInvalidos(str(error)) from None
-    if recipient not in destinatarios_prueba():
+    if es_piloto() and recipient not in destinatarios_prueba():
         abort(403,description="Este piloto admite únicamente los destinatarios de prueba habilitados por Administración.")
     db=sesion()
     lock=int.from_bytes(sha256(("planilla:"+carga.id).encode()).digest()[:8],"big",signed=True)
@@ -85,4 +88,4 @@ def enviar_inmediato(carga,data):
         send_email(db,envio,transporte="gmail_api")
     except ValueError as error:
         db.rollback();raise DatosInvalidos(str(error)) from None
-    return jsonify(**resumen(envio),modo_prueba=False),200 if envio.estado=="enviado" else 502
+    return jsonify(**resumen(envio),modo_prueba=bool(current_app.config['MAIL_MODO_PRUEBA'] and not es_piloto())),200 if envio.estado=="enviado" else 202 if current_app.config['MAIL_MODO_PRUEBA'] and not es_piloto() and envio.estado=='pendiente' else 502

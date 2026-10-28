@@ -1,5 +1,7 @@
 "use strict";
 (async () => {
+  const piloto=document.body.dataset.modoPiloto!=='false';
+  const empresa=document.body.dataset.empresaMantenedora||'readyproof', certificado=document.body.dataset.certificado||'';
   let account;try{account=await window.readyproofSession;}catch{return;}
   const databaseName="readyproof-local-"+account.usuario.id;
   const $ = id => document.getElementById(id);
@@ -11,7 +13,7 @@
     for(const [key,id] of Object.entries(responsableInputs)){
       const input=$(id);input.setCustomValidity("");
       if(key==="nombre_firmante"&&!input.value.trim())input.setCustomValidity("El nombre del responsable es obligatorio.");
-      if(key!=="dni_firmante" && input.value.trim() && !input.value.trim().startsWith("[Ejemplo] "))input.setCustomValidity("Usá datos ficticios que comiencen con [Ejemplo].");
+      if(piloto && key!=="dni_firmante" && input.value.trim() && !input.value.trim().startsWith("[Ejemplo] "))input.setCustomValidity("Usá datos ficticios que comiencen con [Ejemplo].");
       if(!input.checkValidity())first??=input;
     }
     if(show&&first){first.scrollIntoView({block:"center"});first.reportValidity();}
@@ -73,11 +75,12 @@
     controls.forEach(({input})=>{input.disabled=isReadOnly();});
     Object.values(responsableInputs).forEach(id=>{$(id).disabled=isReadOnly();});
     document.querySelectorAll("[data-clear]").forEach(button=>{button.disabled=isReadOnly();});
+    $("completar-ejemplo").hidden=!piloto;
     $("completar-ejemplo").disabled=isReadOnly()||operation;
     $("guardar").disabled=isReadOnly()||operation;
     $("vista-previa").disabled=operation||!navigator.onLine||historica();
     $("finalizar").disabled=operation||draft.estado==="emitida"||!navigator.onLine||draft.conflicto||previewVersion!==draft.editVersion||!validarFirmantes();
-    $("finalizar").textContent=draft.estado==="finalizada" ? "Reintentar emisión →" : "Finalizar ejemplo →";
+    $("finalizar").textContent=draft.estado==="finalizada" ? "Reintentar emisión →" : (piloto?"Finalizar ejemplo →":"Finalizar planilla →");
     $("finalizar").hidden=draft.estado==="emitida"||historica();
     $("copiar-a4").hidden=!historica();
     $("copiar-a4").disabled=operation||!online;
@@ -145,7 +148,7 @@
     let first=null;
     for(const {input,path,definition} of controls){
       input.setCustomValidity("");
-      if(input.value && definition.tipo==="texto" && !input.value.startsWith("[Ejemplo] ") && !(path[1]==="empresa_mantenedora"&&input.value==="readyproof")) input.setCustomValidity("Usá un texto ficticio que comience con [Ejemplo].");
+      if(piloto && input.value && definition.tipo==="texto" && !input.value.startsWith("[Ejemplo] ") && !(path[1]==="empresa_mantenedora"&&input.value==="readyproof")) input.setCustomValidity("Usá un texto ficticio que comience con [Ejemplo].");
       if(!input.checkValidity())first??=input;
     }
     if(first && show){first.scrollIntoView({block:"center"});first.reportValidity();}
@@ -210,7 +213,7 @@
     else{input=document.createElement("input");input.type=definition.tipo==="fecha"?"date":["numero","entero"].includes(definition.tipo)?"number":"text";}
     input.id=id;input.name=JSON.stringify(path);input.dataset.path=JSON.stringify(path);
     if(["numero","entero"].includes(definition.tipo)){input.step=definition.tipo==="entero"?"1":"any";input.inputMode=definition.tipo==="entero"?"numeric":"decimal";}
-    if(definition.tipo==="texto"){input.maxLength=500;input.placeholder="[Ejemplo] Completá este campo";}
+    if(definition.tipo==="texto"){input.maxLength=500;input.placeholder=piloto?"[Ejemplo] Completá este campo":"Completá este campo";}
     input.value=value??"";input.addEventListener("input",()=>{input.setCustomValidity("");changed();});
     box.append(caption,input);
     if(definition.unidad){const unit=document.createElement("small");unit.textContent="Unidad: "+definition.unidad;box.append(unit);}
@@ -279,7 +282,7 @@
     const clienteId=$("cliente").value,sistemaId=$("sistema").value,planillaId=$("planilla").value;
     if(!sistemaId||!planillaId)return;
     const cliente=catalog.clientes.find(c=>c.id===clienteId),sistema=catalog.sistemas[clienteId].find(s=>s.id===sistemaId);
-    draft={localId:crypto.randomUUID(),clienteId,sistemaId,planillaId,serverId:null,revision:null,estado:"borrador",datos:copy?structuredClone(copy.datos):{cabecera:{cliente:cliente.nombre,sistema_designacion:sistema.designacion,empresa_mantenedora:"readyproof"},bloques:{},observaciones:[]},firmas:copy?structuredClone(copy.firmas):{},firmasServidor:{},responsable:copy?structuredClone(copy.responsable||{}):{},pending:true,conflicto:false,editVersion:0,actualizado:new Date().toISOString()};
+    draft={localId:crypto.randomUUID(),clienteId,sistemaId,planillaId,serverId:null,revision:null,estado:"borrador",datos:copy?structuredClone(copy.datos):{cabecera:{cliente:cliente.nombre,sistema_designacion:sistema.designacion,empresa_mantenedora:empresa,...(piloto?{}:{numero_mantenedor:certificado})},bloques:{},observaciones:[]},firmas:copy?structuredClone(copy.firmas):{},firmasServidor:{},responsable:copy?structuredClone(copy.responsable||{}):{},pending:true,conflicto:false,editVersion:0,actualizado:new Date().toISOString()};
     render();await persist();status("Borrador guardado en este dispositivo");sync(false);
   }
   async function preview(){
@@ -387,7 +390,7 @@
     $("correo-destinatario").disabled=correoBusy;
     $("cerrar-correo").disabled=correoBusy;
     if(previous)$("correo-estado").textContent=correoStatus(previous);
-    else if(correoReady&&!correoBusy)$("correo-estado").textContent="Confirmá el destinatario y presioná Enviar PDF. Solo destinatarios de prueba habilitados.";
+    else if(correoReady&&!correoBusy)$("correo-estado").textContent=piloto?"Confirmá el destinatario y presioná Enviar PDF. Solo destinatarios de prueba habilitados.":"Confirmá el destinatario antes de enviar la planilla emitida.";
   }
   $("enviar-pdf").onclick=async()=>{
     if(operation||!draft||draft.estado!=="emitida")return;

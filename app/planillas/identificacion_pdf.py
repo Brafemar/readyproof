@@ -16,7 +16,7 @@ def lineas_firmantes(datos,ancho):
     # El login conserva la identidad autenticada si el nombre usa otra escritura.
     try:nombre.encode('cp1252')
     except UnicodeEncodeError:nombre=tecnico.get('login') or ''
-    columnas=[['TÉCNICO DE READYPROOF',f"Usuario: {tecnico.get('login') or 'Sin firma registrada'}",f'Nombre: {nombre}', 'Empresa: readyproof',f'Fecha del servicio: {fecha}'],
+    columnas=[['TÉCNICO DE READYPROOF',f"Usuario: {tecnico.get('login') or 'Sin firma registrada'}",f'Nombre: {nombre}', 'Empresa: '+datos.get('empresa_mantenedora','readyproof'),f'Fecha del servicio: {fecha}'],
               ['RESPONSABLE DE LA INSTALACIÓN',f"Nombre: {responsable.get('nombre_firmante') or 'Sin completar'}",f"DNI: {responsable.get('dni_firmante') or 'Sin completar'}",f"Cargo: {responsable.get('cargo_firmante') or 'No informado'}",f"Empresa: {datos['empresa']}",f'Fecha del servicio: {fecha}']]
     # El glifo más ancho de Helvetica WinAnsi ocupa 1,015 em.
     limite=max(1,int(ancho/(FUENTE*1.02)))

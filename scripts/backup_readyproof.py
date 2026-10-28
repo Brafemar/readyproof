@@ -17,7 +17,7 @@ ROOT = Path('/home/readyproof')
 STORE = Path('/var/backups/readyproof')
 CONFIG = '/etc/readyproof/rclone-backup.conf'
 REMOTE = 'readyproof-drive:readyproof-backups'
-TABLES = ('cargas', 'firmas_carga', 'envios', 'planillas', 'sistemas')
+TABLES = ('cargas', 'firmas_carga', 'envios', 'planillas', 'sistemas', 'auditoria')
 
 
 def run(args, **kwargs):
@@ -153,7 +153,7 @@ def backup():
                 raise ValueError('La copia descargada de Drive no coincide.')
         prune()
         result = {'estado': 'respaldo_verificado_en_drive', 'remote': REMOTE+'/daily/'+name,
-                  'schema': manifest['schema'], 'counts': {k: manifest['counts'][k] for k in TABLES},
+                   'schema': manifest['schema'], 'counts': {k: manifest['counts'][k] for k in TABLES if k in manifest['counts']},
                   'blobs': len(manifest['blobs']), 'cipher_sha256': digest(encrypted), 'created_utc': now.isoformat()}
         (STORE/'ultimo_backup.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
         logging.info('Respaldo verificado; schema=%s; blobs=%s', result['schema'], result['blobs'])
@@ -232,7 +232,7 @@ def restore(remote, expected_schema=None, expected_planillas=None, prefijo_prueb
             raise ValueError('La cantidad de planillas restauradas no es la esperada.')
         report = {'estado': 'restauracion_verificada', 'database': dbname, 'schema': actual['schema'],
                   'remote': remote, 'cipher_sha256': digest(encrypted), 'snapshot_created_utc': expected['created_utc'],
-                  'counts': {k: actual['counts'][k] for k in TABLES}, 'tablas_comparadas': len(actual['counts']),
+                  'counts': {k: actual['counts'][k] for k in TABLES if k in actual['counts']}, 'tablas_comparadas': len(actual['counts']),
                   'blobs_comparados': len(actual['blobs']), 'pdf_exportados_comparados': len(expected_pdfs), 'produccion_modificada': False}
         (STORE/'ultima_restauracion.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
         return report

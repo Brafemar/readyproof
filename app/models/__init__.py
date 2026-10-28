@@ -96,6 +96,22 @@ class NumeroRegistroContador(Base):
     ultimo: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
 
+class Auditoria(Base):
+    __tablename__ = 'auditoria'
+    __table_args__ = (
+        CheckConstraint("accion IN ('INSERT','UPDATE','DELETE','DESBLOQUEO')", name='ck_auditoria_accion'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=identificador)
+    tabla: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    registro_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
+    accion: Mapped[str] = mapped_column(String(20), nullable=False)
+    usuario_id: Mapped[str] = mapped_column(ForeignKey('usuarios.id'), nullable=False, index=True)
+    datos_anterior: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    datos_nuevo: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora, nullable=False, index=True)
+    usuario: Mapped['Usuario'] = relationship(back_populates='auditorias')
+
+
 class EmisionCarga(Base):
     __tablename__ = "emisiones_carga"
     __table_args__ = (UniqueConstraint("carga_id", "revision_publica"),)
@@ -157,6 +173,7 @@ class Usuario(Base):
     rol: Mapped[str] = mapped_column(String(12))
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora)
+    auditorias: Mapped[list['Auditoria']] = relationship(back_populates='usuario', passive_deletes='all')
 
 
 class UsuarioCliente(Base):
