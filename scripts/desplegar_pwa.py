@@ -31,6 +31,10 @@ def main():
             result[name]=(oid,mode)
         return result
     previous=tree(old);base=tree(data['base']);target=tree(data['destino'])
+    preserved={'docs/BACKLOG_v1_1.md'} if data.get('preservar_backlog') is True else set()
+    for name in preserved:
+        assert base[name]==target[name],'El pull no debe actualizar el BACKLOG preservado.'
+    preserved_hashes={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in preserved}
     assert set(base)<=set(target),'La entrega no debe eliminar archivos históricos.'
     blobs={}
     def blob(oid):
@@ -47,10 +51,10 @@ def main():
         elif path.exists():
             assert path.is_file()
             choices=[blob(v[0]) for v in (base.get(name),previous.get(name),target.get(name)) if v]
-            if not any(same(path.read_bytes(),value) for value in choices):unknown.append(name)
+            if name not in preserved and not any(same(path.read_bytes(),value) for value in choices):unknown.append(name)
     assert not unknown,'Cambios ajenos a los commits verificados: '+','.join(unknown)
     if data['accion']=='inspeccionar':
-        print(json.dumps({'estado':'PLAN_GIT_VALIDADO','head_anterior':old,'base_verificada':data['base'],'destino':data['destino'],'archivos_objetivo':len(target),'cambios_desconocidos':unknown}));return
+        print(json.dumps({'estado':'PLAN_GIT_VALIDADO','head_anterior':old,'base_verificada':data['base'],'destino':data['destino'],'archivos_objetivo':len(target),'cambios_desconocidos':unknown,'archivos_preservados':preserved_hashes}));return
     assert data['accion']=='aplicar'
     from dotenv import dotenv_values
     flags={};private={}
@@ -94,15 +98,18 @@ def main():
             for path in reversed(missing):
                 path.mkdir();os.chown(path,0,gid);os.chmod(path,0o755)
         for name,(oid,mode) in base.items():
-            if name.startswith('fuente/'):continue
+            if name.startswith('fuente/') or name in preserved:continue
             p=ROOT/name;parent_directory(p.parent)
             p.write_bytes(blob(oid));os.chmod(p,0o755 if mode=='100755' else 0o644)
             os.chown(p,0,gid)
         git('reset','--mixed',data['base'])
-        assert not git('status','--porcelain','--untracked-files=no').strip(),'La base reconciliada debe quedar limpia.'
+        assert set(git('diff','--name-only').decode().splitlines())<=preserved,'Solo se admite el BACKLOG preservado como cambio local.'
+        assert not git('diff','--cached','--name-only').strip()
         output=git('pull','--ff-only','origin','main').decode()
         assert git('rev-parse','HEAD').decode().strip()==data['destino']
-        assert not git('status','--porcelain','--untracked-files=no').strip()
+        assert set(git('diff','--name-only').decode().splitlines())<=preserved
+        assert not git('diff','--cached','--name-only').strip()
+        assert all(hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest for name,digest in preserved_hashes.items())
         assert source==source_hashes()
         assert all(hashlib.sha256(Path(p).read_bytes()).hexdigest()==h for p,h in private.items())
         with engine.connect() as c:assert before==snapshot(c)
@@ -129,7 +136,7 @@ def main():
         raise
     result={'estado':'PWA_DESPLEGADA','fecha_utc':datetime.now(timezone.utc).isoformat(),'commit':data['destino'],'pull':output,
         'backup_previo':remote,'copia_codigo_anterior':str(saved),'fuente_modificada':False,'entornos_modificados':False,'historicos_modificados':False,
-        'modo_piloto':False,'mail_modo_prueba':False,'servicio':run(['systemctl','is-active','readyproof']).stdout.decode().strip()}
+        'modo_piloto':False,'mail_modo_prueba':False,'archivos_preservados':preserved_hashes,'servicio':run(['systemctl','is-active','readyproof']).stdout.decode().strip()}
     (STORE/'despliegue_pwa.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
 
 if __name__=='__main__':
