@@ -453,3 +453,8 @@ Implementado: cuatro estados del kit (✓/O/X/NA), mantenidos por decisión de J
 - Resuelto el bloqueo por test A4: corrección de promesas y sincronización, caso focalizado aprobado y suite posterior completa de 525 casos aprobada sin omisiones. Ver docs/DIAGNOSTICO_TEST_A4_HISTORICA.md y AUDITORIA_ETAPAS_0_A_5.json. La traza inicial no conservó el disparador primario de la intermitencia; esa limitación queda documentada, sin atribuirlo a datos dañados.
 - Resueltos los controles técnicos auditados: exclusión de entornos, permisos, conservación autorizada de fuente, código/migraciones, BD, binarios, respaldo/restauración y documentación. Los resultados iniciales se conservan como evidencia histórica.
 - Permanecen SCC-1 MPa vs bar y SDI tres/cuatro estados para Martín, manuales reales/asociaciones, S1–S5 y el alcance ampliado ya registrado. La auditoría técnica no autoriza etapa 6 ni uso real. Los commits de auditoría no consolidan automáticamente todo el trabajo previo pendiente del proyecto.
+
+
+## 2026-10-28 — Etapa 6: transición real pendiente
+
+La habilitación configurable está implementada; el servidor permanece en piloto y correo de prueba. Antes de activarla, Jorge debe confirmar empresa mantenedora y certificado reales y aprobar el checklist de docs/TRANSICION_PILOTO_A_REAL.md. Martín debe resolver SCC-1 MPa vs bar y confirmar los cuatro estados SDI. La migración 016 corresponde a auditoría; una eventual corrección normativa usará el siguiente número disponible. Establecimientos, catálogos dinámicos avanzados y anulación siguen sujetos al backlog; esta entrega no los da por implementados.

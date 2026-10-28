@@ -1403,3 +1403,12 @@ Las seis etapas corresponden al 28/10/2026 y sus secciones anteriores contienen 
 - Manifiesto actual de 189 archivos: 187 del paquete y dos controladores privados de prueba, sin diferencias contra destino. El manifiesto histórico de 185 se conserva aparte. No se incluyen .env, claves, tokens ni BD en el paquete transferido. Permisos finales: backups y revisión privada 0700, app/ 0755.
 - Compilación final app/tests/scripts/migraciones sin errores; entornos ignorados y sin seguimiento; cinco cambios necesarios de fuente conservados por SHA256 y autorización. Documentación 0/1, preguntas SCC/SDI, índice y manifiestos completos. Veredicto de AUDITORIA_ETAPAS_0_A_5.json y AUDITORIA_CORRECCIONES_FALTANTES.json: AUDITORIA_COMPLETA_OK para este corte en modo piloto.
 - El commit de seguridad/documentación incorpora .gitignore y los reportes de auditoría; no consolida otros cambios previos de la aplicación y no realiza push. Persisten los pendientes normativos y de alcance documentados; etapa 6 y modo real no se habilitan.
+
+
+## 2026-10-28 — Etapa 6: búsqueda, auditoría y modo configurable
+
+Búsqueda autenticada por número de registro y auditoría transaccional de altas, cambios, emisión y desbloqueo de cargas. Migración 016 con historial inmutable; acceso de auditoría solo admin. Modo real configurable y validado, conservado desactivado. PDF nuevos identifican PILOTO/REAL; anteriores intactos. Correo restringido por modo y destinatario de prueba.
+
+Suite final: 541 aprobadas (494 Ubuntu, 47 Windows), sin fallos ni omisiones; cobertura de líneas Python app/ 93,04 %. Compilación código 0. Coverage 7.17.0 se agrega solo a desarrollo para medir el criterio solicitado. Se conservan los cinco cambios de fuente previamente autorizados; atributos Git preservan sus bytes y la huella del catálogo.
+
+Despliegue privado en piloto con migración ensayada y respaldo previo. El primer arranque detectó un permiso insuficiente en app/auditoria por umask 0077; corregido a 0750 y registrado en el instalador. Verificación posterior y restauración documentadas en el reporte final. No se activa modo real, no se envían correos reales de prueba y no se publican cambios. Pendientes: empresa/certificado, decisiones de Martín y autorización final según checklist.

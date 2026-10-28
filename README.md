@@ -135,3 +135,36 @@ M1 deja de ser xfail y se verifica como prueba normal. Esto no habilita por sí 
 ## Transporte SMTP Gmail
 
 Cuenta elegida por Jorge: readyproof.ar@gmail.com. La API prepara envíos con PDF adjunto y el proceso independiente reintenta cada 15 minutos, con tres intentos máximos. Modo de prueba por defecto, sin enviar mensajes reales. Ver [configuración, comandos y límites](docs/SMTP_GMAIL.md). `.env.local` queda fuera de Git; no se incluyen credenciales.
+
+## Guías de acceso, operación y entrega
+
+Entrega del piloto privado: [documento de entrega](docs/ENTREGA_A_BRAFEMAR.md), [acceso técnico desde PC/Android](docs/ACCESO_TECNICO_BRAFEMAR.md) y [operación de Gmail HTTPS](docs/GMAIL_HTTPS.md). Usuario técnico preparado: tecnico_readyproof. Mi cuenta permite guardar el correo propio y enviar las guías, sin contraseñas. La contraseña inicial y la clave restringida de túnel se entregan por canales privados separados.
+
+Instalación privada autorizada en servidor compartido: [acceso por túnel SSH, cuenta y evidencias](docs/ACCESO_SERVIDOR_PRIVADO.md). Sin dominio ni publicación; ejemplos únicamente.
+
+- [Acceso y carga para técnicos](docs/GUIA_ACCESO_BRAFEMAR.md).
+- [Instalación y operación en DigitalOcean](docs/DEPLOYMENT_DIGITALOCEAN.md): propuesta pendiente de ensayo Ubuntu y aprobación; no es un despliegue realizado.
+- [Checklist de entrega y evidencias pendientes](docs/CHECKLIST_ENTREGA_BRAFEMAR.md).
+- [Resumen de manuales SAA, SDI, SBC y SAL](docs/MANUALES_SG-PEM-IFI.md).
+
+El script `scripts/prueba_operativa_final.py` solicita la contraseña solo en consola y conserva la evidencia del recorrido SAA-1. Por defecto archiva el correo sin transmitirlo; SMTP requiere una casilla de prueba autorizada. La recepción y apertura se confirman manualmente, sin repetir el envío. Comandos en la guía técnica.
+
+
+## PDF por correo desde la planilla
+
+Después de emitir, **Enviar PDF por correo** abre el destinatario y envía el PDF firmado por Gmail HTTPS. La instalación privada está habilitada para la casilla de prueba autorizada de Jorge. El resultado queda registrado y no se repite la misma carga/destinatario al recargar. Configuración y límites en `docs/GMAIL_HTTPS.md`. Validación del cambio: 188 tests aprobados.
+
+
+## SAA-1 de una hoja A4
+
+La plantilla piloto `00-26-rp2` imprime SAA-1 en una sola A4 horizontal. Las cargas del formato anterior ofrecen **Crear copia A4** para recuperar los datos y firmas del dispositivo, revisar y emitir una copia nueva. Los archivos y envíos anteriores se conservan. El catálogo JSON v3 registra la nueva huella del generador sin cambiar su contenido.
+
+
+## SDI, SBC y SAL operativos
+
+La migración `009_multisistema` habilita cuatro sistemas y 16 planillas individuales: SAA-1, SDI-1 a 5, SBC-1 a 6 y SAL-1 a 4 (Agentes Limpios). Los formularios incluyen las matrices periódicas y listas de verificación del kit. Todas emiten PDF A4 horizontal con firmas; SAA-1 mantiene una hoja y las otras conservan la paginación del kit. El botón de documentación incluye las instrucciones de los cuatro sistemas. Ver `docs/PLANILLAS_SDI_SBC_SAL.md`. Las versiones y contenedores anteriores se conservan.
+
+
+### Etapa 6: operación piloto y transición
+
+Búsqueda: GET /api/carga/buscar?numero=12345; auditoría admin: GET /api/auditoria. Ver [API](docs/API.md), [auditoría](docs/AUDITORIA.md), [configuración](docs/CONFIG_MODO_REAL.md), [transición](docs/TRANSICION_PILOTO_A_REAL.md) y [pruebas](docs/PRUEBAS_ETAPA6.md). El modo real requiere configuración validada y autorización final; permanece desactivado en esta entrega.
