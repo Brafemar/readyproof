@@ -5,7 +5,7 @@ from .models import Cliente, Sistema, Planilla, Manual
 from .planillas.definiciones.saa1 import HERRAMIENTAS, MODELO
 from .planillas.validacion import esquema_saa1
 
-VERSION_PILOTO = "00-26-rp1"
+VERSION_PILOTO = "00-26-rp2"
 
 
 def huella_saa1():
@@ -37,5 +37,13 @@ def registrar_ejemplos(session):
     if sistema is None:
         sistema = Sistema(cliente_id=cliente.id, tipo="SAA", designacion="[Ejemplo] Abastecimiento de agua")
         session.add(sistema)
+    from .planillas.multisistema import DESIGNACIONES
+    session.flush()
+    for family,name in DESIGNACIONES.items():
+        if session.scalar(select(Sistema).where(Sistema.cliente_id==cliente.id,Sistema.tipo==family)) is None:
+            session.add(Sistema(cliente_id=cliente.id,tipo=family,designacion=name))
+    session.flush()
+    from .planillas.catalogo_completo import completar_sistemas_ejemplo
+    completar_sistemas_ejemplo(session.connection())
     session.commit()
     return cliente, sistema, planilla

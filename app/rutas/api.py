@@ -13,11 +13,15 @@ from sqlalchemy import select, or_
 from ..catalogo import huella_saa1
 from ..carga_planillas import CODIGOS, VERSION_CATALOGO
 from ..db import sesion
-from ..models import Cliente, Sistema, Planilla, Carga, RevisionCarga, FirmaCarga, UsuarioCliente, RegistroAcceso, ahora
+from ..models import Cliente, Sistema, Planilla, Carga, RevisionCarga, FirmaCarga, UsuarioCliente, RegistroAcceso, EmisionCarga, ahora
+from ..carga.servicios import desbloquear_carga, preparar_numero_emision, archivar_emision
 from ..auth import autorizar_cliente
-from ..planillas.generador import generar_saa1
+from ..planillas.generador import generar_saa1, generar_multisistema
+from ..planillas.multisistema import ejemplo_multisistema
+from ..planillas.catalogo_completo import definiciones_habilitadas as definiciones_multisistema
 from ..planillas.pdf import convertir_pdf
 from ..planillas.firmas import validar_firmas, ROLES
+from ..planillas.firmantes import validar_responsable, CAMPOS
 from ..planillas.validacion import DatosInvalidos, campos_permitidos, mapa, validar_datos, datos_para_excel
 
 api = Blueprint("api", __name__, url_prefix="/api")
@@ -55,7 +59,9 @@ def revisar_revision(carga, value):
 
 def plantilla_actual(carga):
     planilla = obtener(Planilla, carga.planilla_id)
-    if planilla.codigo != "SG-PEM-IFI-SAA-1" or planilla.huella != huella_saa1():
+    definition=definiciones_multisistema().get(planilla.codigo)
+    vigente=(planilla.codigo=="SG-PEM-IFI-SAA-1" and planilla.huella==huella_saa1()) or (definition is not None and planilla.version==definition['version'] and planilla.huella==definition['huella'] and planilla.definicion==definition['definicion'])
+    if not vigente:
         abort(409, description="La versión de plantilla no coincide con el generador actual.")
     return planilla
 
@@ -85,14 +91,53 @@ def guardar_firmas(carga, cambios):
         row = FirmaCarga(carga_id=carga.id)
         sesion().add(row)
     for role, value in cambios.items():
+        if role == 'tecnico' and (value != row.tecnico_png or (value and not row.tecnico_usuario_id)):
+            row.tecnico_usuario_id = g.usuario.id if value else None
+            row.tecnico_nombre = g.usuario.nombre if value else None
+            row.tecnico_login = g.usuario.login if value else None
         setattr(row, role + "_png", value)
+
+
+def responsable_guardado(carga):
+    row = sesion().get(FirmaCarga, carga.id) if carga.id else None
+    return {key: (getattr(row, key) or '') if row else '' for key in CAMPOS}
+
+
+def guardar_responsable(carga, value):
+    if value is None:
+        return
+    row = sesion().get(FirmaCarga, carga.id)
+    if row is None:
+        row = FirmaCarga(carga_id=carga.id)
+        sesion().add(row)
+    for key, text in value.items():
+        setattr(row, key, text or None)
+
+
+def firmantes_guardados(carga):
+    row = sesion().get(FirmaCarga, carga.id) if carga.id else None
+    return dict(responsable=responsable_guardado(carga), tecnico=dict(
+        usuario_id=row.tecnico_usuario_id if row else None,
+        nombre=row.tecnico_nombre if row else None, login=row.tecnico_login if row else None))
+
+
+def exigir_firmantes(carga):
+    if not all(firmas_guardadas(carga).values()):
+        raise DatosInvalidos('Se requieren las firmas del técnico y del responsable para finalizar.')
+    validar_responsable(responsable_guardado(carga), completo=True)
+    if not firmantes_guardados(carga)['tecnico']['usuario_id']:
+        raise DatosInvalidos('Volvé a firmar como técnico en un borrador para registrar tu identidad.')
 
 
 def registrar(carga, evento):
     if evento != "creada":
         carga.actualizada_en = ahora()
     sesion().flush()
-    sesion().add(RevisionCarga(carga_id=carga.id, numero=carga.revision, evento=evento, datos=deepcopy(carga.datos), actor_id=g.usuario.id, actor=g.usuario.login, firmas_huellas={role: sha256(value).hexdigest() if value else None for role, value in firmas_guardadas(carga).items()}))
+    snapshot_firmantes = firmantes_guardados(carga)
+    if evento == 'desbloqueada':
+        snapshot_firmantes['desbloqueo'] = dict(motivo=carga.motivo_desbloqueo,
+            numero_registro=carga.numero_registro, revision_publica=carga.revision_publica)
+    sesion().add(RevisionCarga(carga_id=carga.id, numero=carga.revision, evento=evento, datos=deepcopy(carga.datos), actor_id=g.usuario.id, actor=g.usuario.login, firmas_huellas={role: sha256(value).hexdigest() if value else None for role, value in firmas_guardadas(carga).items()}, firmantes=snapshot_firmantes))
     if evento == "emitida":
         sistema = obtener(Sistema, carga.sistema_id)
         sesion().add(RegistroAcceso(usuario_id=g.usuario.id, evento="emision", ruta=request.url_rule.rule,
@@ -106,8 +151,11 @@ def serializar(carga):
     return {"id": carga.id, "sistema_id": carga.sistema_id, "planilla_id": carga.planilla_id,
             "version_plantilla": planilla.version, "huella_plantilla": planilla.huella,
             "estado": carga.estado, "revision": carga.revision, "datos": carga.datos,
+            "numero_registro": carga.numero_registro, "revision_publica": carga.revision_publica,
+            "puede_desbloquear": carga.estado == 'emitida' and not carga.estado_anulada and (g.usuario.rol == 'admin' or carga.creada_por_id == g.usuario.id),
             "creada_en": carga.creada_en.isoformat(), "actualizada_en": carga.actualizada_en.isoformat(),
             "firmas": {role: bool(value) for role, value in firmas_guardadas(carga).items()},
+            "responsable": responsable_guardado(carga), "firmantes": firmantes_guardados(carga),
             "pdf_disponible": carga.pdf is not None, "pdf_sha256": carga.pdf_sha256}
 
 
@@ -124,27 +172,34 @@ def sistemas(cliente_id):
     cliente = obtener(Cliente, cliente_id)
     if not cliente.es_ejemplo or not cliente.nombre.startswith("[Ejemplo] "):
         abort(403, description="Solo se admiten clientes ficticios en esta etapa.")
-    return jsonify([{ "id": s.id, "cliente_id": s.cliente_id, "tipo": s.tipo, "designacion": s.designacion } for s in sesion().scalars(select(Sistema).where(Sistema.cliente_id == cliente_id, Sistema.designacion.startswith("[Ejemplo] ")).order_by(Sistema.designacion))])
+    return jsonify([{ "id": s.id, "cliente_id": s.cliente_id, "tipo": s.tipo, "designacion": s.designacion } for s in sesion().scalars(select(Sistema).where(Sistema.cliente_id == cliente_id, Sistema.activo.is_(True), Sistema.designacion.startswith("[Ejemplo] ")).order_by(Sistema.designacion))])
 
 
 @api.get("/planillas")
 def planillas():
-    query=select(Planilla).where(
-        or_(Planilla.codigo!="SG-PEM-IFI-SAA-1",Planilla.huella==huella_saa1()),
-        or_(Planilla.codigo.not_in(CODIGOS),Planilla.version==VERSION_CATALOGO)).order_by(Planilla.codigo)
-    return jsonify([{ "id": p.id, "codigo": p.codigo, "version": p.version, "sistema_tipo": p.sistema_tipo, "huella": p.huella } for p in sesion().scalars(query)])
+    definitions=definiciones_multisistema()
+    offered=[]
+    for p in sesion().scalars(select(Planilla).order_by(Planilla.codigo,Planilla.version)):
+        definition=definitions.get(p.codigo)
+        if (p.codigo=="SG-PEM-IFI-SAA-1" and p.huella==huella_saa1()) or (definition and p.version==definition['version'] and p.huella==definition['huella']):
+            offered.append(dict(id=p.id,codigo=p.codigo,version=p.version,sistema_tipo=p.sistema_tipo,huella=p.huella,
+                                nombre=definition['nombre'] if definition else "Información general",familia=p.sistema_tipo))
+    return jsonify(offered)
 
 
 @api.get("/planillas/<planilla_id>")
 def definicion(planilla_id):
     p = obtener(Planilla, planilla_id)
-    return jsonify(id=p.id, codigo=p.codigo, version=p.version, huella=p.huella, definicion=p.definicion)
+    payload=dict(id=p.id,codigo=p.codigo,version=p.version,huella=p.huella,definicion=p.definicion)
+    if p.codigo in definiciones_multisistema():payload['ejemplo']=ejemplo_multisistema(p.definicion)
+    return jsonify(payload)
 
 
 @api.post("/cargas")
 def crear_carga():
-    data = objeto({"sistema_id", "planilla_id", "datos"}, {"firmas"})
+    data = objeto({"sistema_id", "planilla_id", "datos"}, {"firmas", "responsable"})
     firmas = validar_firmas(data["firmas"]) if "firmas" in data else None
+    responsable = validar_responsable(data['responsable']) if 'responsable' in data else None
     local_key = request.headers.get("Idempotency-Key")
     if local_key:
         try:
@@ -174,6 +229,7 @@ def crear_carga():
     sesion().add(carga)
     sesion().flush()
     guardar_firmas(carga, firmas)
+    guardar_responsable(carga, responsable)
     registrar(carga, "creada")
     return jsonify(serializar(carga)), 201
 
@@ -187,8 +243,9 @@ def consultar_carga(carga_id):
 
 @api.put("/cargas/<carga_id>/borrador")
 def guardar_borrador(carga_id):
-    data = objeto({"revision", "datos"}, {"firmas"})
+    data = objeto({"revision", "datos"}, {"firmas", "responsable"})
     firmas = validar_firmas(data["firmas"]) if "firmas" in data else None
+    responsable = validar_responsable(data['responsable']) if 'responsable' in data else None
     carga = obtener(Carga, carga_id)
     revisar_revision(carga, data["revision"])
     if carga.estado != "borrador":
@@ -198,6 +255,7 @@ def guardar_borrador(carga_id):
     ejemplo_relacionado(carga, datos)
     carga.datos = datos
     guardar_firmas(carga, firmas)
+    guardar_responsable(carga, responsable)
     registrar(carga, "borrador_guardado")
     return jsonify(serializar(carga))
 
@@ -210,10 +268,11 @@ def finalizar(carga_id):
     if carga.estado != "borrador":
         abort(409, description="Solo se finalizan borradores.")
     planilla = plantilla_actual(carga)
-    validated = validar_datos(carga.datos, planilla.definicion)
+    validated = validar_datos(carga.datos, planilla.definicion, completo=True)
     if not validated["cabecera"] and not any(validated["bloques"].values()) and not validated["observaciones"]:
         raise DatosInvalidos("No se puede finalizar una carga vacía.")
     ejemplo_relacionado(carga, validated)
+    exigir_firmantes(carga)
     carga.estado = "finalizada"
     carga.finalizada_en = ahora()
     registrar(carga, "finalizada")
@@ -228,19 +287,64 @@ def emitir(carga_id):
     if carga.estado != "finalizada":
         abort(409, description="Solo se emiten cargas finalizadas.")
     planilla = plantilla_actual(carga)
-    datos = validar_datos(carga.datos, planilla.definicion)
+    datos = validar_datos(carga.datos, planilla.definicion, completo=True)
     ejemplo_relacionado(carga, datos, emitir=True)
+    exigir_firmantes(carga)
     try:
-        payload = generar_pdf_carga(carga, datos)
+        with sesion().no_autoflush:
+            preparar_numero_emision(carga)
+            payload = generar_pdf_carga(carga, datos)
+            carga.pdf = payload
+            carga.pdf_sha256 = sha256(payload).hexdigest()
+            carga.pdf_hash = carga.pdf_sha256
+            carga.emitida_en = ahora()
+            carga.estado = "emitida"
+            snapshot = archivar_emision(carga, firmantes_guardados(carga))
+            snapshot.actor_id = g.usuario.id
     except (RuntimeError, OSError, subprocess.TimeoutExpired):
         sesion().rollback()
         return jsonify(error="No se pudo generar el PDF; la carga continúa finalizada."), 503
-    carga.pdf = payload
-    carga.pdf_sha256 = sha256(payload).hexdigest()
-    carga.emitida_en = ahora()
-    carga.estado = "emitida"
+    except Exception:
+        sesion().rollback()
+        raise
     registrar(carga, "emitida")
     return jsonify(serializar(carga)), 201
+
+
+@api.post('/cargas/<carga_id>/desbloquear')
+def desbloquear(carga_id):
+    data = objeto({'revision', 'motivo'})
+    carga = obtener(Carga, carga_id)
+    plantilla_actual(carga)
+    ejemplo_relacionado(carga, carga.datos)
+    with sesion().no_autoflush:
+        carga = desbloquear_carga(carga_id, g.usuario.id, data['motivo'],
+            revision=data['revision'], firmantes=firmantes_guardados(carga))
+    registrar(carga, 'desbloqueada')
+    return jsonify(serializar(carga))
+
+
+@api.get('/cargas/<carga_id>/emisiones')
+def emisiones(carga_id):
+    carga = obtener(Carga, carga_id)
+    rows = list(sesion().scalars(select(EmisionCarga).where(EmisionCarga.carga_id == carga.id).order_by(EmisionCarga.revision_publica)))
+    return jsonify([dict(revision_publica=row.revision_publica, numero_registro=row.numero_registro,
+        pdf_sha256=row.pdf_sha256, emitida_en=row.emitida_en.isoformat() if row.emitida_en else None,
+        url=f'/api/cargas/{carga.id}/emisiones/{row.revision_publica}/pdf') for row in rows])
+
+
+@api.get('/cargas/<carga_id>/emisiones/<int:revision_publica>/pdf')
+def descargar_emision(carga_id, revision_publica):
+    carga = obtener(Carga, carga_id)
+    row = sesion().scalar(select(EmisionCarga).where(EmisionCarga.carga_id == carga.id,
+        EmisionCarga.revision_publica == revision_publica))
+    if row is None:
+        abort(404)
+    response = send_file(BytesIO(row.pdf), mimetype='application/pdf', as_attachment=True,
+        download_name=f'readyproof_{carga.id}_revision_{revision_publica}.pdf', etag=row.pdf_sha256, max_age=0)
+    response.headers['Cache-Control'] = 'no-store'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
 
 
 @api.get("/cargas/<carga_id>/pdf")
@@ -250,7 +354,7 @@ def descargar(carga_id):
         abort(409, description="La carga todavía no tiene un PDF emitido.")
     validar_datos(carga.datos, obtener(Planilla, carga.planilla_id).definicion)
     ejemplo_relacionado(carga, carga.datos, emitir=True)
-    response = send_file(BytesIO(carga.pdf), mimetype="application/pdf", as_attachment=True, download_name=f"SAA-1_{carga.id}.pdf", etag=carga.pdf_sha256, max_age=0)
+    response = send_file(BytesIO(carga.pdf), mimetype="application/pdf", as_attachment=True, download_name=f"{obtener(Planilla,carga.planilla_id).codigo.removeprefix('SG-PEM-IFI-')}_{carga.id}.pdf", etag=carga.pdf_sha256, max_age=0)
     response.headers["Cache-Control"] = "no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"
     return response
@@ -260,7 +364,7 @@ def descargar(carga_id):
 def revisiones(carga_id):
     carga = obtener(Carga, carga_id)
     ejemplo_relacionado(carga, carga.datos)
-    return jsonify([{ "numero": r.numero, "evento": r.evento, "datos": r.datos, "actor": r.actor, "actor_id": r.actor_id, "firmas_huellas": r.firmas_huellas, "fecha": r.fecha.isoformat() } for r in sesion().scalars(select(RevisionCarga).where(RevisionCarga.carga_id == carga_id).order_by(RevisionCarga.numero))])
+    return jsonify([{ "numero": r.numero, "evento": r.evento, "datos": r.datos, "actor": r.actor, "actor_id": r.actor_id, "firmas_huellas": r.firmas_huellas, "firmantes": r.firmantes, "fecha": r.fecha.isoformat() } for r in sesion().scalars(select(RevisionCarga).where(RevisionCarga.carga_id == carga_id).order_by(RevisionCarga.numero))])
 
 
 
@@ -268,9 +372,18 @@ def generar_pdf_carga(carga, datos):
     temporary = Path(current_app.config["DIRECTORIO_TEMPORAL"])
     temporary.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="emision-", dir=temporary) as directory:
-        source = generar_saa1(datos_para_excel(datos), Path(directory) / "planilla.xlsx")
-        result = convertir_pdf(source, Path(directory) / "planilla.pdf", firmas=firmas_guardadas(carga))
-        return result.read_bytes()
+        planilla=obtener(Planilla,carga.planilla_id)
+        source=(generar_saa1(datos_para_excel(datos),Path(directory)/"planilla.xlsx") if planilla.codigo=="SG-PEM-IFI-SAA-1"
+                else generar_multisistema(datos,Path(directory)/"planilla.xlsx",planilla.codigo))
+        identidad=firmantes_guardados(carga)
+        identidad.update(empresa=obtener(Cliente, obtener(Sistema,carga.sistema_id).cliente_id).nombre,
+                         fecha=datos.get('cabecera',{}).get('fecha',carga.creada_en.date().isoformat()))
+        result = convertir_pdf(source, Path(directory) / "planilla.pdf", firmas=firmas_guardadas(carga), firmantes=identidad)
+        payload = result.read_bytes()
+        if carga.numero_registro is not None:
+            from ..planillas.registro_pdf import incorporar_registro
+            payload = incorporar_registro(payload, carga.numero_registro, carga.revision_publica)
+        return payload
 
 
 @api.post("/cargas/<carga_id>/vista-previa")
@@ -279,13 +392,13 @@ def vista_previa(carga_id):
     carga = obtener(Carga, carga_id)
     revisar_revision(carga, data["revision"])
     planilla = plantilla_actual(carga)
-    datos = validar_datos(carga.datos, planilla.definicion)
+    datos = validar_datos(carga.datos, planilla.definicion, completo=True)
     ejemplo_relacionado(carga, datos, emitir=True)
     try:
         payload = generar_pdf_carga(carga, datos)
     except (RuntimeError, OSError, subprocess.TimeoutExpired):
         sesion().rollback()
         return jsonify(error="No se pudo generar la vista previa."), 503
-    response = send_file(BytesIO(payload), mimetype="application/pdf", as_attachment=False, download_name="SAA-1_vista_previa.pdf", max_age=0)
+    response = send_file(BytesIO(payload), mimetype="application/pdf", as_attachment=False, download_name=planilla.codigo.removeprefix("SG-PEM-IFI-")+"_vista_previa.pdf", max_age=0)
     response.headers["Cache-Control"] = "no-store"
     return response

@@ -41,6 +41,8 @@ def create_app(test_config=None):
     from .auth.rutas import auth
     from .auth import cargar_usuario, exigir_usuario, verificar_csrf, registro
     app.register_blueprint(auth)
+    from .documentacion import documentacion
+    app.register_blueprint(documentacion)
     @app.before_request
     def acceso_local():
         if request.remote_addr not in {"127.0.0.1", "::1"}:
@@ -102,8 +104,7 @@ def create_app(test_config=None):
         from sqlalchemy import select,func
         from .models import Planilla
         from .carga_planillas import cargar_planillas_desde_json
-        if sesion().scalar(select(func.count()).select_from(Planilla))==0:
-            cargar_planillas_desde_json(sesion())
+        cargar_planillas_desde_json(sesion())
         if ejemplos:
             from .catalogo import registrar_ejemplos
             registrar_ejemplos(sesion())

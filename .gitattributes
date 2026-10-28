@@ -1,0 +1,5 @@
+# Conservar los bytes de las fuentes y definiciones que se validan por SHA256.
+fuente/herramientas/*.py -text
+fuente/planillas/*.json -text
+fuente/modelos/*.xlsx -text
+app/planillas/definiciones/restantes_v5.json -text

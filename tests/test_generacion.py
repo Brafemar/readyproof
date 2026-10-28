@@ -25,6 +25,7 @@ def test_generacion_reproduce_referencia_v5(tmp_path):
     assert actual.max_column == expected.max_column == 25
     assert str(actual.merged_cells) == str(expected.merged_cells)
     assert str(actual.print_area) == str(expected.print_area)
+    expected.page_setup.fitToHeight = 1
     assert actual.page_setup == expected.page_setup
     assert actual.page_margins == expected.page_margins
     assert actual.print_options == expected.print_options
@@ -173,7 +174,17 @@ def test_pdf_no_publica_conversion_fallida(tmp_path, monkeypatch):
 def pdfs_saa1(tmp_path_factory):
     from app.planillas.piloto import datos_ejemplo
     directory = tmp_path_factory.mktemp("pdfs_saa1")
-    paths = {"referencia": convertir_pdf(REFERENCE, directory / "referencia.pdf")}
+    # La referencia v5 se conserva; solo se adapta su ajuste de impresión autorizado.
+    reference_a4 = directory / "referencia_A4.xlsx"
+    with ZipFile(REFERENCE) as source, ZipFile(reference_a4, "w") as output:
+        for item in source.infolist():
+            payload = source.read(item.filename)
+            if item.filename == "xl/worksheets/sheet1.xml":
+                tree = etree.fromstring(payload)
+                tree.find("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}pageSetup").set("fitToHeight", "1")
+                payload = etree.tostring(tree)
+            output.writestr(item, payload)
+    paths = {"referencia": convertir_pdf(reference_a4, directory / "referencia.pdf")}
     for name, datos in (("blanca", {}), ("piloto", datos_ejemplo())):
         source = generar_saa1(datos, directory / f"{name}.xlsx")
         paths[name] = convertir_pdf(source, directory / f"{name}.pdf")
@@ -208,7 +219,9 @@ def _textos_fijos_encabezado_y_pie(reader):
 
 def test_conversion_real_con_libreoffice(pdfs_saa1):
     actual, reference = PdfReader(pdfs_saa1["piloto"]), PdfReader(pdfs_saa1["referencia"])
-    assert len(actual.pages) == len(reference.pages)
+    assert len(actual.pages) == len(reference.pages) == 1
+    assert abs(float(actual.pages[0].mediabox.width)-841.89)<.5
+    assert abs(float(actual.pages[0].mediabox.height)-595.28)<.5
     assert all(len(page.images) == 2 for page in actual.pages)
     actual_text = _textos_fijos_encabezado_y_pie(actual)
     reference_text = _textos_fijos_encabezado_y_pie(reference)

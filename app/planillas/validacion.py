@@ -78,9 +78,12 @@ def esquema_saa1():
     return {"cabecera": {key: {"tipo": "fecha" if key == "fecha" else "texto"} for key in CABECERA}, "bloques": blocks, "observaciones": {"tipo": "lista_texto", "maximo": 4}}
 
 
-def validar_datos(datos, esquema):
+def validar_datos(datos, esquema, *, completo=False):
     datos = mapa(datos, "datos")
     campos_permitidos(datos, {"cabecera", "bloques", "observaciones"}, "datos")
+    if esquema.get('codigo', '').startswith('SG-PEM-IFI-SDI-') and esquema.get('tipo_planilla') == 'periodico':
+        from .sdi_validacion import validar_sdi_grilla_mensual
+        validar_sdi_grilla_mensual(datos, esquema)
     normalized = {"cabecera": {}, "bloques": {}, "observaciones": []}
     header = mapa(datos.get("cabecera", {}), "cabecera")
     campos_permitidos(header, esquema["cabecera"], "cabecera")
@@ -111,6 +114,9 @@ def validar_datos(datos, esquema):
     if not isinstance(observations, list) or len(observations) > 4:
         raise DatosInvalidos("observaciones debe contener hasta cuatro textos.")
     normalized["observaciones"] = ["" if value == "" else texto(value) for value in observations]
+    if completo:
+        from ..carga.validacion import validar_reglas_carga
+        validar_reglas_carga(normalized, esquema)
     return normalized
 
 

@@ -1,6 +1,6 @@
 {
   "codigo": "SAA-1",
-  "version": "v2",
+  "version": "v3",
   "sistema_tipo": "SG-PEM-IFI",
   "origen": {
     "ruta": "herramientas/planillas_data3.py",
@@ -8,7 +8,7 @@
   },
   "generador": {
     "ruta": "herramientas/build_planilla.py",
-    "sha256": "feac9d3f8ad5207756c8a421bbc1c73b1c2c954ebca17171d86f08aa13098c26"
+    "sha256": "523cb7af043fee003c2b92c1b70f65a6fa81704d50a9a6f0655f7fe61ca213bb"
   },
   "cabecera": {
     "fecha": {

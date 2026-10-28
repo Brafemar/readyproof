@@ -8,13 +8,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import StaleDataError
 
+from app.planillas.firmantes import ejemplo_responsable
+from scripts.prueba_operativa_final import firma_ficticia
 from app import create_app
 from app.models import Carga, Cliente, Sistema, RevisionCarga, VersionEsquema
 
 
 def crear(client, catalogo, datos):
     _, sistema, planilla = catalogo
-    return client.post("/api/cargas", json={"sistema_id": sistema["id"], "planilla_id": planilla["id"], "datos": datos})
+    return client.post("/api/cargas", json={"sistema_id": sistema["id"], "planilla_id": planilla["id"], "datos": datos,"responsable":ejemplo_responsable(),"firmas":{role:firma_ficticia() for role in ("tecnico","responsable")}})
 
 
 def test_catalogo_y_esquema_postgresql(client, catalogo, app):
@@ -182,4 +184,4 @@ def test_init_db_es_idempotente(app, client):
     result = app.test_cli_runner().invoke(args=["init-db", "--ejemplos"])
     assert result.exit_code == 0
     assert len(client.get("/api/clientes").get_json()) == 1
-    assert len(client.get("/api/planillas").get_json()) == 5
+    assert len(client.get("/api/planillas").get_json()) == 79

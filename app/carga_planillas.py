@@ -8,7 +8,7 @@ from .models import Manual,Planilla
 
 RAIZ=Path(__file__).resolve().parent.parent
 CODIGOS={"SAA-1","SDI","SBC","SAL"}
-VERSION_CATALOGO="v2"
+VERSION_CATALOGO="v3"
 
 
 def huella_json(definicion):

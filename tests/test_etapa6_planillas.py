@@ -25,7 +25,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 def verificar_manual(app,code):
     with Session(app.extensions["db_engine"]) as session:
-        row=session.scalar(select(Planilla).where(Planilla.codigo==code,Planilla.version=="v2"))
+        row=session.scalar(select(Planilla).where(Planilla.codigo==code,Planilla.version=="v3"))
         assert row and row.manual and row.manual.titulo.startswith("[Ejemplo] ")
         assert row.manual.codigo==f"SG-PEM-IFI-{code}"
         assert row.manual.campos_obligatorios==[]
@@ -53,8 +53,9 @@ def test_saa1_sigue_vinculada(app):
 
 def test_todas_las_planillas_tienen_manual(app):
     with Session(app.extensions["db_engine"]) as session:
-        assert session.scalar(select(func.count()).select_from(Planilla))==5
-        assert session.scalar(select(func.count()).select_from(Planilla).where(Planilla.manual_id.is_(None)))==0
+        assert session.scalar(select(func.count()).select_from(Planilla))==83
+        from app.planillas.catalogo_completo import definiciones_restantes
+        assert set(session.scalars(select(Planilla.codigo).where(Planilla.manual_id.is_(None))))==set(definiciones_restantes())
 
 
 def test_esquema_valido_en_todas_planillas(app):
@@ -63,6 +64,11 @@ def test_esquema_valido_en_todas_planillas(app):
             if row.codigo=="SG-PEM-IFI-SAA-1":
                 assert set(row.definicion)=={"cabecera","bloques","observaciones"}
                 assert row.huella==huella_saa1()
+                continue
+            from app.planillas.catalogo_completo import definiciones_habilitadas as definiciones_multisistema
+            physical=definiciones_multisistema().get(row.codigo)
+            if physical:
+                assert row.definicion==physical['definicion'] and row.huella==physical['huella']
                 continue
             document=json.loads((ROOT/"fuente/planillas"/(row.codigo+".json")).read_text(encoding="utf-8"))
             assert row.definicion==document
@@ -78,7 +84,7 @@ def test_logo_reemplazado(tmp_path):
     source=generar_saa1(datos_ejemplo(),tmp_path/"SAA-1_readyproof.xlsx")
     pdf=convertir_pdf(source,tmp_path/"SAA-1_readyproof.pdf")
     reader=PdfReader(pdf)
-    assert len(reader.pages)==2
+    assert len(reader.pages)==1
     for page in reader.pages:
         hashes=[sha256(image.image.convert("RGB").tobytes()).hexdigest() for image in page.images]
         assert hashes.count(expected)==1 and len(hashes)==2
@@ -116,7 +122,7 @@ def test_identidad_nueva_conserva_versiones_anteriores(app,client):
         assert session.get(Planilla,legacy.id).huella=='a'*64
         assert session.get(Planilla,old_group.id).huella=='b'*64
     offered={row['id'] for row in client.get('/api/planillas').get_json()}
-    assert len(offered)==5 and not offered.intersection(ids)
+    assert len(offered)==79 and not offered.intersection(ids)
 
 
 def test_json_invalido_no_carga_datos_parciales(app,tmp_path,monkeypatch):

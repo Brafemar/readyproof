@@ -85,6 +85,10 @@ def generar_saa1(datos, destino):
     """Genera un Excel interno; rechaza campos ajenos y no sobrescribe archivos."""
     spec = definicion_saa1()
     cambios = _carga(datos, spec)
+    return _generar_paquete(spec, cambios, destino)
+
+
+def _generar_paquete(spec, cambios, destino):
     destino = Path(destino).resolve()
     if destino.suffix.lower() != ".xlsx":
         raise ValueError("El destino debe tener extensión .xlsx.")
@@ -118,3 +122,27 @@ def generar_saa1(datos, destino):
     with destino.open("xb") as output:
         output.write(payload)
     return destino
+
+
+def generar_multisistema(datos,destino,codigo):
+    from .catalogo_completo import definiciones_habilitadas as definiciones_multisistema
+    from .validacion import validar_datos
+    definition=definiciones_multisistema().get(codigo)
+    if definition is None:raise ValueError("Planilla no habilitada.")
+    schema=definition['definicion'];data=validar_datos(datos,schema)
+    changes={CABECERA[key]:_texto(date.fromisoformat(value) if key=='fecha' else value) for key,value in data['cabecera'].items()}
+    if 'sistema_designacion' in data['cabecera']:changes['A8']='SISTEMA / DESIGNACIÓN: '+data['cabecera']['sistema_designacion']
+    for title,fields in data['bloques'].items():
+        for key,value in fields.items():
+            field=schema['bloques'][title][key]
+            if 'celdas_resultado' in field:
+                changes[field['celdas_resultado'][value]]=value
+            else:
+                if field['tipo']=='fecha':value=date.fromisoformat(value)
+                text=_texto(value)
+                if field['tipo']=='opcion' and definition['especificacion']['tipo']=='general':
+                    text='      '.join(f"{option}  {'☑' if option==value else '☐'}" for option in field['opciones'])
+                if field.get('unidad'):text+='  '+field['unidad']
+                changes[field['celda']]=text
+    for index,value in enumerate(data['observaciones']):changes['A'+str(schema['fila_observaciones']+index)]=_texto(value) if value else ''
+    return _generar_paquete(definition['especificacion'],changes,destino)

@@ -63,14 +63,17 @@ def incorporar_firmas(excel, pdf, destino, firmas):
     workbook = load_workbook(excel)
     sheet = workbook.active
     boxes = {}
+    widths = [sheet.column_dimensions[get_column_letter(i)].width for i in range(1, sheet.max_column + 1)]
+    header_fractions = {}
     for row in sheet:
         for cell in row:
             if not isinstance(cell.value, str):
                 continue
+            if cell.value in {"CLIENTE:", "TELÉFONO:"}:
+                header_fractions[cell.value] = sum(widths[:cell.column - 1]) / sum(widths)
             for role, label in ETIQUETAS.items():
                 if cell.value.startswith(label) and "FIRMA" in cell.value:
                     merged = next(r for r in sheet.merged_cells.ranges if r.min_row < cell.row and r.max_row == cell.row - 1 and r.min_col == cell.column)
-                    widths = [sheet.column_dimensions[get_column_letter(i)].width for i in range(1, sheet.max_column + 1)]
                     boxes[role] = (cell.value, sum(widths[:merged.min_col - 1]) / sum(widths), sum(widths[merged.min_col - 1:merged.max_col]) / sum(widths), sum(sheet.row_dimensions[i].height or 15 for i in range(merged.min_row, merged.max_row + 1)), cell.font.sz)
     margins = sheet.page_margins
     workbook.close()
@@ -78,9 +81,12 @@ def incorporar_firmas(excel, pdf, destino, firmas):
     writer = PdfWriter()
     writer.clone_document_from_reader(reader)
     found = set()
-    for page in writer.pages:
+    for page_index, page in enumerate(writer.pages):
         anchors = {}
+        header = {}
         def visitor(text, cm, tm, font, size):
+            if text.strip() in {"CLIENTE:", "TELÉFONO:"}:
+                header[text.strip()] = tm[4] * cm[0] + tm[5] * cm[2] + cm[4]
             for role, box in boxes.items():
                 if box[0] in text:
                     y = tm[4] * cm[1] + tm[5] * cm[3] + cm[5]
@@ -88,11 +94,6 @@ def incorporar_firmas(excel, pdf, destino, firmas):
         page.extract_text(visitor_text=visitor)
         if not anchors:
             continue
-        resources = DictionaryObject(dict(page["/Resources"].get_object()))
-        objects = DictionaryObject(dict(resources.get("/XObject", DictionaryObject()).get_object()))
-        resources[NameObject("/XObject")] = objects
-        page[NameObject("/Resources")] = resources
-        commands = []
         for role, payload in firmas.items():
             if not payload or role not in anchors:
                 continue
@@ -100,27 +101,53 @@ def incorporar_firmas(excel, pdf, destino, firmas):
             y, font_actual = anchors[role]
             scale = font_actual / font_original
             available = float(page.mediabox.width) - (margins.left + margins.right) * 72
-            x = margins.left * 72 + available * left_fraction + 5
+            table_left = margins.left * 72
+            if set(header) == set(header_fractions) == {"CLIENTE:", "TELÉFONO:"}:
+                # Ambas etiquetas tienen el mismo margen de celda; su separación fija el ancho impreso.
+                available = (header["TELÉFONO:"] - header["CLIENTE:"]) / (header_fractions["TELÉFONO:"] - header_fractions["CLIENTE:"])
+                table_left = header["CLIENTE:"] - available * header_fractions["CLIENTE:"]
+            x = table_left + available * left_fraction + 5
             bottom = y + font_actual * 1.2
-            width, height = available * width_fraction - 10, height_rows * scale - 6
+            width = available * width_fraction - 10
+            # Un casillero puede continuar desde la página anterior; usar solo su parte visible.
+            table_top = float(page.mediabox.height) - margins.top * 72
+            full_height = height_rows * scale - 6
+            height = min(full_height, table_top - bottom - 3)
+            target = page
+            if page_index and height < full_height:
+                previous_page = writer.pages[page_index - 1]
+                legends = []
+                def previous_text(text, cm, tm, font, size):
+                    if "CUMPLE:" in text:
+                        legends.append((tm[4] * cm[1] + tm[5] * cm[3] + cm[5], size))
+                previous_page.extract_text(visitor_text=previous_text)
+                if legends:
+                    legend_y, legend_size = min(legends)
+                    previous_bottom = margins.bottom * 72 + 3
+                    previous_height = min(full_height, legend_y - legend_size * .75 - previous_bottom)
+                    if previous_height > height:
+                        target = previous_page;bottom = previous_bottom;height = previous_height
             with Image.open(BytesIO(payload)) as image:
                 ratio = min(width / image.width, height / image.height)
                 iw, ih = image.width * ratio, image.height * ratio
             if not all(isfinite(v) and v > 0 for v in (iw, ih, width, height)):
                 raise RuntimeError("No se pudo ubicar la firma en el espacio original.")
-            name = NameObject("/Firma_" + role)
-            objects[name] = _imagen_pdf(payload, writer)
-            commands.append(f"q {iw:.5f} 0 0 {ih:.5f} {x + (width - iw) / 2:.5f} {bottom + (height - ih) / 2:.5f} cm {name} Do Q\n")
+            _pegar_firma(writer,target,role,payload,x+(width-iw)/2,bottom+(height-ih)/2,iw,ih)
             found.add(role)
-        if commands:
-            stream = DecodedStreamObject()
-            stream.set_data("".join(commands).encode("ascii"))
-            original = page.get("/Contents")
-            resolved = original.get_object() if original is not None else None
-            contents = ArrayObject(list(resolved) if isinstance(resolved, ArrayObject) else ([original] if original else []))
-            contents.append(writer._add_object(stream))
-            page[NameObject("/Contents")] = contents
     if set(role for role, value in firmas.items() if value) - found:
         raise RuntimeError("No se encontró el espacio de firma de la planilla.")
     with open(destino, "xb") as output:
         writer.write(output)
+
+
+def _pegar_firma(writer,page,role,payload,x,y,width,height):
+    resources=DictionaryObject(dict(page["/Resources"].get_object()))
+    objects=DictionaryObject(dict(resources.get("/XObject",DictionaryObject()).get_object()))
+    resources[NameObject("/XObject")]=objects;page[NameObject("/Resources")]=resources
+    name=NameObject("/Firma_"+role)
+    objects[name]=_imagen_pdf(payload,writer)
+    stream=DecodedStreamObject()
+    stream.set_data(f"q {width:.5f} 0 0 {height:.5f} {x:.5f} {y:.5f} cm {name} Do Q\n".encode("ascii"))
+    original=page.get("/Contents");resolved=original.get_object() if original is not None else None
+    contents=ArrayObject(list(resolved) if isinstance(resolved,ArrayObject) else [original] if original is not None else [])
+    contents.append(writer._add_object(stream));page[NameObject("/Contents")]=contents

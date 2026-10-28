@@ -27,7 +27,7 @@ def test_marca_agua_automatica_y_sin_doble_aplicacion(tmp_path):
     source=generar_saa1({},tmp_path/"blanca.xlsx")
     result=convertir_pdf(source,tmp_path/"SAA-1.pdf")
     reader=PdfReader(result);verificar_marca_agua(reader)
-    assert len(reader.pages)==2 and all(len(page.images)==2 for page in reader.pages)
+    assert len(reader.pages)==1 and all(len(page.images)==2 for page in reader.pages)
     with pytest.raises(RuntimeError,match="ya tiene"):
         incorporar_marca_agua(source,result,tmp_path/"duplicada.pdf")
     assert not (tmp_path/"duplicada.pdf").exists()

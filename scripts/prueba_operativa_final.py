@@ -78,7 +78,10 @@ def verificar_pdf(payload):
     from pypdf import PdfReader
     if not payload.startswith(b'%PDF-'):raise ErrorPrueba('La descarga no es un PDF.')
     reader=PdfReader(BytesIO(payload))
-    if len(reader.pages)!=2:raise ErrorPrueba('SAA-1 no coincide con las dos páginas de referencia.')
+    if len(reader.pages)!=1:raise ErrorPrueba('SAA-1 debe ocupar una sola hoja A4.')
+    page=reader.pages[0]
+    if abs(float(page.mediabox.width)-841.89)>.5 or abs(float(page.mediabox.height)-595.28)>.5:
+        raise ErrorPrueba('SAA-1 no tiene tamaño A4 horizontal.')
     if any('Planilla conforme a IRAM 3546:2011' not in page.extract_text() for page in reader.pages):
         raise ErrorPrueba('Falta la leyenda IRAM en una página.')
     if 'T.C. 3 AÑOS' not in reader.pages[0].extract_text():raise ErrorPrueba('Falta la retención en el encabezado.')
@@ -88,7 +91,7 @@ def verificar_pdf(payload):
         raise ErrorPrueba('El PDF no contiene el logo vigente en todas las páginas.')
     if any((reader.metadata or {}).get(key)!='readyproof' for key in ('/Author','/Creator','/Producer')):
         raise ErrorPrueba('Los metadatos no coinciden con readyproof.')
-    return {'paginas':2,'logo':True,'leyenda_iram':True,'retencion':True,'metadatos':True,'sha256':sha256(payload).hexdigest(),'bytes':len(payload)}
+    return {'paginas':1,'logo':True,'leyenda_iram':True,'retencion':True,'metadatos':True,'sha256':sha256(payload).hexdigest(),'bytes':len(payload)}
 
 
 def procesar_envio(application,envio_id,*,smtp):
@@ -147,7 +150,7 @@ def ejecutar(api,salida,*,usuario,destinatario,procesador):
     carga=api.request('POST','/api/cargas',{'sistema_id':system['id'],'planilla_id':template['id'],'datos':data},cabeceras={'Idempotency-Key':str(uuid4())})
     report.update(carga_id=carga['id'],cliente_id=client['id'],plantilla_version=template['version']);guardar(path,report)
     route=f"/api/cargas/{carga['id']}"
-    carga=api.request('PUT',route+'/borrador',{'revision':carga['revision'],'datos':data,'firmas':{'tecnico':firma_ficticia(),'responsable':firma_ficticia(25)}})
+    carga=api.request('PUT',route+'/borrador',{'revision':carga['revision'],'datos':data,'firmas':{'tecnico':firma_ficticia(),'responsable':firma_ficticia(25)},'responsable':{'nombre_firmante':'[Ejemplo] Responsable de prueba','dni_firmante':'00000000','cargo_firmante':'[Ejemplo] Encargado'}})
     if not all(carga['firmas'].values()):raise ErrorPrueba('No se guardaron ambas firmas ficticias.')
     preview=api.request('POST',route+'/vista-previa',{'revision':carga['revision']},binario=True)
     verificar_pdf(preview);(salida/'vista_previa.pdf').write_bytes(preview)

@@ -28,7 +28,7 @@ def localizar_libreoffice():
     raise FileNotFoundError("LibreOffice no está instalado o no se encuentra en PATH.")
 
 
-def convertir_pdf(origen, destino, *, timeout=120, firmas=None):
+def convertir_pdf(origen, destino, *, timeout=120, firmas=None,firmantes=None):
     """Convierte con Calc; publica el PDF solo si la conversión finaliza correctamente."""
     origen, destino = Path(origen).resolve(), Path(destino).resolve()
     if not origen.is_file() or origen.suffix.lower() != ".xlsx":
@@ -66,7 +66,7 @@ def convertir_pdf(origen, destino, *, timeout=120, firmas=None):
             final = signed
         from .leyenda_iram import incorporar_leyenda_iram
         declared=temp/"con_leyenda_iram.pdf"
-        incorporar_leyenda_iram(final,declared)
+        incorporar_leyenda_iram(final,declared,firmantes=firmantes)
         final=declared
         payload = final.read_bytes()
         if not payload.startswith(b"%PDF-"):

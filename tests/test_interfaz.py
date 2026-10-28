@@ -14,7 +14,15 @@ from werkzeug.serving import make_server
 from app.models import Carga, FirmaCarga
 
 
-def test_interfaz_movil_offline_firmas_y_pdf(app,usuario_admin):
+def test_interfaz_movil_offline_firmas_y_pdf(app,usuario_admin,monkeypatch):
+    app.config.update(PLANILLAS_TRANSPORTE="gmail_api",PLANILLAS_DESTINATARIOS_PRUEBA="tecnico@example.invalid")
+    monkeypatch.setenv("MAIL_FROM","readyproof.ar@gmail.com")
+    monkeypatch.setattr("app.gmail_https.obtener_token",lambda:"[Ejemplo] token")
+    enviados=[]
+    def enviar(mail,token):
+        enviados.append(mail)
+        return "ejemplo-browser-gmail"
+    monkeypatch.setattr("app.gmail_https.enviar_con_token",enviar)
     node = os.environ.get("READYPROOF_NODE") or shutil.which("node")
     assert node, "Se requiere Node.js y Playwright 1.62.1 para la prueba de navegador."
     server = make_server("127.0.0.1", 0, app, threaded=True)
@@ -27,15 +35,17 @@ def test_interfaz_movil_offline_firmas_y_pdf(app,usuario_admin):
         assert result.returncode == 0, result.stdout + result.stderr
         report = json.loads((out / "resultado.json").read_text(encoding="utf-8"))
         assert report["offline_con_recarga"] and report["firmas_por_eventos_tactiles"] == 2
+        assert report["correo_desde_boton"] and len(enviados)==1
+        assert next(enviados[0].iter_attachments()).get_payload(decode=True)==(out/"SAA-1_firmada.pdf").read_bytes()
         with Session(app.extensions["db_engine"]) as session:
             assert session.scalar(select(func.count()).select_from(Carga)) == 1
             assert session.get(FirmaCarga, report["carga_id"]).tecnico_png is not None
         preview = PdfReader(out / "vista_previa.pdf")
-        assert len(preview.pages) == 2
-        assert [len(page.images) for page in preview.pages] == [2, 4]
+        assert len(preview.pages) == 1
+        assert [len(page.images) for page in preview.pages] == [4]
         reader = PdfReader(out / "SAA-1_firmada.pdf")
-        assert len(reader.pages) == 2
-        assert [len(page.images) for page in reader.pages] == [2, 4]
+        assert len(reader.pages) == 1
+        assert [len(page.images) for page in reader.pages] == [4]
     finally:
         server.shutdown()
         thread.join(timeout=10)

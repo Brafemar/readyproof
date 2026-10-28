@@ -4,11 +4,26 @@ from pathlib import Path
 from sqlalchemy.engine import make_url
 
 RAIZ = Path(__file__).resolve().parents[1]
+SISTEMAS_HABILITADOS = {
+    'SAA':'Sistema de Abastecimiento de Agua', 'SAL':'Sistema de Extinción por Agentes Limpios',
+    'SBC':'Sistema de Bombas Contraincendios', 'SDI':'Sistema de Detección de Incendios',
+    'SAP':'Sistema de Agua Pulverizada', 'SCC':'Sistema Fijo de Extinción para Cocinas Comerciales',
+    'SDC':'Sistema de Extinción por Dióxido de Carbono', 'SEP':'Sistema Fijo de Extinción por Polvo',
+    'SGE':'Sistema Generador de Espuma', 'SHC':'Sistema de Hidrantes Contra Incendios',
+    'SIM':'Simbología de Seguridad contra Incendios', 'SRA':'Sistema de Rociadores Automáticos',
+    'SRE':'Sistema de Rociadores de Espuma', 'SSA':'Sistema Fijo de Extinción por Solución Acuosa',
+    'STM':'Sistema de Tuberías y Mangueras',
+}
 
 
 def configuracion():
     return {
+        'SISTEMAS_HABILITADOS': dict(SISTEMAS_HABILITADOS),
         "MAIL_MODO_PRUEBA": os.environ.get("MAIL_MODO_PRUEBA", "true").lower() != "false",
+        "DOCUMENTACION_MODO_PRUEBA": os.environ.get("DOCUMENTACION_MODO_PRUEBA", os.environ.get("MAIL_MODO_PRUEBA", "true")).lower() != "false",
+        "DOCUMENTACION_TRANSPORTE": os.environ.get("DOCUMENTACION_TRANSPORTE", "smtp"),
+        "PLANILLAS_TRANSPORTE": os.environ.get("PLANILLAS_TRANSPORTE", "cola"),
+        "PLANILLAS_DESTINATARIOS_PRUEBA": os.environ.get("PLANILLAS_DESTINATARIOS_PRUEBA", ""),
         "DIRECTORIO_CORREO": str(RAIZ / "out" / "correo_prueba"),
         "DATABASE_URL": os.environ.get("DATABASE_URL"),
         "DIRECTORIO_TEMPORAL": str(RAIZ / "out" / "api_temporales"),

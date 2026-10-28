@@ -1,5 +1,7 @@
 # Instalación y operación de readyproof en DigitalOcean
 
+**Actualización posterior del 27/10/2026:** Jorge autorizó una instalación privada en el servidor compartido 67.205.170.29, sin dominio/publicación. Esa instalación y sus verificaciones reales están en [Acceso al servidor privado](ACCESO_SERVIDOR_PRIVADO.md). La receta siguiente conserva el diseño inicial para un Droplet separado y no describe literalmente el servicio privado instalado.
+
 Documento preparado el 27/10/2026. **No se ejecutó un despliegue ni se accedió a DigitalOcean en esta tarea.** Los comandos son instrucciones para la persona responsable de la instalación. No constituyen evidencia de HTTPS, respaldo o monitoreo activos.
 
 ## Estado y condiciones previas
@@ -36,7 +38,7 @@ Estos pasos se ejecutan únicamente en el Droplet nuevo autorizado. Usar SSH con
 
 ```bash
 sudo apt update
-sudo apt install python3 python3-venv python3-pip postgresql postgresql-client libreoffice-calc fonts-carlito nginx certbot python3-certbot-nginx
+sudo apt install python3 python3-venv python3-pip postgresql postgresql-client libreoffice-calc fonts-crosextra-carlito nginx certbot python3-certbot-nginx
 sudo useradd --system --home-dir /var/lib/readyproof --create-home --shell /usr/sbin/nologin readyproof
 sudo install -d -o root -g readyproof -m 0750 /opt/readyproof /etc/readyproof
 sudo install -d -o readyproof -g readyproof -m 0700 /opt/readyproof/out
@@ -113,6 +115,7 @@ Group=readyproof
 WorkingDirectory=/opt/readyproof
 EnvironmentFile=/etc/readyproof/readyproof.env
 Environment=HOME=/var/lib/readyproof
+ExecStartPre=/opt/readyproof/.venv/bin/python -c "import os; assert len(os.environ.get('SECRET_KEY','')) >= 32, 'Configurar SECRET_KEY persistente'; assert os.environ.get('DATABASE_URL'), 'Configurar DATABASE_URL'"
 ExecStart=/opt/readyproof/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8000 --timeout 180 --forwarded-allow-ips 127.0.0.1 --access-logfile - --error-logfile - app:create_app()
 Restart=on-failure
 RestartSec=5

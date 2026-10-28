@@ -55,8 +55,8 @@ def test_alembic_actualiza_base_etapa4_sin_perder_planilla(database_url):
             row=session.get(Planilla,key)
             assert row.huella=="e"*64 and row.definicion=={"cabecera":{}}
             assert row.manual.titulo=="[Ejemplo] Sistema de Abastecimiento de Agua"
-            assert session.scalar(text("SELECT version_num FROM alembic_version"))=="007_smtp_gmail"
-            assert list(session.scalars(text("SELECT numero FROM versiones_esquema ORDER BY numero")))==[1,2,3,4,5,6,7]
+            assert session.scalar(text("SELECT version_num FROM alembic_version"))=="014_habilitar_11_sistemas"
+            assert list(session.scalars(text("SELECT numero FROM versiones_esquema ORDER BY numero")))==list(range(1,15))
     finally:engine.dispose()
 
 

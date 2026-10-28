@@ -14,16 +14,20 @@ def ancho_leyenda():
     return sum(METRICAS_HELVETICA[c] for c in TEXTO)*TAMANIO/1000
 
 
-def incorporar_leyenda_iram(origen,destino):
+def incorporar_leyenda_iram(origen,destino,*,firmantes=None):
     reader=PdfReader(origen)
     if reader.metadata and reader.metadata.get("/ReadyproofIRAM")==TEXTO:
         raise RuntimeError("El PDF ya contiene la leyenda IRAM; no se aplica dos veces.")
     writer=PdfWriter();writer.clone_document_from_reader(reader)
     font=DictionaryObject({NameObject("/Type"):NameObject("/Font"),NameObject("/Subtype"):NameObject("/Type1"),NameObject("/BaseFont"):NameObject("/Helvetica"),NameObject("/Encoding"):NameObject("/WinAnsiEncoding")})
     font_ref=writer._add_object(font)
+    escala=ESCALA_CONTENIDO
+    if firmantes:
+        from .identificacion_pdf import preparar_identificacion,pegar_identificacion
+        columnas,top,escala=preparar_identificacion(firmantes,float(writer.pages[-1].mediabox.width),float(writer.pages[-1].mediabox.height))
     for page in writer.pages:
         width,height=float(page.mediabox.width),float(page.mediabox.height)
-        transform=Transformation().scale(ESCALA_CONTENIDO).translate((1-ESCALA_CONTENIDO)*width/2,(1-ESCALA_CONTENIDO)*(height-8))
+        transform=Transformation().scale(escala).translate((1-escala)*width/2,(1-escala)*(height-8))
         page.add_transformation(transform)
         resources=DictionaryObject(dict(page["/Resources"].get_object()));page[NameObject("/Resources")]=resources
         fonts=DictionaryObject(dict(resources.get("/Font",DictionaryObject()).get_object()))
@@ -35,5 +39,8 @@ def incorporar_leyenda_iram(origen,destino):
         original=page.get("/Contents");resolved=original.get_object() if original is not None else None
         contents=ArrayObject(list(resolved) if isinstance(resolved,ArrayObject) else [original] if original is not None else [])
         contents.append(writer._add_object(stream));page[NameObject("/Contents")]=contents
-    writer.add_metadata({"/ReadyproofIRAM":TEXTO,"/ReadyproofAjustePie":"escala proporcional 0.95; pie 10 mm; Helvetica 8 pt; gris 50%; todas las páginas"})
+    if firmantes:
+        pegar_identificacion(writer,writer.pages[-1],font_ref,columnas,top)
+        writer.add_metadata({'/ReadyproofFirmantes':'Identificación al pie de la última página; firmas en los casilleros originales.'})
+    writer.add_metadata({"/ReadyproofIRAM":TEXTO,"/ReadyproofAjustePie":f"escala proporcional {escala:.6f}; pie 10 mm; Helvetica 8 pt; gris 50%; todas las páginas"})
     with open(destino,"xb") as output:writer.write(output)

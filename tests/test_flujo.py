@@ -2,11 +2,12 @@ from hashlib import sha256
 from io import BytesIO
 
 from pypdf import PdfReader
+from tests.test_api import crear
 
 
 def test_flujo_completo_de_ejemplo(client, catalogo, datos_api):
     _, sistema, planilla = catalogo
-    response = client.post("/api/cargas", json={"sistema_id": sistema["id"], "planilla_id": planilla["id"], "datos": datos_api})
+    response = crear(client,catalogo,datos_api)
     assert response.status_code == 201
     carga = response.get_json()
     datos_api["observaciones"] = ["[Ejemplo] Flujo local de API"]
@@ -23,8 +24,8 @@ def test_flujo_completo_de_ejemplo(client, catalogo, datos_api):
     assert download.headers["Cache-Control"] == "no-store"
     assert sha256(download.data).hexdigest() == result["pdf_sha256"]
     document = PdfReader(BytesIO(download.data))
-    assert len(document.pages) == 2
-    assert all(len(page.images) == 2 for page in document.pages)
+    assert len(document.pages) == 1
+    assert all(len(page.images) == 4 for page in document.pages)
     text = "\n".join(page.extract_text() for page in document.pages)
     assert "[Ejemplo]" in text and "T.C. 3 AÑOS" in text
     revisions = client.get(f"/api/cargas/{carga['id']}/revisiones").get_json()

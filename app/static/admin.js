@@ -18,6 +18,6 @@
   $("nuevo-usuario").onclick=reset;
   $("restablecer-clave").onclick=async()=>{try{await api("/api/admin/usuarios/"+editing+"/clave",{method:"POST",body:JSON.stringify({nueva:$("usuario-clave").value})});$("usuario-clave").value="";message("Contraseña reemplazada y sesiones cerradas.");}catch(error){message(error.message);}};
   $("cliente-form").onsubmit=async event=>{event.preventDefault();try{await api("/api/admin/clientes",{method:"POST",body:JSON.stringify({nombre:$("cliente-nombre").value})});$("cliente-form").reset();await refresh();message("Cliente de ejemplo creado.");}catch(error){message(error.message);}};
-  $("sistema-form").onsubmit=async event=>{event.preventDefault();try{await api("/api/admin/clientes/"+$("sistema-cliente").value+"/sistemas",{method:"POST",body:JSON.stringify({tipo:"SAA",designacion:$("sistema-nombre").value})});$("sistema-nombre").value="";message("Sistema SAA de ejemplo creado.");}catch(error){message(error.message);}};
+  $("sistema-form").onsubmit=async event=>{event.preventDefault();try{await api("/api/admin/clientes/"+$("sistema-cliente").value+"/sistemas",{method:"POST",body:JSON.stringify({tipo:$("sistema-tipo").value,designacion:$("sistema-nombre").value})});$("sistema-nombre").value="";message("Sistema de ejemplo creado.");}catch(error){message(error.message);}};
   reset();refresh().catch(error=>message(error.message));
 })();

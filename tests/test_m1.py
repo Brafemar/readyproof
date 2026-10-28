@@ -16,7 +16,7 @@ from app.planillas.leyenda_iram import TEXTO,TAMANIO,PIE_PT,ancho_leyenda,incorp
 def test_m1_parametros_y_espacio_confirmados(tmp_path):
     source=generar_saa1(datos_ejemplo(),tmp_path/"SAA-1.xlsx")
     result=convertir_pdf(source,tmp_path/"SAA-1_con_leyenda.pdf")
-    reader=PdfReader(result);assert len(reader.pages)==2
+    reader=PdfReader(result);assert len(reader.pages)==1
     text=[]
     for index,page in enumerate(reader.pages):
         assert 841<float(page.mediabox.width)<843 and 595<float(page.mediabox.height)<596
@@ -52,4 +52,4 @@ def test_frase_en_observaciones_no_se_confunde_con_leyenda(tmp_path):
     result=convertir_pdf(source,tmp_path/"observacion.pdf")
     reader=PdfReader(result)
     assert reader.metadata["/ReadyproofIRAM"]==TEXTO
-    assert sum(page.extract_text().count(TEXTO) for page in reader.pages)==3
+    assert sum(page.extract_text().count(TEXTO) for page in reader.pages)==len(reader.pages)+1

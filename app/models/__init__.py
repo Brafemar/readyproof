@@ -2,8 +2,8 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, JSON, LargeBinary, String, Text, Uuid, Enum, UniqueConstraint
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer, JSON, LargeBinary, String, Text, Uuid, Enum, UniqueConstraint, true, false
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, validates
 
 
 def ahora():
@@ -20,17 +20,34 @@ class Base(DeclarativeBase):
 
 class Cliente(Base):
     __tablename__ = "clientes"
+    __table_args__ = (
+        UniqueConstraint('cuit', name='uq_clientes_cuit'),
+        Index('ix_cliente_cuit', 'cuit'),
+        CheckConstraint("cuit IS NULL OR cuit ~ '^[0-9]{11}$'", name='ck_cliente_cuit_formato'),
+    )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=identificador)
     nombre: Mapped[str] = mapped_column(String(200))
     es_ejemplo: Mapped[bool] = mapped_column(Boolean, default=True)
+    cuit: Mapped[str | None] = mapped_column(String(11), nullable=True)
+
+    @validates('cuit')
+    def validar_cuit_asignado(self, key, value):
+        from ..utils.cuit_validator import normalizar_cuit, validar_cuit
+        if value is None:
+            return None
+        normalized = normalizar_cuit(value)
+        if not validar_cuit(normalized):
+            raise ValueError('El CUIT no tiene un dígito verificador válido.')
+        return normalized
 
 
 class Sistema(Base):
     __tablename__ = "sistemas"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=identificador)
-    cliente_id: Mapped[str] = mapped_column(ForeignKey("clientes.id"), index=True)
+    cliente_id: Mapped[str] = mapped_column(ForeignKey("clientes.id"), index=True, nullable=False)
     tipo: Mapped[str] = mapped_column(String(12))
     designacion: Mapped[str] = mapped_column(String(200))
+    activo: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true(), nullable=False)
 
 
 class Planilla(Base):
@@ -62,8 +79,37 @@ class Carga(Base):
     emitida_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     pdf: Mapped[bytes | None] = mapped_column(LargeBinary)
     pdf_sha256: Mapped[str | None] = mapped_column(String(64))
+    numero_registro: Mapped[int | None] = mapped_column(Integer, unique=True)
+    revision_publica: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    pdf_hash: Mapped[str | None] = mapped_column(String(64))
+    desbloqueado_por: Mapped[str | None] = mapped_column(ForeignKey("usuarios.id"))
+    motivo_desbloqueo: Mapped[str | None] = mapped_column(Text)
+    estado_anulada: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     __mapper_args__ = {"version_id_col": revision}
     envios: Mapped[list["Envio"]] = relationship(back_populates="carga",passive_deletes="all")
+
+
+class NumeroRegistroContador(Base):
+    __tablename__ = "numero_registro_contador"
+    __table_args__ = (CheckConstraint("id = 1 AND ultimo >= 0", name="ck_contador_unico"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    ultimo: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class EmisionCarga(Base):
+    __tablename__ = "emisiones_carga"
+    __table_args__ = (UniqueConstraint("carga_id", "revision_publica"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=identificador)
+    carga_id: Mapped[str] = mapped_column(ForeignKey("cargas.id"), index=True)
+    numero_registro: Mapped[int | None] = mapped_column(Integer)
+    revision_publica: Mapped[int] = mapped_column(Integer)
+    pdf: Mapped[bytes] = mapped_column(LargeBinary)
+    pdf_sha256: Mapped[str] = mapped_column(String(64))
+    datos: Mapped[dict] = mapped_column(JSON)
+    firmantes: Mapped[dict] = mapped_column(JSON)
+    actor_id: Mapped[str | None] = mapped_column(ForeignKey("usuarios.id"))
+    emitida_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    archivada_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora)
 
 
 class RevisionCarga(Base):
@@ -75,6 +121,7 @@ class RevisionCarga(Base):
     evento: Mapped[str] = mapped_column(String(40))
     datos: Mapped[dict] = mapped_column(JSON)
     firmas_huellas: Mapped[dict | None] = mapped_column(JSON)
+    firmantes: Mapped[dict | None] = mapped_column(JSON)
     actor_id: Mapped[str | None] = mapped_column(ForeignKey("usuarios.id"))
     actor: Mapped[str] = mapped_column(String(120), default="[Ejemplo] API local sin autenticación")
     fecha: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora)
@@ -85,6 +132,12 @@ class FirmaCarga(Base):
     carga_id: Mapped[str] = mapped_column(ForeignKey("cargas.id"), primary_key=True)
     tecnico_png: Mapped[bytes | None] = mapped_column(LargeBinary)
     responsable_png: Mapped[bytes | None] = mapped_column(LargeBinary)
+    nombre_firmante: Mapped[str | None] = mapped_column(String(120))
+    dni_firmante: Mapped[str | None] = mapped_column(String(15))
+    cargo_firmante: Mapped[str | None] = mapped_column(String(120))
+    tecnico_usuario_id: Mapped[str | None] = mapped_column(ForeignKey('usuarios.id'))
+    tecnico_nombre: Mapped[str | None] = mapped_column(String(120))
+    tecnico_login: Mapped[str | None] = mapped_column(String(80))
 
 
 class VersionEsquema(Base):
@@ -100,6 +153,7 @@ class Usuario(Base):
     login: Mapped[str] = mapped_column(String(80), unique=True)
     nombre: Mapped[str] = mapped_column(String(120))
     clave_hash: Mapped[bytes] = mapped_column(LargeBinary)
+    email: Mapped[str | None] = mapped_column(String(254))
     rol: Mapped[str] = mapped_column(String(12))
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora)
@@ -109,6 +163,19 @@ class UsuarioCliente(Base):
     __tablename__ = "usuarios_clientes"
     usuario_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id"), primary_key=True)
     cliente_id: Mapped[str] = mapped_column(ForeignKey("clientes.id"), primary_key=True)
+
+
+class EnvioDocumentacion(Base):
+    __tablename__ = "envios_documentacion"
+    __table_args__ = (CheckConstraint("estado IN ('preparado','enviado','archivado','fallo','indeterminado')"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=identificador)
+    usuario_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id"), index=True)
+    destinatario: Mapped[str] = mapped_column(String(254))
+    estado: Mapped[str] = mapped_column(String(20), default="preparado")
+    message_id: Mapped[str] = mapped_column(String(200))
+    mensaje_eml: Mapped[bytes] = mapped_column(LargeBinary)
+    creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora)
+    enviado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class SesionUsuario(Base):

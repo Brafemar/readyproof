@@ -159,7 +159,8 @@ def build(sp, out, modelo):
     {'general': general, 'periodico': periodico, 'checklist': checklist}[sp['tipo']](s, sp)
     pie(s, sp)
     ws.page_setup.orientation = 'landscape'; ws.page_setup.paperSize = 9
-    ws.page_setup.fitToWidth = 1; ws.page_setup.fitToHeight = 0
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 1 if sp.get('codigo') == 'SG-PEM-IFI-SAA-1' else 0
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
     ws.page_margins.left = ws.page_margins.right = ws.page_margins.bottom = ws.page_margins.header = 0.19685
     ws.page_margins.top = 0.98425; ws.page_margins.footer = 0.31496

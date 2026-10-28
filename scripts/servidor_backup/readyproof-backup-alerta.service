@@ -1,0 +1,18 @@
+[Unit]
+Description=Aviso Gmail de fallo de respaldo readyproof
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/home/readyproof
+ExecStart=/home/readyproof/venv/bin/python scripts/backup_readyproof.py alert
+UMask=0077
+Slice=readyproof.slice
+MemoryMax=96M
+CPUQuota=25%
+TimeoutStartSec=120
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ReadWritePaths=/var/backups/readyproof

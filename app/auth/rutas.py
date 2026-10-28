@@ -11,6 +11,7 @@ from ..db import sesion
 from ..models import Cliente, RegistroAcceso, Sistema, Usuario, UsuarioCliente, ahora
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import objeto, obtener
+from ..config import SISTEMAS_HABILITADOS
 
 auth = Blueprint("auth", __name__)
 
@@ -107,7 +108,7 @@ def cambiar_clave():
 @auth.get("/admin")
 def administracion():
     if g.usuario is None:return redirect("/login")
-    exigir_admin();return render_template("admin.html",usuario=g.usuario,csrf=csrf_token())
+    exigir_admin();return render_template("admin.html",usuario=g.usuario,csrf=csrf_token(),sistemas_habilitados=SISTEMAS_HABILITADOS)
 
 
 def clientes_asignados(user):
@@ -178,8 +179,8 @@ def crear_cliente():
 @auth.post("/api/admin/clientes/<cliente_id>/sistemas")
 def crear_sistema(cliente_id):
     exigir_admin();client=obtener(Cliente,cliente_id);data=objeto({"designacion","tipo"})
-    if not client.es_ejemplo or data["tipo"]!="SAA":raise DatosInvalidos("Solo se admite el sistema piloto SAA de ejemplo.")
-    system=Sistema(cliente_id=client.id,tipo="SAA",designacion=ejemplo_texto(data["designacion"],200));sesion().add(system);sesion().flush();g.evento_auth="sistema_creado"
+    if not client.es_ejemplo or not isinstance(data['tipo'],str) or data['tipo'] not in SISTEMAS_HABILITADOS:raise DatosInvalidos("Seleccioná uno de los 15 sistemas habilitados para datos de ejemplo.")
+    system=Sistema(cliente_id=client.id,tipo=data["tipo"],designacion=ejemplo_texto(data["designacion"],200));sesion().add(system);sesion().flush();g.evento_auth="sistema_creado"
     return jsonify(id=system.id,cliente_id=client.id,tipo=system.tipo,designacion=system.designacion),201
 
 

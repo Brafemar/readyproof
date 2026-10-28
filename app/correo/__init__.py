@@ -50,7 +50,7 @@ def programacion(session, envio):
     return row
 
 
-def preparar_envio(session, carga, destinatario, usuario_id, asunto, cuerpo):
+def preparar_envio(session, carga, destinatario, usuario_id, asunto, cuerpo, *, envio_id=None):
     direccion(destinatario)
     if not isinstance(asunto,str) or not asunto.strip() or len(asunto)>200 or any(c in asunto for c in "\r\n"):
         raise ValueError("El asunto debe tener entre 1 y 200 caracteres, sin saltos de línea.")
@@ -72,6 +72,7 @@ def preparar_envio(session, carga, destinatario, usuario_id, asunto, cuerpo):
         raise ValueError("No se pudo validar el PDF emitido.") from None
     envio=Envio(carga_id=carga.id,usuario_id=usuario_id,destinatario=destinatario,
         asunto=asunto,cuerpo=cuerpo,pdf_copia=bytes(carga.pdf),pdf_sha256=carga.pdf_sha256,estado="pendiente")
+    if envio_id is not None:envio.id=envio_id
     session.add(envio);session.flush()
     if not autorizado(session,envio):
         raise ValueError("No se autoriza este envío: se mantienen las restricciones de datos de ejemplo y de acceso por cliente.")
@@ -122,7 +123,7 @@ def registrar(session, envio, evento):
         planilla_codigo=session.get(Planilla,carga.planilla_id).codigo,destinatario=envio.destinatario))
 
 
-def send_email(session, envio, *, encolar=False, fecha=None):
+def send_email(session, envio, *, encolar=False, fecha=None, transporte=None):
     """Reserva antes de contactar SMTP; nunca registra credenciales ni respuestas crudas.
 
     Encolar prepara la copia y devuelve pendiente. La llamada del worker transmite.
@@ -158,7 +159,19 @@ def send_email(session, envio, *, encolar=False, fecha=None):
     resultado="ok";respuesta="Copia de prueba guardada; sin conexión SMTP."
     temporal=False;aceptado=False;data_iniciada=False;connection=None
     try:
-        if not modo_prueba():
+        if transporte == "gmail_api":
+            from ..gmail_https import REMITENTE, obtener_token, enviar_con_token
+            message=BytesParser(policy=policy.SMTP).parsebytes(envio.mensaje_eml)
+            if str(message["From"])!=REMITENTE:
+                raise ValueError("El remitente no coincide con la cuenta Gmail autorizada.")
+            token=obtener_token()
+            data_iniciada=True
+            gmail_id=enviar_con_token(message,token)
+            token=None;aceptado=True
+            respuesta=f"Gmail aceptó el mensaje por HTTPS; id={gmail_id}. No confirma recepción en destino."
+        elif transporte is not None:
+            raise ValueError("Transporte de correo no admitido.")
+        elif not modo_prueba():
             host=os.getenv("SMTP_HOST","");user=os.getenv("SMTP_USER","");password=os.getenv("SMTP_PASSWORD","")
             if host!="smtp.gmail.com" or os.getenv("SMTP_PORT","587")!="587" or not user or not password:
                 raise ValueError("Configuración SMTP incompleta o no corresponde a Gmail STARTTLS 587.")
@@ -179,9 +192,9 @@ def send_email(session, envio, *, encolar=False, fecha=None):
         resultado="rechazado";respuesta=f"SMTP {error.smtp_code}: respuesta temporal." if temporal else f"SMTP {error.smtp_code}: rechazo permanente."
     except (TimeoutError,OSError,smtplib.SMTPServerDisconnected):
         resultado="timeout";temporal=not data_iniciada
-        respuesta="Conexión interrumpida antes de transmitir; reintento programado." if temporal else "Aceptación SMTP desconocida; revisión manual requerida."
+        respuesta="Conexión interrumpida antes de transmitir; reintento programado." if temporal else "Aceptación del correo desconocida; revisión manual requerida."
     except (ValueError,smtplib.SMTPException):
-        resultado="rechazado";respuesta="Configuración, autenticación o capacidad TLS inválida; revisar localmente."
+        resultado="rechazado";respuesta="Configuración o autorización Gmail inválida; revisar localmente." if transporte=="gmail_api" else "Configuración, autenticación o capacidad TLS inválida; revisar localmente."
     finally:
         if connection is not None:
             try:connection.quit()
@@ -198,7 +211,7 @@ def send_email(session, envio, *, encolar=False, fecha=None):
     retry.proximos_intentos=MAX_INTENTOS-numero if temporal and numero<MAX_INTENTOS else 0
     retry.reintentado_en=fecha+INTERVALO if retry.proximos_intentos else None
     retry.razon="fallo_temporal" if retry.proximos_intentos else ("correo_invalido" if resultado=="rechazado" else "bloqueado")
-    registrar(session,envio,"correo_prueba" if modo_prueba() else "correo_intento")
+    registrar(session,envio,"correo_prueba" if modo_prueba() and transporte is None else "correo_intento")
     session.commit();return envio
 
 

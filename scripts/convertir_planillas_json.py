@@ -6,6 +6,7 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import runpy
+import re
 import sys
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -44,13 +45,33 @@ def contenido_json(document):
 def main():
     parser=argparse.ArgumentParser(description="Convierte SDI/SBC/SAL y SAA-1 a JSON sin editar las definiciones Python.")
     parser.add_argument("--verificar",action="store_true",help="Comprueba la equivalencia sin escribir archivos.")
+    parser.add_argument("--actualizar-version",action="store_true",help="Registra una versión nueva de metadatos y conserva los JSON anteriores en bak; rechaza cambios de contenido.")
     args=parser.parse_args()
+    if args.verificar and args.actualizar_version:parser.error("Elegir verificar o actualizar versión.")
     directory=ROOT/"fuente/planillas"
     if not args.verificar:directory.mkdir(parents=True,exist_ok=True)
     for code,document in documentos().items():
         path=directory/(code+".json");expected=contenido_json(document)
         if path.exists():
-            if path.read_bytes()!=expected:raise ValueError("El JSON existente difiere del origen; no se sobrescribe: "+path.name)
+            if path.read_bytes()!=expected:
+                previous=json.loads(path.read_text(encoding="utf-8"))
+                old_version=previous.get("version","")
+                if not args.actualizar_version or old_version==VERSION_CATALOGO or not re.fullmatch(r"[A-Za-z0-9._-]+",old_version):
+                    raise ValueError("El JSON existente difiere del origen; no se sobrescribe: "+path.name)
+                before={key:value for key,value in previous.items() if key not in ("version","generador")}
+                after=json.loads(json.dumps({key:value for key,value in document.items() if key not in ("version","generador")},ensure_ascii=False))
+                if before!=after or previous.get("generador",{}).get("ruta")!=document["generador"]["ruta"]:
+                    raise ValueError("Cambió el contenido de la planilla; requiere revisión técnica: "+path.name)
+                backup=ROOT/"bak"/"planillas_json"/old_version/path.name
+                backup.parent.mkdir(parents=True,exist_ok=True)
+                payload=path.read_bytes()
+                if backup.exists():
+                    if backup.read_bytes()!=payload:raise ValueError("El respaldo anterior difiere: "+path.name)
+                else:
+                    with backup.open("xb") as file:file.write(payload)
+                temporary=path.with_suffix(".json.nueva-version")
+                with temporary.open("xb") as file:file.write(expected)
+                temporary.replace(path)
         elif args.verificar:raise ValueError("Falta el JSON: "+path.name)
         else:
             with path.open("xb") as file:file.write(expected)

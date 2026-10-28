@@ -12,6 +12,7 @@ from app.db import crear_esquema
 from app.models import FirmaCarga, VersionEsquema, RegistroAcceso
 from sqlalchemy import select
 from tests.test_api import crear
+from app.planillas.firmantes import ejemplo_responsable
 
 
 def firma_ejemplo():
@@ -56,14 +57,14 @@ def test_firmas_guardadas_no_se_exponen_como_imagen(client,catalogo,datos_api,ap
 def test_vista_previa_no_finaliza_e_incorpora_firmas(client,catalogo,datos_api):
     _,sistema,planilla=catalogo
     firma=firma_ejemplo()
-    carga=client.post("/api/cargas",json={"sistema_id":sistema["id"],"planilla_id":planilla["id"],"datos":datos_api,"firmas":{"tecnico":firma,"responsable":firma}}).get_json()
+    carga=client.post("/api/cargas",json={"sistema_id":sistema["id"],"planilla_id":planilla["id"],"datos":datos_api,"firmas":{"tecnico":firma,"responsable":firma},"responsable":ejemplo_responsable()}).get_json()
     response=client.post(f"/api/cargas/{carga['id']}/vista-previa",json={"revision":1})
     assert response.status_code==200, response.get_data(as_text=True)[:300] if response.status_code!=200 else ""
     reader=PdfReader(BytesIO(response.data))
-    assert len(reader.pages)==2
+    assert len(reader.pages)==1
     from tests.test_marca_agua import verificar_marca_agua
     verificar_marca_agua(reader)
-    assert [len(page.images) for page in reader.pages]==[2,4]
+    assert [len(page.images) for page in reader.pages]==[4]
     after=client.get(f"/api/cargas/{carga['id']}").get_json()
     assert after["revision"]==1 and after["estado"]=="borrador" and not after["pdf_disponible"]
     out=Path("out/etapa3");out.mkdir(parents=True,exist_ok=True)
@@ -72,7 +73,7 @@ def test_vista_previa_no_finaliza_e_incorpora_firmas(client,catalogo,datos_api):
     emitted=client.post(f"/api/cargas/{carga['id']}/emitir",json={"revision":2})
     assert emitted.status_code==201
     pdf=client.get(f"/api/cargas/{carga['id']}/pdf")
-    assert [len(page.images) for page in PdfReader(BytesIO(pdf.data)).pages]==[2,4]
+    assert [len(page.images) for page in PdfReader(BytesIO(pdf.data)).pages]==[4]
     verificar_marca_agua(PdfReader(BytesIO(pdf.data)))
     with Session(client.application.extensions["db_engine"]) as db:
         audit=db.scalar(select(RegistroAcceso).where(RegistroAcceso.evento=="emision",RegistroAcceso.carga_id==carga["id"]))
@@ -95,10 +96,29 @@ def test_creacion_con_identificador_local_no_duplica(client,catalogo,datos_api):
 def test_migracion_aditiva_conserva_datos(client,catalogo,datos_api,app):
     carga=crear(client,catalogo,datos_api).get_json()
     engine=app.extensions["db_engine"]
+    from alembic import command
+    from alembic.config import Config
+    from pathlib import Path
     with engine.begin() as connection:
+        cfg=Config(str(Path(__file__).resolve().parents[1]/'alembic.ini'));cfg.attributes['connection']=connection
+        command.downgrade(cfg,'013_desbloqueo_revision')
+        connection.execute(text("DROP TABLE emisiones_carga"))
+        connection.execute(text("DROP FUNCTION proteger_emision_readyproof()"))
+        connection.execute(text("DROP TABLE numero_registro_contador"))
+        for column in ('numero_registro','revision_publica','pdf_hash','desbloqueado_por','motivo_desbloqueo','estado_anulada'):
+            connection.execute(text('ALTER TABLE cargas DROP COLUMN '+column))
+        connection.execute(text("DELETE FROM versiones_esquema WHERE numero=13"))
         connection.execute(text("DROP TABLE firmas_carga"))
         connection.execute(text("ALTER TABLE revisiones_carga DROP COLUMN firmas_huellas"))
         connection.execute(text("DELETE FROM versiones_esquema WHERE numero=2"))
+        # La simulación anterior a firmas tampoco incluye la ampliación 010.
+        connection.execute(text("ALTER TABLE revisiones_carga DROP COLUMN firmantes"))
+        connection.execute(text("DELETE FROM versiones_esquema WHERE numero=10"))
+        # Al simular 009, retirar también las ampliaciones posteriores de clientes y sistemas.
+        connection.execute(text("ALTER TABLE clientes DROP COLUMN cuit CASCADE"))
+        connection.execute(text("ALTER TABLE sistemas DROP COLUMN activo"))
+        connection.execute(text("DELETE FROM versiones_esquema WHERE numero IN (11,12)"))
+        connection.execute(text("UPDATE alembic_version SET version_num='009_multisistema'"))
     crear_esquema(engine)
     assert client.get(f"/api/cargas/{carga['id']}").get_json()["datos"]==carga["datos"]
     with Session(engine) as session:

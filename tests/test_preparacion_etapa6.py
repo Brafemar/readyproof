@@ -24,7 +24,7 @@ def test_json_valido_y_equivalente_al_python(code):
     document=json.loads(path.read_text(encoding="utf-8"),object_pairs_hook=sin_claves_duplicadas)
     expected=json.loads(json.dumps(documentos()[code],ensure_ascii=False))
     assert document==expected
-    assert document["codigo"]==code and document["version"]=="v2"
+    assert document["codigo"]==code and document["version"]=="v3"
     assert set(("cabecera","datos","firmas"))<=document.keys()
     assert len(document["cabecera"])==11
     assert list(document["firmas"])==["tecnico","responsable"]
