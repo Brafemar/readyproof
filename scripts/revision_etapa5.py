@@ -104,7 +104,7 @@ def preparar(*, enviar=True):
     nodes=[line for line in (OUT/'coleccion.txt').read_text(encoding='utf-8').splitlines() if line.startswith('tests/') and '::' in line]
     windows_files={'tests/test_generacion.py','tests/test_etapa6_planillas.py','tests/test_marca_agua.py','tests/test_m1.py',
         'tests/test_interfaz.py','tests/test_selectores.py','tests/test_a4_historica.py'}
-    windows_names={'test_selectores_funcionan','test_boton_documentacion_en_navegador_movil','test_vista_previa_no_finaliza_e_incorpora_firmas'}
+    windows_names={'test_selectores_funcionan','test_boton_documentacion_en_navegador_movil','test_vista_previa_no_finaliza_e_incorpora_firmas','test_modo_real_navegador'}
     windows=[n for n in nodes if n.split('::')[0] in windows_files or n.split('::')[1] in windows_names]
     linux=[n for n in nodes if n not in windows]
     assert len(nodes)==len(set(nodes))==len(windows)+len(linux)

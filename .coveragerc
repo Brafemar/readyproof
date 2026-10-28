@@ -1,0 +1,16 @@
+[run]
+source = app
+parallel = True
+relative_files = True
+data_file = out/etapa6_final/cobertura/.coverage
+
+[paths]
+app =
+    app
+    C:/Users/jorge/Readyproof/app
+    /home/readyproof_revision_etapa5/app
+    /home/readyproof/app
+
+[report]
+show_missing = True
+precision = 2

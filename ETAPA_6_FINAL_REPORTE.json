@@ -1,0 +1,95 @@
+{
+  "fecha": "2026-10-28T16:48:23.010768+00:00",
+  "proyecto": "readyproof v1.1",
+  "etapa_entregada": 6,
+  "estado_produccion": {
+    "modo_piloto": true,
+    "mail_modo_prueba": true,
+    "empresa_mantenedora": "Pendiente confirmación Jorge",
+    "certificado_n": "Pendiente confirmación Jorge",
+    "acceso": "Privado por túnel SSH"
+  },
+  "funcionalidades_entregadas": [
+    "Búsqueda autenticada por número de registro",
+    "Auditoría transaccional de cargas e historial inmutable",
+    "Habilitación configurable de modo real con validaciones, mantenida desactivada",
+    "PDF nuevos identificados PILOTO/REAL, anteriores conservados",
+    "Control de destinatarios y transporte por modo",
+    "Documentación de transición y monitoreo"
+  ],
+  "catalogo": {
+    "planillas_activas": 79,
+    "planillas_con_versiones": 88,
+    "sistemas": 15
+  },
+  "tests": {
+    "aprobados": 541,
+    "fallidos": 0,
+    "omitidos": 0,
+    "plataformas": {
+      "linux": 494,
+      "windows": 47
+    },
+    "cobertura_lineas_python": 93.04407713498622,
+    "alcance_cobertura": "Lineas Python de app/; no JavaScript. Dos tandas finales aprobadas."
+  },
+  "compilacion_codigo": 0,
+  "migracion": {
+    "schema": "016_tabla_auditoria",
+    "filas_anteriores_conservadas": 1050,
+    "tablas_anteriores": 17,
+    "tablas_nuevas": [
+      "auditoria"
+    ],
+    "auditoria_inicial": 0,
+    "datos_historicos_modificados": false,
+    "estado": "etapa6_aplicada_en_piloto",
+    "fuentes_previas": "/var/backups/readyproof/etapa6-previas-20261028T164214",
+    "respaldo_previo": "readyproof-drive:readyproof-backups/pre-migrations/readyproof-pre-016-20261028T164214.tar.enc",
+    "modo_piloto": true,
+    "mail_modo_prueba": true,
+    "credenciales_modificadas": false
+  },
+  "respaldos": {
+    "estado": "restauracion_verificada",
+    "database": "readyproof_test_etapa5_20261028T164611",
+    "schema": "016_tabla_auditoria",
+    "remote": "readyproof-drive:readyproof-backups/daily/readyproof-2026-10-28.tar.enc",
+    "cipher_sha256": "451b056ae90999113e0eb98fd95ebc702c1da2c98913c37aa35c46a9e30e66d5",
+    "snapshot_created_utc": "2026-10-28T16:45:41.841754+00:00",
+    "counts": {
+      "cargas": 45,
+      "firmas_carga": 45,
+      "envios": 7,
+      "planillas": 88,
+      "sistemas": 15,
+      "auditoria": 0
+    },
+    "tablas_comparadas": 20,
+    "blobs_comparados": 130,
+    "pdf_exportados_comparados": 48,
+    "produccion_modificada": false
+  },
+  "seguridad": {
+    "env_privados_versionados": [],
+    "patrones_credenciales_encontrados": [],
+    "alcance": "Patrones de claves privadas y tokens conocidos; no certificación exhaustiva de secretos."
+  },
+  "documentacion": [
+    "docs/API.md",
+    "docs/AUDITORIA.md",
+    "docs/CONFIG_MODO_REAL.md",
+    "docs/TRANSICION_PILOTO_A_REAL.md",
+    "docs/PRUEBAS_ETAPA6.md"
+  ],
+  "incidente_resuelto": "Directorio app/auditoria: umask 0077 impedía lectura por el servicio; corregido root:readyproof 0750 y chmod explícito en instalador.",
+  "pendientes": [
+    "Empresa mantenedora y certificado reales confirmados por Jorge",
+    "Martín: SCC-1 MPa vs bar y confirmación de cuatro estados SDI",
+    "Revisión de todos los puntos del checklist de transición y backlog avanzado",
+    "Autorización explícita de Jorge para activar modo real; no otorgada por esta entrega"
+  ],
+  "tag": "v1.1-etapa6-completa-20261028",
+  "veredicto": "ETAPA_6_COMPLETADA_EN_PILOTO",
+  "siguiente_paso": "ESPERAR AUTORIZACION JORGE Y RESOLVER CHECKLIST ANTES DE MODO REAL"
+}

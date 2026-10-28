@@ -1,0 +1,110 @@
+{
+  "fecha": "2026-10-28T16:48:23.010768+00:00",
+  "etapa": 6,
+  "tareas": {
+    "busqueda_numero_registro": {
+      "endpoint": "/api/carga/buscar",
+      "tests": 4,
+      "estado": "OK"
+    },
+    "auditoria_runtime": {
+      "tabla": "auditoria",
+      "migracion": "016_tabla_auditoria",
+      "hooks": [
+        "INSERT",
+        "UPDATE",
+        "DESBLOQUEO"
+      ],
+      "endpoint": "/api/auditoria",
+      "tests": 5,
+      "estado": "OK"
+    },
+    "modo_configurable": {
+      "tests": 6,
+      "test_navegador_adicional": 1,
+      "activado_real": false,
+      "estado": "OK"
+    },
+    "documentacion_transicion": {
+      "archivo": "docs/TRANSICION_PILOTO_A_REAL.md",
+      "checklist_items": 55,
+      "estado": "OK"
+    }
+  },
+  "tests_total": 541,
+  "tests_pasando": 541,
+  "tests_fallidos": 0,
+  "tests_omitidos": 0,
+  "plataformas": {
+    "linux": 494,
+    "windows": 47
+  },
+  "cobertura_lineas_python": 93.0441,
+  "cobertura_alcance": "app/ Python; no JavaScript ni ramas",
+  "compilacion": {
+    "estado": "OK",
+    "codigo": 0
+  },
+  "seguridad": {
+    "env_privados_versionados": [],
+    "patrones_credenciales_encontrados": [],
+    "alcance": "Patrones de claves privadas y tokens conocidos; no certificación exhaustiva de secretos."
+  },
+  "fuente_bytes_conservados": true,
+  "servidor": {
+    "estado": "etapa6_verificada",
+    "schema": "016_tabla_auditoria",
+    "flags": {
+      "modo_piloto": true,
+      "mail_modo_prueba": true
+    },
+    "rutas_sin_sesion": {
+      "/api/carga/buscar?numero=1": 401,
+      "/api/auditoria": 401
+    },
+    "backup": {
+      "estado": "respaldo_verificado_en_drive",
+      "remote": "readyproof-drive:readyproof-backups/daily/readyproof-2026-10-28.tar.enc",
+      "schema": "016_tabla_auditoria",
+      "counts": {
+        "cargas": 45,
+        "firmas_carga": 45,
+        "envios": 7,
+        "planillas": 88,
+        "sistemas": 15,
+        "auditoria": 0
+      },
+      "blobs": 130,
+      "cipher_sha256": "451b056ae90999113e0eb98fd95ebc702c1da2c98913c37aa35c46a9e30e66d5",
+      "created_utc": "2026-10-28T16:45:41.841754+00:00"
+    },
+    "restauracion": {
+      "estado": "restauracion_verificada",
+      "database": "readyproof_test_etapa5_20261028T164611",
+      "schema": "016_tabla_auditoria",
+      "remote": "readyproof-drive:readyproof-backups/daily/readyproof-2026-10-28.tar.enc",
+      "cipher_sha256": "451b056ae90999113e0eb98fd95ebc702c1da2c98913c37aa35c46a9e30e66d5",
+      "snapshot_created_utc": "2026-10-28T16:45:41.841754+00:00",
+      "counts": {
+        "cargas": 45,
+        "firmas_carga": 45,
+        "envios": 7,
+        "planillas": 88,
+        "sistemas": 15,
+        "auditoria": 0
+      },
+      "tablas_comparadas": 20,
+      "blobs_comparados": 130,
+      "pdf_exportados_comparados": 48,
+      "produccion_modificada": false
+    },
+    "servicio": "active",
+    "timer": "active",
+    "fuentes_coinciden": true,
+    "modo_real_activado": false,
+    "correos_de_prueba_transmitidos": false
+  },
+  "veredicto": "ETAPA_6_COMPLETADA_EN_PILOTO",
+  "tag": "v1.1-etapa6-completa-20261028",
+  "evidencias": "out/etapa6_final/"
+}
