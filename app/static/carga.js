@@ -54,6 +54,7 @@
   }
   function status(text) { $("save-status").textContent=text; }
   function historica() { return draft && !catalog.planillas.some(item=>item.id===draft.planillaId); }
+  function permiteCopiaA4() { return historica() && catalog.definiciones[draft.planillaId]?.codigo==="SG-PEM-IFI-SAA-1"; }
   function isReadOnly() { return draft && (draft.estado !== "borrador" || historica()); }
   function hasSignature(role) { return Boolean(draft?.firmas?.[role] || draft?.firmasServidor?.[role]) && draft?.firmas?.[role] !== null; }
   function update() {
@@ -82,7 +83,7 @@
     $("finalizar").disabled=operation||draft.estado==="emitida"||!navigator.onLine||draft.conflicto||previewVersion!==draft.editVersion||!validarFirmantes();
     $("finalizar").textContent=draft.estado==="finalizada" ? "Reintentar emisión →" : (piloto?"Finalizar ejemplo →":"Finalizar planilla →");
     $("finalizar").hidden=draft.estado==="emitida"||historica();
-    $("copiar-a4").hidden=!historica();
+    $("copiar-a4").hidden=!permiteCopiaA4();
     $("copiar-a4").disabled=operation||!online;
     $("descargar").textContent=historica()?"Descargar PDF anterior":"Descargar PDF";
     $("descargar").hidden=draft.estado!=="emitida";
@@ -258,7 +259,7 @@
     }
     $("cliente").value=draft.clienteId;populateSystems();$("sistema").value=draft.sistemaId;populatePlanillas();if(catalog.planillas.some(item=>item.id===draft.planillaId))$("planilla").value=draft.planillaId;
     previewVersion=-1;update();
-    if(historica())message("Esta carga conserva el formato anterior. Usá Crear copia A4 para revisarla y emitirla en una sola hoja.");
+    if(historica())message(permiteCopiaA4()?"Esta carga conserva el formato anterior. Usá Crear copia A4 para revisarla y emitirla en una sola hoja.":"Esta carga conserva su versión anterior. Creá una carga nueva y revisá las unidades; no se copian mediciones entre versiones.");
   }
   function populateSystems(){
     const select=$("sistema");select.replaceChildren();
@@ -309,7 +310,7 @@
         draft.estado=result.estado;draft.revision=result.revision;draft.pending=false;await persist();
       }
       const result=await json(`/api/cargas/${draft.serverId}/emitir`,{method:"POST",body:JSON.stringify({revision:draft.revision})});
-      draft.estado=result.estado;draft.revision=result.revision;draft.pending=false;metadata(draft,result);await persist();status("PDF de ejemplo emitido y disponible para descargar");
+      draft.estado=result.estado;draft.revision=result.revision;draft.pending=false;metadata(draft,result);await persist();status(piloto?"PDF de ejemplo emitido y disponible para descargar":"PDF emitido y disponible para descargar");
     }catch(error){message(error.message);await persist().catch(()=>{});}
     finally{operation=false;update();}
   }
@@ -374,7 +375,7 @@
   window.addEventListener("offline",()=>{serviceAvailable=false;update();if(draft)status("Guardado en este dispositivo · Sin conexión");});
   window.addEventListener("online",()=>{serviceAvailable=true;update();sync(false);});
   $("copiar-a4").onclick=async()=>{
-    if(operation||!historica())return;
+    if(operation||!permiteCopiaA4())return;
     const original=structuredClone(draft);operation=true;update();
     try{await newDraft(original);message("Copia A4 creada. Revisá los datos y las dos firmas, generá la vista previa y finalizá.");}
     catch(error){message(error.message);}

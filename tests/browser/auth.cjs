@@ -6,6 +6,11 @@ const {chromium}=require("playwright");
   assert.ok(start>=0&&end>start);
   await vm.runInNewContext(`(async()=>{let finish;let draft={pending:true},syncPromise=new Promise(resolve=>finish=resolve);${source.slice(start,end)}const waiting=sync();draft=null;finish(false);return await waiting;})()`)
     .then(result=>assert.equal(result,false));
+  const guard=source.match(/function permiteCopiaA4\(\) \{[^\n]+\}/)[0];
+  for(const [code,allowed] of [['SG-PEM-IFI-SAA-1',true],['SG-PEM-IFI-SCC-1',false]]){
+    const result=vm.runInNewContext(`let draft={planillaId:'old'},catalog={definiciones:{old:{codigo:${JSON.stringify(code)}}}};function historica(){return true};${guard};permiteCopiaA4()`);
+    assert.equal(result,allowed);
+  }
   const candidates=[process.env.READYPROOF_BROWSER,chromium.executablePath(),"C:/Program Files/Google/Chrome/Application/chrome.exe","C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"];
   const executable=candidates.find(p=>p&&fs.existsSync(p));assert.ok(executable);
   const browser=await chromium.launch({headless:true,executablePath:executable}),context=await browser.newContext({viewport:{width:1440,height:1000},locale:"es-AR"}),page=await context.newPage();

@@ -19,6 +19,7 @@ const {chromium}=require('playwright');
   ]);assert.equal(restored.status(),200);
   await page.waitForFunction(name=>document.querySelector('#cabecera-campos input')&&document.getElementById('responsable-nombre').value===name,record.responsable.nombre_firmante);
   assert.equal(await page.locator('body').getAttribute('data-modo-piloto'),'false');
+  assert.equal(await page.locator('.page-foot').textContent(),'readyproof · Registro de servicio.');
   assert.equal(await page.locator('#completar-ejemplo').isVisible(),false);
   const [saved]=await Promise.all([
    page.waitForResponse(r=>r.url().endsWith('/borrador')&&r.request().method()==='PUT'),
