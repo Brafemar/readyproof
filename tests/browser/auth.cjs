@@ -1,6 +1,11 @@
 const assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const {chromium}=require("playwright");
 (async()=>{
+  const vm=require('node:vm'),source=fs.readFileSync('app/static/carga.js','utf8');
+  const start=source.indexOf('  async function sync(show=false)'),end=source.indexOf('  function inputField',start);
+  assert.ok(start>=0&&end>start);
+  await vm.runInNewContext(`(async()=>{let finish;let draft={pending:true},syncPromise=new Promise(resolve=>finish=resolve);${source.slice(start,end)}const waiting=sync();draft=null;finish(false);return await waiting;})()`)
+    .then(result=>assert.equal(result,false));
   const candidates=[process.env.READYPROOF_BROWSER,chromium.executablePath(),"C:/Program Files/Google/Chrome/Application/chrome.exe","C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"];
   const executable=candidates.find(p=>p&&fs.existsSync(p));assert.ok(executable);
   const browser=await chromium.launch({headless:true,executablePath:executable}),context=await browser.newContext({viewport:{width:1440,height:1000},locale:"es-AR"}),page=await context.newPage();

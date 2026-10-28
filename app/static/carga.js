@@ -164,7 +164,7 @@
   }
   async function sync(show=false) {
     if(!draft)return false;
-    if(syncPromise){await syncPromise;if(draft.pending&&!draft.conflicto)return sync(show);return !draft.pending;}
+    if(syncPromise){await syncPromise;if(!draft)return false;if(draft.pending&&!draft.conflicto)return sync(show);return !draft.pending;}
     if(!navigator.onLine){status("Guardado en este dispositivo · Sin conexión");return false;}
     if(draft.conflicto){if(show)message("La versión del servidor cambió. Se conserva tu copia local.",true);return false;}
     if(draft.estado!=="borrador")return true;
@@ -199,7 +199,7 @@
       }finally{update();}
     })();
     const result=await syncPromise;syncPromise=null;
-    if(target.pending&&!target.conflicto&&target.editVersion!==snapshot.editVersion&&navigator.onLine)timer=setTimeout(()=>sync(false),800);
+    if(draft===target&&target.pending&&!target.conflicto&&target.editVersion!==snapshot.editVersion&&navigator.onLine)timer=setTimeout(()=>sync(false),800);
     return result;
   }
   function inputField(label,definition,path,value){
@@ -356,6 +356,7 @@
   $("cerrar-emisiones").onclick=()=>$("emisiones-dialog").close();
   $("desbloqueo-dialog").addEventListener("cancel",event=>{if(operation)event.preventDefault();});
   window.addEventListener("readyproof-lock",()=>{
+    clearTimeout(timer);
     for(const id of ["desbloqueo-dialog","emisiones-dialog"])if($(id).open)$(id).close();
     $("motivo-desbloqueo").value="";$("emisiones-lista").replaceChildren();
   });
