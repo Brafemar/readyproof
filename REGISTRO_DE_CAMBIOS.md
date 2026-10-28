@@ -1427,3 +1427,18 @@ La primera comprobación del entorno del proceso se hizo antes de terminar el ar
 Respaldos cifrados antes de 017, antes del corte y después. Restauración posterior aislada: 20 tablas, 130 binarios y 48 PDF cotejados; 89 versiones de planilla y 79 activas. Sin restaurar producción ni enviar correos reales de prueba. Monitoreo manual de 24/48 h documentado; no se crea automatización nueva.
 
 Documentación: docs/TRANSICION_EXITOSA.md y TRANSICION_REAL_REPORTE.json. Tag solicitado: v1.1-real-20261028T1353. Los pendientes del backlog ampliado conservan su alcance documentado.
+
+## 2026-10-28 — PWA: preparación local pendiente de validación
+
+Manifest JSON con cuatro iconos, metadatos de instalación compartidos, registro único en /sw.js y atajo de búsqueda con vista autenticada. Iconos PNG RP generados programáticamente con Pillow en 192 y 512, normales y maskable con fondo opaco. No se modifican fuente ni registros, firmas o credenciales.
+
+Implementación canónica en app/static/service-worker.js: precarga de assets públicos, cache-first para esos assets, red primero para la pantalla principal, skipWaiting y clients.claim. Compatibilidad con la URL /sw.js existente; no se duplican handlers fetch. Se actualiza la regresión de worker para leer la implementación canónica. Tres tests PWA preparados y documentación en docs/PWA_INSTALACION.md.
+
+Validación pendiente: la revisión automática de comandos no pudo completarse por límite de uso. No se ejecutaron los tests PWA ni se realizó despliegue, commits o tag de esta entrega. El modo REAL previamente verificado no fue modificado en el servidor. No afirmar HTTPS en la IP pública: el acceso actual es privado por túnel local del propio dispositivo. La guía corrige el ejemplo de reenvío a -L, puerto local 8876 y destino del servidor 127.0.0.1:8000.
+
+
+## 2026-10-28 — PWA: validación local aprobada y despliegue privado autorizado
+
+Jorge autoriza retomar sin la aserción navigator.onLine. Chrome verificó manifest, cuatro iconos, un worker activado y cero errores de instalabilidad. Con Flask apagado, la pantalla y carga.js se recuperaron de caché y la API quedó inaccesible. Tests PWA 3/3 y regresión del worker aprobados; compilación código 0. Suite aislada Linux 499 aprobados. Windows: 46 aprobados y un error DiskFull de PostgreSQL; Jorge confirma la etapa local completada y pide verificar los tres tests en el servidor.
+
+La verificación remota será por túnel privado, sin cambiar el HTTPS público. Puerto real del servicio: 8000, destino del reenvío local 8443. Se conserva la fuente, las credenciales, el modo REAL y los registros existentes. El resultado efectivo y la publicación del tag se documentan en REPORTE_PWA_FINAL.json, sin anticipar éxito antes de las comprobaciones.

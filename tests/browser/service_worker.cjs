@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const source=fs.readFileSync(process.env.RP_SW_SOURCE||'app/static/sw.js','utf8');
+const source=fs.readFileSync(process.env.RP_SW_SOURCE||'app/static/service-worker.js','utf8');
 function worker({network,match,put=async()=>{}}){
   const events={};
   vm.runInNewContext(source,{

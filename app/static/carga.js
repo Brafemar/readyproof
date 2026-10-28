@@ -449,7 +449,6 @@
       if(!catalog.clientes.length){message("No tenés clientes asignados. Pedí la asignación al administrador.");return;}
       if(records.length){draft=records[0];render();status("Borrador recuperado del dispositivo");}
       else await newDraft();
-      if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"}).catch(()=>{message("No se pudo preparar la reapertura sin conexión. Conservá esta pantalla abierta; el borrador se guarda en el dispositivo.");});
       update();if(draft?.pending)sync(false);
       else await refrescarPermisos();
     }catch(error){message(error.message);status("No se pudo preparar el guardado local");}

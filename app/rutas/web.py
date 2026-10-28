@@ -1,5 +1,5 @@
 """Interfaz local de carga y recursos sin servicios externos."""
-from flask import Blueprint, current_app, jsonify, render_template, send_from_directory
+from flask import Blueprint, current_app, jsonify, render_template, send_from_directory, g, redirect, url_for
 from ..planillas.piloto import datos_ejemplo
 from ..planillas.validacion import FECHAS, ENTEROS
 web = Blueprint("web", __name__)
@@ -9,11 +9,17 @@ def inicio():
     return render_template("carga.html")
 
 @web.get("/sw.js")
+@web.get("/service-worker.js")
 def service_worker():
-    response = send_from_directory(current_app.static_folder, "sw.js", mimetype="application/javascript")
+    response = send_from_directory(current_app.static_folder, "service-worker.js", mimetype="application/javascript")
     response.headers["Service-Worker-Allowed"] = "/"
     response.headers["Cache-Control"] = "no-cache"
     return response
+
+@web.get('/buscar')
+def buscar_registro():
+    if g.usuario is None:return redirect(url_for('auth.login'))
+    return render_template('buscar.html')
 
 @web.get("/api/ejemplo/saa1")
 def ejemplo():

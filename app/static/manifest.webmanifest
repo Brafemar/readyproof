@@ -1,1 +1,22 @@
-{"name":"readyproof · Planillas","short_name":"readyproof","start_url":"/","display":"standalone","background_color":"#f2f5f5","theme_color":"#192c31","lang":"es-AR","icons":[{"src":"/static/icono.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
+{
+  "id": "/",
+  "name": "readyproof",
+  "short_name": "readyproof",
+  "description": "Planillas SG-PEM-IFI y registros de servicio en modo real, con acceso autenticado y borradores sin conexión.",
+  "lang": "es-AR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f2f5f5",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    {"src": "/static/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/static/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/static/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+    {"src": "/static/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Buscar por número de registro", "short_name": "Buscar registro", "url": "/buscar", "icons": [{"src": "/static/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png"}]},
+    {"name": "Cargar planilla", "short_name": "Planillas", "url": "/"}
+  ]
+}

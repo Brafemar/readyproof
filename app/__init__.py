@@ -51,7 +51,7 @@ def create_app(test_config=None):
     def acceso_local():
         if request.remote_addr not in {"127.0.0.1", "::1"}:
             abort(403, description="El entorno de pruebas admite únicamente acceso local.")
-        if request.path.startswith("/static/") or request.path == "/sw.js":
+        if request.path.startswith("/static/") or request.path in {"/sw.js","/service-worker.js"}:
             return
         cargar_usuario()
         if request.path.startswith("/api/") and request.path not in {"/api/auth/sesion", "/api/auth/login"}:
@@ -62,6 +62,8 @@ def create_app(test_config=None):
     def cabeceras_locales(response):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
+        if request.path in {'/static/manifest.json','/static/manifest.webmanifest'}:
+            response.headers['Content-Type']='application/manifest+json; charset=utf-8'
         if not request.path.startswith("/static/"):
             response.headers["Cache-Control"] = "no-store"
         if request.path.startswith("/api/") or request.path in {"/login","/cuenta","/configuracion-inicial"}:
