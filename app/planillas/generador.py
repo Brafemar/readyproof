@@ -100,25 +100,27 @@ def _generar_paquete(spec, cambios, destino):
         base = Path(temporal) / "base.xlsx"
         build(spec, str(base), str(MODELO))
         with ZipFile(base) as source:
-            if not cambios:
-                payload = base.read_bytes()
-            else:
-                tree = etree.fromstring(source.read("xl/worksheets/sheet1.xml"))
-                for coordenada, valor in cambios.items():
-                    cell = tree.find(f".//{NS}c[@r='{coordenada}']")
-                    if cell is None:
-                        raise RuntimeError(f"El kit cambió; no existe la celda {coordenada}.")
-                    for child in list(cell):
-                        cell.remove(child)
-                    cell.set("t", "inlineStr")
-                    text = etree.SubElement(etree.SubElement(cell, NS + "is"), NS + "t")
-                    text.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
-                    text.text = valor
-                filled = Path(temporal) / "cargada.xlsx"
-                with ZipFile(filled, "w") as output:
-                    for entry in source.infolist():
-                        output.writestr(entry, etree.tostring(tree) if entry.filename == "xl/worksheets/sheet1.xml" else source.read(entry.filename))
-                payload = filled.read_bytes()
+            tree = etree.fromstring(source.read("xl/worksheets/sheet1.xml"))
+            for coordenada, valor in cambios.items():
+                cell = tree.find(f".//{NS}c[@r='{coordenada}']")
+                if cell is None:
+                    raise RuntimeError(f"El kit cambió; no existe la celda {coordenada}.")
+                for child in list(cell):
+                    cell.remove(child)
+                cell.set("t", "inlineStr")
+                text = etree.SubElement(etree.SubElement(cell, NS + "is"), NS + "t")
+                text.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+                text.text = valor
+            workbook = etree.fromstring(source.read('xl/workbook.xml'))
+            from .impresion import preparar_impresion
+            preparar_impresion(tree, workbook, titulos=[title for title, _ in spec['bloques']])
+            filled = Path(temporal) / "cargada.xlsx"
+            with ZipFile(filled, "w") as output:
+                for entry in source.infolist():
+                    data = (etree.tostring(tree) if entry.filename == 'xl/worksheets/sheet1.xml' else
+                            etree.tostring(workbook) if entry.filename == 'xl/workbook.xml' else source.read(entry.filename))
+                    output.writestr(entry, data)
+            payload = filled.read_bytes()
     with destino.open("xb") as output:
         output.write(payload)
     return destino

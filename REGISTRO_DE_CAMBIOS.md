@@ -1,5 +1,15 @@
 # Registro de cambios: readyproof
 
+## 2026-10-30 — A2-1/A2-2: paginación de copias nuevas
+
+- Referencia SCC-2, Registro 1/Revisión 0, copiada desde Descargas con autorización; original y copia conservan SHA256 dc26a7bc31c72f5507d614fbac9f75acfed390704ab774deb7c84becd91ab34e. La referencia privada queda excluida de Git.
+- Configuración XML de impresión aplicada exclusivamente a la copia temporal: una hoja cuando cabe, escala y saltos entre filas/bloques para planillas grandes, repetición de cabecera y observaciones/firmas juntas. Sin cambios de celdas o de fuente/.
+- Jorge confirmó encabezado del kit con mínimo absoluto de 4 mm y cuerpo con zona segura de 10 mm. Anclas de logos antes/después idénticas con igual identificación. Pie elevado a 11 mm para respetar 10 mm también con los descendentes tipográficos.
+- Corregido WinError 145 de Windows durante limpieza de un perfil de LibreOffice en una ruta larga: perfil aislado en temporal corto separado. Prueba histórica con ruta larga aprobada, sin relajar aserciones.
+- Validación focalizada: 44 passed in 256.66s; regresión de perfil: 1 passed in 2.79s; histórica tras corrección: 1 passed in 40.48s. Suite completa: 579 aprobadas, 0 fallos, 2926.69 s; compileall app sin errores.
+- Inventario remoto en 67.205.170.29 con REPEATABLE READ READ ONLY: 43 PDF distintos, huellas íntegras; 14 casos con observaciones y firmas en páginas distintas (13 sin número público y Registro 1/Revisión 0). Registros reales 1 y 2, revisión 0, contienen la designación señalada por Jorge. Sin modificar datos ni PDF del servidor.
+- Se preservan los cambios locales ajenos. Sin push, tag, despliegue, correo ni cambios de credenciales. Evidencia en out/frente_a_v2/ y REPORTE_FRENTE_A_V2.json.
+
 ## 2026-10-25 · Etapa 0 · Preparación
 
 - Carpeta `fuente/` verificada. Contiene directamente `KIT_AGENTS.md`, `herramientas/`, `contenidos/`, `modelos/` y `simbolos_png/`. Dentro de `herramientas/` están `build_planilla.py`, `build_informe.py`, `run_planillas.py`, `planillas_data.py`, `planillas_data2.py`, `planillas_data3.py` y `planillas_data4.py`. `modelos/` contiene `SDI-1.xlsx`. No hay carpetas `fuente` anidadas.

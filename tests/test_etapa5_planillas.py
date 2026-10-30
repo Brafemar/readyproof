@@ -66,7 +66,7 @@ def referencias_etapa5(tmp_path_factory):
     from scripts.referencias_etapa5 import crear_referencias
     origin=Path(os.environ.get('READYPROOF_EXCEL_ORIGEN',str(Path.home()/'Downloads/SG-PEM-IFI_Planillas_v5.zip')))
     work=tmp_path_factory.mktemp('ref')
-    return crear_referencias(origin,Path('out/etapa5_planillas/paginacion_referencia.json'),work)
+    return crear_referencias(origin,Path('out/frente_a_v2/paginacion_referencia_actual.json'),work,paginacion_actual=True)
 
 
 def crear_nueva(client,code):

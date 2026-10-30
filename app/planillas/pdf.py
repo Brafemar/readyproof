@@ -39,9 +39,10 @@ def convertir_pdf(origen, destino, *, timeout=120, firmas=None,firmantes=None):
         raise FileExistsError(destino)
     executable = localizar_libreoffice()
     destino.parent.mkdir(parents=True, exist_ok=True)
-    with TemporaryDirectory(prefix="pdf-", dir=destino.parent) as temp:
+    # El perfil tiene subcarpetas largas; separarlo evita límites de rutas en Windows.
+    with TemporaryDirectory(prefix="pdf-", dir=destino.parent) as temp, TemporaryDirectory(prefix="lo-") as profile_dir:
         temp = Path(temp)
-        profile = (temp / "perfil").as_uri()
+        profile = Path(profile_dir).resolve().as_uri()
         result = subprocess.run(
             [str(executable), f"-env:UserInstallation={profile}", "--headless",
              "--nologo", "--nodefault", "--norestore", "--convert-to", "pdf:calc_pdf_Export",

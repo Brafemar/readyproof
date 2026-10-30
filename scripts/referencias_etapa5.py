@@ -1,10 +1,13 @@
-"""Paginación de los Excel oficiales, convertidos sin modificar sus bytes."""
+"""Paginación de copias de Excel oficiales, con ajuste de impresión opcional."""
 from hashlib import sha256
 import json
 from pathlib import Path
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
+from io import BytesIO
+from zipfile import ZipFile
+from lxml import etree
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from pypdf import PdfReader
@@ -13,7 +16,7 @@ from app.planillas.importacion_excel import leer_origen
 from app.planillas.pdf import localizar_libreoffice
 
 
-def crear_referencias(origen, salida, temporal):
+def crear_referencias(origen, salida, temporal, *, paginacion_actual=False):
     files=leer_origen(origen);definitions=definiciones_restantes();report={}
     temporal=Path(temporal);temporal.mkdir(parents=True,exist_ok=True)
     with TemporaryDirectory(prefix='r-',dir=temporal) as directory:
@@ -22,6 +25,16 @@ def crear_referencias(origen, salida, temporal):
         for code,definition in definitions.items():
             ref=definition['definicion']['origen_excel'];payload=files[ref['archivo']]
             if sha256(payload).hexdigest()!=ref['sha256']:raise ValueError('El original cambió: '+code)
+            if paginacion_actual:
+                from app.planillas.impresion import preparar_impresion
+                output=BytesIO()
+                with ZipFile(BytesIO(payload)) as source, ZipFile(output,'w') as target:
+                    sheet=etree.fromstring(source.read('xl/worksheets/sheet1.xml'))
+                    workbook=etree.fromstring(source.read('xl/workbook.xml'))
+                    preparar_impresion(sheet,workbook,titulos=[title for title,_ in definition['especificacion']['bloques']])
+                    replacements={'xl/worksheets/sheet1.xml':etree.tostring(sheet),'xl/workbook.xml':etree.tostring(workbook)}
+                    for entry in source.infolist():target.writestr(entry,replacements.get(entry.filename,source.read(entry.filename)))
+                payload=output.getvalue()
             path=work/(code.removeprefix('SG-PEM-IFI-')+'.xlsx');path.write_bytes(payload);sources.append((code,path))
         executable=localizar_libreoffice()
         for first in range(0,len(sources),8):

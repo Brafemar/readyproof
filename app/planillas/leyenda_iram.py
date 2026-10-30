@@ -5,7 +5,7 @@ from pypdf.generic import ArrayObject,DecodedStreamObject,DictionaryObject,NameO
 TEXTO="Planilla conforme a IRAM 3546:2011"
 TAMANIO=8
 GRIS=0.5
-PIE_PT=10*72/25.4
+PIE_PT=11*72/25.4
 ESCALA_CONTENIDO=0.95
 METRICAS_HELVETICA={' ': 278, '0': 556, '1': 556, '2': 556, '3': 556, '4': 556, '5': 556, '6': 556, ':': 278, 'A': 667, 'I': 278, 'M': 833, 'P': 667, 'R': 722, 'a': 556, 'c': 500, 'e': 556, 'f': 278, 'i': 222, 'l': 222, 'm': 833, 'n': 556, 'o': 556, 'r': 333}
 
@@ -42,5 +42,5 @@ def incorporar_leyenda_iram(origen,destino,*,firmantes=None):
     if firmantes:
         pegar_identificacion(writer,writer.pages[-1],font_ref,columnas,top)
         writer.add_metadata({'/ReadyproofFirmantes':'Identificación al pie de la última página; firmas en los casilleros originales.'})
-    writer.add_metadata({"/ReadyproofIRAM":TEXTO,"/ReadyproofAjustePie":f"escala proporcional {escala:.6f}; pie 10 mm; Helvetica 8 pt; gris 50%; todas las páginas"})
+    writer.add_metadata({"/ReadyproofIRAM":TEXTO,"/ReadyproofAjustePie":f"escala proporcional {escala:.6f}; pie 11 mm; Helvetica 8 pt; gris 50%; todas las páginas"})
     with open(destino,"xb") as output:writer.write(output)

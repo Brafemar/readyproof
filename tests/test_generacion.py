@@ -26,6 +26,8 @@ def test_generacion_reproduce_referencia_v5(tmp_path):
     assert str(actual.merged_cells) == str(expected.merged_cells)
     assert str(actual.print_area) == str(expected.print_area)
     expected.page_setup.fitToHeight = 1
+    from app.planillas.impresion import MARGEN
+    expected.page_margins.left = expected.page_margins.right = expected.page_margins.bottom = MARGEN
     assert actual.page_setup == expected.page_setup
     assert actual.page_margins == expected.page_margins
     assert actual.print_options == expected.print_options
@@ -177,12 +179,17 @@ def pdfs_saa1(tmp_path_factory):
     # La referencia v5 se conserva; solo se adapta su ajuste de impresión autorizado.
     reference_a4 = directory / "referencia_A4.xlsx"
     with ZipFile(REFERENCE) as source, ZipFile(reference_a4, "w") as output:
+        tree = etree.fromstring(source.read('xl/worksheets/sheet1.xml'))
+        workbook = etree.fromstring(source.read('xl/workbook.xml'))
+        tree.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}pageSetup').set('fitToHeight', '1')
+        from app.planillas.impresion import preparar_impresion
+        preparar_impresion(tree, workbook)
         for item in source.infolist():
             payload = source.read(item.filename)
             if item.filename == "xl/worksheets/sheet1.xml":
-                tree = etree.fromstring(payload)
-                tree.find("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}pageSetup").set("fitToHeight", "1")
                 payload = etree.tostring(tree)
+            elif item.filename == 'xl/workbook.xml':
+                payload = etree.tostring(workbook)
             output.writestr(item, payload)
     paths = {"referencia": convertir_pdf(reference_a4, directory / "referencia.pdf")}
     for name, datos in (("blanca", {}), ("piloto", datos_ejemplo())):
