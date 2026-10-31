@@ -4,7 +4,7 @@ from hashlib import sha256
 from uuid import UUID
 from sqlalchemy import select, text
 from ..db import sesion
-from ..models import Carga, Envio, Planilla
+from ..models import Carga, Envio
 from ..rutas.api import obtener, objeto
 from ..planillas.validacion import DatosInvalidos
 from . import preparar_envio, send_email, direccion, resolver_destinatario
@@ -24,7 +24,7 @@ def enviar(carga_id):
         return enviar_inmediato(carga,data)
     try:
         envio=preparar_envio(sesion(),carga,data["destinatario"],g.usuario.id,
-            data.get("asunto","[Ejemplo] Planilla readyproof"),data.get("cuerpo","[Ejemplo] Se adjunta la planilla PDF emitida."))
+            data.get('asunto'),data.get('cuerpo'))
         send_email(sesion(),envio,encolar=True)
     except ValueError as error:
         sesion().rollback();raise DatosInvalidos(str(error)) from None
@@ -83,8 +83,7 @@ def enviar_inmediato(carga,data):
         return jsonify(**resumen(previous),repetido=True,modo_prueba=False),200 if previous.estado=="enviado" else 409
     try:
         envio=preparar_envio(db,carga,recipient,g.usuario.id,
-            data.get("asunto","[Ejemplo] "+db.get(Planilla,carga.planilla_id).codigo.removeprefix("SG-PEM-IFI-")+" de readyproof"),
-            data.get("cuerpo","[Ejemplo] Se adjunta la planilla PDF emitida y firmada en readyproof."),envio_id=key)
+            data.get('asunto'),data.get('cuerpo'),envio_id=key)
         send_email(db,envio,transporte="gmail_api")
     except ValueError as error:
         db.rollback();raise DatosInvalidos(str(error)) from None

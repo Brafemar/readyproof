@@ -1,0 +1,30 @@
+READYPROOF · Sistema de Gestión Integrado
+PLANILLA EMITIDA Y FIRMADA
+{{ codigo }}{% if nombre_planilla %} · {{ nombre_planilla }}{% endif %}
+Registro N° {{ numero_registro }} · Revisión {{ revision }}
+
+Datos del servicio
+Cliente: {{ cliente_razon_social }}
+CUIT: {{ cliente_cuit }}
+Instalación: {{ instalacion_direccion }}
+Sistema: {{ sistema_codigo }} · {{ sistema_nombre }}
+Fecha de emisión: {{ fecha_emision }}
+Supervisor del mantenedor: {{ firmante_mantenedor }}
+Responsable de la instalación: {{ firmante_instalacion }}
+{% if cantidad_fotos %}Fotos del anexo: {{ cantidad_fotos }}
+{% endif %}
+Estimado/a{% if contacto_nombre %} {{ contacto_nombre }}{% endif %}:
+
+Adjuntamos la planilla {{ codigo }} emitida y firmada en READYPROOF, registro N° {{ numero_registro }}, revisión {{ revision }}.
+
+El documento es inmutable. Si se requiere una corrección, se emitirá una nueva revisión con el mismo número de registro y la versión anterior quedará conservada.
+
+Verificación de integridad
+Código de control del PDF (SHA-256 abreviado): {{ pdf_sha256_corto }}
+Adjunto: {{ nombre_adjunto }}
+
+READYPROOF
+Certificado {{ certificado_n }}
+{{ contacto_telefono }} · {{ contacto_correo }}
+
+Este mensaje fue generado automáticamente por READYPROOF. Por favor, no responda a esta dirección.

@@ -73,7 +73,8 @@ def database_url(postgres_temporal):
 
 @pytest.fixture
 def app(database_url, tmp_path):
-    application = create_app({"TESTING": True, "DATABASE_URL": database_url, "DIRECTORIO_TEMPORAL": str(tmp_path / "temporales")})
+    application = create_app({"TESTING": True, "DATABASE_URL": database_url, "DIRECTORIO_TEMPORAL": str(tmp_path / "temporales"),
+        "CONTACTO_TELEFONO":"0000-0000000", "CONTACTO_CORREO":"contacto@example.invalid"})
     engine = application.extensions["db_engine"]
     result=application.test_cli_runner().invoke(args=["init-db","--ejemplos"])
     assert result.exit_code==0,result.output

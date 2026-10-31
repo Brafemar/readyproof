@@ -58,11 +58,11 @@ def programacion(session, envio):
     return row
 
 
-def preparar_envio(session, carga, destinatario, usuario_id, asunto, cuerpo, *, envio_id=None):
+def preparar_envio(session, carga, destinatario, usuario_id, asunto=None, cuerpo=None, *, envio_id=None):
     destinatario=resolver_destinatario(destinatario)
-    if not isinstance(asunto,str) or not asunto.strip() or len(asunto)>200 or any(c in asunto for c in "\r\n"):
+    if asunto is not None and (not isinstance(asunto,str) or not asunto.strip() or len(asunto)>200 or any(c in asunto for c in "\r\n")):
         raise ValueError("El asunto debe tener entre 1 y 200 caracteres, sin saltos de línea.")
-    if not isinstance(cuerpo,str) or not cuerpo.strip() or len(cuerpo)>20000:
+    if cuerpo is not None and (not isinstance(cuerpo,str) or not cuerpo.strip() or len(cuerpo)>20000):
         raise ValueError("El cuerpo debe tener entre 1 y 20000 caracteres.")
     if carga.estado!="emitida" or not carga.pdf or not carga.emitida_en:
         raise ValueError("Solo se puede enviar una carga emitida con PDF.")
@@ -78,8 +78,13 @@ def preparar_envio(session, carga, destinatario, usuario_id, asunto, cuerpo, *, 
         raise
     except Exception:
         raise ValueError("No se pudo validar el PDF emitido.") from None
+    if carga.pdf_hash and carga.pdf_hash!=carga.pdf_sha256:
+        raise ValueError('Las huellas de la emisión no coinciden.')
+    # Los textos heredados se validan; la presentación se genera desde la emisión.
+    from .emision import contenido_emision
+    contenido=contenido_emision(session,carga)
     envio=Envio(carga_id=carga.id,usuario_id=usuario_id,destinatario=destinatario,
-        asunto=asunto,cuerpo=cuerpo,pdf_copia=bytes(carga.pdf),pdf_sha256=carga.pdf_sha256,estado="pendiente")
+        asunto=contenido['asunto'],cuerpo=contenido['cuerpo'],pdf_copia=bytes(carga.pdf),pdf_sha256=carga.pdf_sha256,estado="pendiente")
     if envio_id is not None:envio.id=envio_id
     session.add(envio);session.flush()
     if not autorizado(session,envio):
@@ -87,10 +92,12 @@ def preparar_envio(session, carga, destinatario, usuario_id, asunto, cuerpo, *, 
     emission=carga.emitida_en
     try: envio.retener_hasta=emission.replace(year=emission.year+3)
     except ValueError: envio.retener_hasta=emission.replace(year=emission.year+3,month=3,day=1)
+    envio.mensaje_eml=crear_mensaje(envio,html=contenido['html'],nombre_adjunto=contenido['nombre_adjunto'])
+    envio.eml_sha256=sha256(envio.mensaje_eml).hexdigest()
     return envio
 
 
-def crear_mensaje(envio):
+def crear_mensaje(envio,*,html=None,nombre_adjunto='readyproof-planilla.pdf'):
     configured=os.getenv("MAIL_FROM") or os.getenv("SMTP_FROM") or os.getenv("SMTP_USER")
     if not modo_prueba() and not configured:
         raise ValueError("Configurar MAIL_FROM para SMTP.")
@@ -101,7 +108,8 @@ def crear_mensaje(envio):
     message["Date"]=format_datetime(ahora())
     message["Message-ID"]=f"<{envio.id}@{sender.split('@')[1]}>"
     message.set_content(envio.cuerpo)
-    message.add_attachment(envio.pdf_copia,maintype="application",subtype="pdf",filename="readyproof-planilla.pdf")
+    if html is not None:message.add_alternative(html,subtype='html')
+    message.add_attachment(envio.pdf_copia,maintype="application",subtype="pdf",filename=nombre_adjunto)
     return message.as_bytes()
 
 
@@ -151,7 +159,7 @@ def send_email(session, envio, *, encolar=False, fecha=None, transporte=None):
             session.add(Intento(envio_id=envio.id,numero=envio.intentos_reservados,resultado="timeout",respuesta="Proceso interrumpido; aceptación SMTP desconocida. Revisión manual requerida."))
             envio.estado="fallo";envio.en_proceso_desde=None;retry.razon="bloqueado";retry.reintentado_en=None;retry.proximos_intentos=0
         session.commit();return envio
-    bloqueado = envio.mensaje_eml is not None and retry.reintentado_en is None and not encolar
+    bloqueado = envio.mensaje_eml is not None and retry.reintentado_en is None and envio.intentos_reservados>0 and not encolar
     if bloqueado or envio.intentos_reservados>=MAX_INTENTOS or (retry.reintentado_en is not None and retry.reintentado_en>fecha):
         session.commit();return envio
     if not es_piloto() and modo_prueba():transporte=None

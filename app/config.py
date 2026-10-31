@@ -24,6 +24,8 @@ def configuracion():
         'MODO_PILOTO':piloto,
         'EMPRESA_MANTENEDORA':os.environ.get('EMPRESA_MANTENEDORA','[Ejemplo] readyproof').strip(),
         'CERTIFICADO_N':os.environ.get('CERTIFICADO_N','IFI-2024-00000').strip(),
+        'CONTACTO_TELEFONO':os.environ.get('CONTACTO_TELEFONO','').strip(),
+        'CONTACTO_CORREO':os.environ.get('CONTACTO_CORREO','').strip(),
         'DESTINATARIO_PRUEBA':os.environ.get('DESTINATARIO_PRUEBA','').strip(),
         'SISTEMAS_HABILITADOS': dict(SISTEMAS_HABILITADOS),
         "MAIL_MODO_PRUEBA": os.environ.get("MAIL_MODO_PRUEBA", "true" if piloto else "false").lower() != "false",
