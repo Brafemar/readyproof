@@ -1,6 +1,7 @@
 """Franja de identificación complementaria al pie, sin modificar filas del kit."""
 from datetime import date
 import textwrap
+from .firmantes import nombre_tecnico_segun_modo
 
 from pypdf.generic import ArrayObject,DecodedStreamObject,DictionaryObject,NameObject
 
@@ -12,7 +13,7 @@ BASE=44
 def lineas_firmantes(datos,ancho):
     tecnico=datos['tecnico'];responsable=datos['responsable']
     fecha=date.fromisoformat(datos['fecha']).strftime('%d/%m/%Y')
-    nombre=tecnico.get('nombre') or ''
+    nombre=nombre_tecnico_segun_modo(tecnico.get('nombre'))
     # El login conserva la identidad autenticada si el nombre usa otra escritura.
     try:nombre.encode('cp1252')
     except UnicodeEncodeError:nombre=tecnico.get('login') or ''

@@ -1,8 +1,15 @@
-"""Datos del responsable y validación previa a la finalización del piloto."""
+"""Identificación de firmantes y validación previa a la finalización."""
 import re
 from .validacion import DatosInvalidos,campos_permitidos,mapa
 
 CAMPOS=('nombre_firmante','dni_firmante','cargo_firmante')
+
+
+def nombre_tecnico_segun_modo(value):
+    """Presenta la identidad guardada sin alterar el nombre ni su historial."""
+    from ..modo import es_piloto
+    nombre=value or ''
+    return nombre if es_piloto() else nombre.removeprefix('[Ejemplo] ')
 
 
 def validar_responsable(value,*,completo=False):

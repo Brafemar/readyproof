@@ -1,5 +1,11 @@
 # Registro de cambios: readyproof
 
+## 2026-10-30 — A2-3: identificación técnica según modo
+
+- El prefijo exacto [Ejemplo] se elimina solo del nombre presentado del técnico en nuevos PDF REAL. PILOTO conserva el prefijo; identidad almacenada, historial y PDF anteriores intactos.
+- Regresión con datos ficticios: presentación REAL/PILOTO y PDF REAL, 3 pruebas aprobadas en 11.09 s. Suite completa: 582 aprobadas, 0 fallos, 2793.17 s; compileall app sin errores.
+- La designación indicada por Jorge se reporta en Registro 1/Revisión 0 y Registro 2/Revisión 0; no se modifica ningún registro.
+
 ## 2026-10-30 — A2-1/A2-2: paginación de copias nuevas
 
 - Referencia SCC-2, Registro 1/Revisión 0, copiada desde Descargas con autorización; original y copia conservan SHA256 dc26a7bc31c72f5507d614fbac9f75acfed390704ab774deb7c84becd91ab34e. La referencia privada queda excluida de Git.
