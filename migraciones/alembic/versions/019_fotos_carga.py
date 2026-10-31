@@ -30,12 +30,14 @@ def upgrade():
         sa.Column('numero', sa.Integer(), nullable=False),
         sa.Column('x', sa.Float(), nullable=False),
         sa.Column('y', sa.Float(), nullable=False),
+        sa.Column('codigo', sa.String(2), nullable=False),
         sa.Column('texto', sa.String(140), nullable=False),
         sa.Column('creada_en', sa.DateTime(timezone=True), nullable=False),
         sa.UniqueConstraint('foto_id', 'numero', name='uq_anotacion_foto_numero'),
         sa.CheckConstraint('numero >= 1', name='ck_anotacion_numero'),
         sa.CheckConstraint('x BETWEEN 0 AND 1 AND y BETWEEN 0 AND 1', name='ck_anotacion_posicion'),
-        sa.CheckConstraint('char_length(texto) BETWEEN 1 AND 140', name='ck_anotacion_texto'))
+        sa.CheckConstraint("codigo IN ('✓', 'O', 'X', 'NA')", name='ck_anotacion_codigo'),
+        sa.CheckConstraint("char_length(texto) <= 140 AND (codigo IN ('✓', 'NA') OR char_length(texto) >= 1)", name='ck_anotacion_texto'))
     op.create_index('ix_fotos_anotacion_foto_id', 'fotos_anotacion', ['foto_id'])
     op.execute('INSERT INTO versiones_esquema (numero,aplicada_en) VALUES (19,CURRENT_TIMESTAMP)')
 

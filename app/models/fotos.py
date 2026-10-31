@@ -35,12 +35,14 @@ class FotoAnotacion(Base):
         UniqueConstraint("foto_id", "numero", name="uq_anotacion_foto_numero"),
         CheckConstraint("numero >= 1", name="ck_anotacion_numero"),
         CheckConstraint("x BETWEEN 0 AND 1 AND y BETWEEN 0 AND 1", name="ck_anotacion_posicion"),
-        CheckConstraint(f"char_length(texto) BETWEEN 1 AND {MAX_TEXTO_ANOTACION}", name="ck_anotacion_texto"),
+        CheckConstraint("codigo IN ('✓', 'O', 'X', 'NA')", name="ck_anotacion_codigo"),
+        CheckConstraint(f"char_length(texto) <= {MAX_TEXTO_ANOTACION} AND (codigo IN ('✓', 'NA') OR char_length(texto) >= 1)", name="ck_anotacion_texto"),
     )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=identificador)
     foto_id: Mapped[str] = mapped_column(ForeignKey("fotos_carga.id"), index=True, nullable=False)
     numero: Mapped[int] = mapped_column(Integer, nullable=False)
     x: Mapped[float] = mapped_column(Float, nullable=False)
     y: Mapped[float] = mapped_column(Float, nullable=False)
+    codigo: Mapped[str] = mapped_column(String(2), nullable=False)
     texto: Mapped[str] = mapped_column(String(MAX_TEXTO_ANOTACION), nullable=False)
     creada_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora, nullable=False)
