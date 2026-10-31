@@ -19,6 +19,8 @@ def create_app(test_config=None):
         load_dotenv(RAIZ / ".env.local", override=False)
         load_dotenv(RAIZ / ".env", override=False)
     app = Flask(__name__)
+    from .fotos import SolicitudConFotos
+    app.request_class = SolicitudConFotos
     app.config.update(configuracion())
     app.json.sort_keys = False
     app.config["MAX_CONTENT_LENGTH"] = 768 * 1024
@@ -37,6 +39,8 @@ def create_app(test_config=None):
     from .carga.rutas import carga_api
     from .auditoria.rutas import auditoria_api
     app.register_blueprint(carga_api)
+    from .fotos.rutas import fotos_api
+    app.register_blueprint(fotos_api)
     app.register_blueprint(auditoria_api)
     from .correo.rutas import correo_api
     app.register_blueprint(correo_api)

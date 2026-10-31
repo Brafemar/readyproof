@@ -276,3 +276,6 @@ class Retencion(Base):
     proximos_intentos: Mapped[int] = mapped_column(Integer,default=0)
     razon: Mapped[str] = mapped_column(String(255))
     envio: Mapped["Envio"] = relationship(back_populates="retenciones")
+
+
+from .fotos import FotoCarga, FotoAnotacion

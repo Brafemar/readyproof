@@ -1,0 +1,46 @@
+const assert=require("node:assert/strict");
+const fs=require("node:fs"),path=require("node:path");
+const {chromium}=require("playwright");
+(async()=>{
+  const candidates=[process.env.READYPROOF_BROWSER,chromium.executablePath(),path.join(process.env.ProgramFiles||"C:/Program Files","Google/Chrome/Application/chrome.exe"),path.join(process.env.ProgramFiles||"C:/Program Files","Microsoft/Edge/Application/msedge.exe")];
+  const executablePath=candidates.find(p=>p&&fs.existsSync(p));assert.ok(executablePath);
+  const browser=await chromium.launch({headless:true,executablePath});
+  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"es-AR"});
+  const page=await context.newPage(),errors=[];page.on("pageerror",error=>errors.push(error.message));page.setDefaultTimeout(30000);
+  const base=process.env.RP_URL;
+  try{
+    await page.goto(base+"/login",{waitUntil:"networkidle"});
+    await page.locator("#login").fill(process.env.RP_LOGIN);await page.locator("#clave").fill(process.env.RP_PASSWORD);
+    await Promise.all([page.waitForURL(base+"/"),page.getByRole("button",{name:"Ingresar",exact:true}).click()]);
+    await page.locator("#cabecera-campos input").first().waitFor();
+    await page.evaluate(()=>navigator.serviceWorker.ready.then(()=>true));
+    await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+    await page.click("#completar-ejemplo");
+    await page.waitForFunction(()=>document.getElementById("save-status").textContent.includes("y en el servidor"));
+    assert.equal(await page.locator("#foto-archivo").getAttribute("capture"),"environment");
+    await page.locator("#foto-archivo").setInputFiles(process.env.RP_FOTO);
+    await page.waitForFunction(()=>document.querySelectorAll("#fotos-lista li").length===1&&document.getElementById("fotos-lista").textContent.includes("Guardada"));
+    const record=await page.evaluate(()=>new Promise((resolve,reject)=>{
+      const user=JSON.parse(sessionStorage.getItem("readyproof-cuenta-activa")).usuario.id;
+      const req=indexedDB.open("readyproof-local-"+user,1);
+      req.onsuccess=()=>{const get=req.result.transaction("borradores").objectStore("borradores").getAll();get.onsuccess=()=>resolve(get.result.sort((a,b)=>b.actualizado.localeCompare(a.actualizado))[0]);get.onerror=()=>reject(get.error);};
+    }));
+    assert.ok(record.serverId);
+    await context.setOffline(true);
+    await page.locator("#foto-archivo").setInputFiles(process.env.RP_FOTO);
+    await page.waitForFunction(()=>document.getElementById("fotos-lista").textContent.includes("pendiente de subir"));
+    await page.reload({waitUntil:"domcontentloaded"});
+    await page.waitForFunction(()=>document.getElementById("fotos-lista").textContent.includes("pendiente de subir"));
+    await context.setOffline(false);
+    await page.waitForFunction(()=>document.querySelectorAll("#fotos-lista li").length===2&&!document.getElementById("fotos-lista").textContent.includes("pendiente"));
+    const photos=await (await context.request.get(`${base}/api/cargas/${record.serverId}/fotos`)).json();
+    assert.deepEqual(photos.map(photo=>photo.orden),[1,2]);
+    await page.locator("#foto-archivo").setInputFiles({name:"foto-no-decodificable.heic",mimeType:"image/heic",buffer:Buffer.from("[Ejemplo] imagen no decodificable")});
+    await page.waitForFunction(()=>document.getElementById("fotos-estado").textContent.includes("No se pudo leer la foto"));
+    assert.equal((await (await context.request.get(`${base}/api/cargas/${record.serverId}/fotos`)).json()).length,2);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await page.locator("#fotos").screenshot({path:path.join(process.env.RP_OUT,"panel_fotos_movil.png")});
+    assert.deepEqual(errors,[]);
+    fs.writeFileSync(path.join(process.env.RP_OUT,"resultado.json"),JSON.stringify({carga_id:record.serverId,fotos:photos.length,offline_recarga_y_sin_duplicados:true,error_lectura_visible:true},null,2));
+  } finally {await browser.close();}
+})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,0 +1,140 @@
+{
+  "subfase": "C2",
+  "estado": "C2_verificada",
+  "rama": "codex/fotos",
+  "base": "6e7daa5b8038363c07fcaaea3968e2ad77645d0a",
+  "fecha_validacion_local": "2026-10-31T12:48:37.649086-03:00",
+  "directorio_trabajo": "C:\\Users\\jorge\\Readyproof-fotos",
+  "archivos_tocados": [
+    "REPORTE_FOTOS_C2.json",
+    "app/__init__.py",
+    "app/fotos/__init__.py",
+    "app/fotos/rutas.py",
+    "app/models/__init__.py",
+    "app/models/fotos.py",
+    "app/static/carga.js",
+    "app/static/fotos.js",
+    "app/static/service-worker.js",
+    "app/templates/carga.html",
+    "migraciones/alembic/versions/019_fotos_carga.py",
+    "tests/browser/fotos_c2.cjs",
+    "tests/test_cuit_sistemas.py",
+    "tests/test_fotos_c2.py",
+    "tests/test_modelos_manual_correo.py"
+  ],
+  "prerequisitos_incluidos": "Se incorporan el modelo y la migración 019 que estaban sin commit, más su registro y las expectativas de última migración. No se incorpora la 018.",
+  "integracion": {
+    "app/__init__.py": "Registro del blueprint de fotos y límite por ruta; el límite general sigue en 768 KB.",
+    "app/models/__init__.py": "Únicamente import de FotoCarga y FotoAnotacion.",
+    "app/static/carga.js": "Contexto del borrador para fotos y guardado/sincronización; bloquea finalizar mientras hay fotos pendientes.",
+    "app/static/service-worker.js": "Cache del nuevo módulo de fotos para uso sin conexión.",
+    "app/templates/carga.html": "Panel de fotos y carga del módulo; usa los estilos existentes.",
+    "tests/test_cuit_sistemas.py y tests/test_modelos_manual_correo.py": "Solo expectativas de última migración 019 y lista de versiones con 19."
+  },
+  "carga": {
+    "lado_mayor_max_px": 1600,
+    "formato": "JPEG",
+    "calidad_canvas": 0.8,
+    "max_bytes": 2097152,
+    "max_fotos_por_carga": 20,
+    "original_conservado": false,
+    "cola_offline": "IndexedDB por usuario; solo JPEG estandarizado.",
+    "hash": "SHA-256 de los mismos bytes recibidos y guardados.",
+    "orden": "Consecutivo desde 1; bloqueo de la carga para serializar subidas concurrentes.",
+    "reintentos": "Idempotency-Key evita duplicar la foto al reconectar.",
+    "auditoria": "Alta registrada con actor y metadatos, sin copiar el BLOB a auditoria.",
+    "dependencias_nuevas": [],
+    "jpeg_servidor": "Firma FF D8 FF, formato/dimensiones con Pillow ya instalado, sin recodificar."
+  },
+  "tests": {
+    "completa": {
+      "cantidad": 586,
+      "passed": 586,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "codigo_salida": 0,
+      "salida_exacta": "586 passed in 2523.70s (0:42:03)",
+      "comando": "C:\\Users\\jorge\\Readyproof\\.venv\\Scripts\\python.exe -m pytest -q --tb=short --basetemp=C:/Users/jorge/Readyproof-fotos/out/c2tmp01",
+      "inicio_local": "2026-10-31T12:04:51.342946-03:00",
+      "fin_local": "2026-10-31T12:47:07.310141-03:00",
+      "basetemp": "C:\\Users\\jorge\\Readyproof-fotos\\out\\c2tmp01",
+      "basetemp_fuera_de_venv_tmp": true,
+      "log": "out/fotos_c2/pytest_completo_01.log"
+    },
+    "focalizada": {
+      "cantidad": 15,
+      "passed": 15,
+      "failed": 0,
+      "salida_exacta": "15 passed in 55.63s",
+      "log": "out/fotos_c2/pytest_focalizado_01.log"
+    },
+    "completa_incluye_los_15_casos_nuevos": true,
+    "base_publicada_casos": 571,
+    "compileall_codigo_salida": 0,
+    "node_check_codigo_salida": 0,
+    "verificaciones_fotos": [
+      "Rechazo de texto, PNG y JPEG incompleto",
+      "Rechazo de más de 2 MB",
+      "Rechazo de la foto 21",
+      "Aceptación y dimensiones",
+      "Orden consecutivo",
+      "SHA-256 igual a bytes guardados",
+      "Límite de fotos independiente del límite general",
+      "Bloqueo después de finalizar/emitir",
+      "Reintento sin duplicados",
+      "Sesión y CSRF",
+      "Canvas, EXIF/GPS, offline con recarga y error de lectura visible"
+    ]
+  },
+  "alembic": {
+    "heads": [
+      "019_fotos_carga (head)"
+    ],
+    "cantidad_heads": 1,
+    "revision": "019_fotos_carga",
+    "down_revision": "017_scc1_presion_bar",
+    "migracion_018_presente": false,
+    "version_esquema_19_verificada_por_suite": true
+  },
+  "foto_prueba": {
+    "tipo": "JPEG sintético con ruido y EXIF/GPS ficticios; no es una foto de cliente.",
+    "ancho_antes": 2400,
+    "alto_antes": 1800,
+    "bytes_antes": 4024113,
+    "bytes_despues": 873867,
+    "ancho_despues": 1600,
+    "alto_despues": 1200,
+    "exif_gps_eliminado": true,
+    "reporte_navegador": "out/fotos_c2/navegador/resultado.json",
+    "captura_movil": "out/fotos_c2/navegador/panel_fotos_movil.png"
+  },
+  "preservacion": {
+    "arbol_principal_y_codex_frente_b_sin_cambios_verificados_por_sha256": true,
+    "archivos_pendientes_preservados": 27,
+    "origin_main_no_modificado": true,
+    "sin_cambios_en_fuente_docs_BACKLOG_y_PDF_emitidos": true,
+    "sin_implementacion_de_anotaciones_y_sin_cambios_en_pdf_correo_contabilium": true,
+    "modelo_y_migracion_C1_sin_cambiar_estructura": true
+  },
+  "espacio_disco": {
+    "mediciones": 250,
+    "minimo_bytes": 4206592,
+    "final_bytes": 4425474048,
+    "causa_variacion_no_confirmada": true,
+    "log": "out/fotos_c2/espacio_completo_01.jsonl",
+    "suite_finalizada_en_verde": true
+  },
+  "pendientes_no_bloqueantes": [
+    "Prueba en iPhone real: confirmar que el canvas de Safari decodifica la foto de cámara."
+  ],
+  "correo_prueba": "Permanece en cola; no ejecutado en C2, cuyo alcance excluye correo.",
+  "commit_local": {
+    "mensaje": "Fotos: carga estandarizada en navegador y validación JPEG",
+    "rama": "codex/fotos",
+    "base": "6e7daa5b8038363c07fcaaea3968e2ad77645d0a"
+  },
+  "push": false,
+  "tag": false,
+  "despliegue": false
+}

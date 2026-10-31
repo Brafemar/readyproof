@@ -57,10 +57,14 @@
   function permiteCopiaA4() { return historica() && catalog.definiciones[draft.planillaId]?.codigo==="SG-PEM-IFI-SAA-1"; }
   function isReadOnly() { return draft && (draft.estado !== "borrador" || historica()); }
   function hasSignature(role) { return Boolean(draft?.firmas?.[role] || draft?.firmasServidor?.[role]) && draft?.firmas?.[role] !== null; }
+  let fotosPendientes=0;
+  window.addEventListener("readyproof-fotos-pendientes",event=>{fotosPendientes=event.detail;update();});
+  window.readyproofFotosBorrador=localId=>storage("borradores","readonly","get",localId);
   function update() {
     const online=navigator.onLine && serviceAvailable;
     $("connection-text").textContent=online ? "Conectado" : "Sin conexión";
     document.querySelector(".connection").classList.toggle("offline", !online);
+    window.dispatchEvent(new CustomEvent("readyproof-fotos-contexto",{detail:draft?{localId:draft.localId,serverId:draft.serverId,readOnly:isReadOnly(),estado:draft.estado,pending:draft.pending,conflicto:draft.conflicto}:null}));
     if (!draft) return;
     const completed=controls.filter(({input})=>input.value.trim()).length + roles.filter(hasSignature).length + Object.values(responsableInputs).filter(id=>$(id).value.trim()).length;
     const total=controls.length + roles.length + Object.keys(responsableInputs).length;
@@ -80,7 +84,7 @@
     $("completar-ejemplo").disabled=isReadOnly()||operation;
     $("guardar").disabled=isReadOnly()||operation;
     $("vista-previa").disabled=operation||!navigator.onLine||historica();
-    $("finalizar").disabled=operation||draft.estado==="emitida"||!navigator.onLine||draft.conflicto||previewVersion!==draft.editVersion||!validarFirmantes();
+    $("finalizar").disabled=fotosPendientes>0||operation||draft.estado==="emitida"||!navigator.onLine||draft.conflicto||previewVersion!==draft.editVersion||!validarFirmantes();
     $("finalizar").textContent=draft.estado==="finalizada" ? "Reintentar emisión →" : (piloto?"Finalizar ejemplo →":"Finalizar planilla →");
     $("finalizar").hidden=draft.estado==="emitida"||historica();
     $("copiar-a4").hidden=!permiteCopiaA4();
