@@ -15,7 +15,7 @@
       canvas.width=Math.max(1,Math.round(image.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(image.naturalHeight*ratio));
       const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(image,0,0,canvas.width,canvas.height);
-      const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.8));
+      const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.7));
       if(!blob||blob.type!=="image/jpeg")throw new Error("No se pudo preparar la foto: elegí otra imagen desde la app.");
       if(blob.size>MAX_BYTES)throw new Error("La foto supera 2 MB: vuelva a intentar con la foto de la app");
       return {blob,ancho:canvas.width,alto:canvas.height};
@@ -85,6 +85,7 @@
   });
   window.addEventListener("online",()=>{remoteKey=null;refresh().catch(error=>status(error.message));});
   window.addEventListener("readyproof-lock",()=>{
+    if(locked)return;
     locked=true;contexto=null;$("agregar-foto").disabled=true;$("foto-archivo").value="";$("fotos-lista").replaceChildren();$("fotos-estado").textContent="";
     database?.then(db=>db.close());
   });

@@ -1,0 +1,228 @@
+{
+  "subfase": "C2.1",
+  "estado": "C2.1_verificada",
+  "rama": "codex/fotos",
+  "base": "13a80bf3d0cff77ac8cc000b456ed82e2c96e5f4",
+  "fecha_local": "2026-10-31T14:28:24.698625-03:00",
+  "archivos_tocados": [
+    "REPORTE_FOTOS_C2_1.json",
+    "app/static/fotos.js",
+    "app/static/service-worker.js"
+  ],
+  "versiones": [
+    {
+      "calidad": 0.8,
+      "archivo": "q080.jpg",
+      "bytes": 873867,
+      "control_texto": "control_texto/q080.jpg",
+      "recorte_control": "recortes/q080.png",
+      "recorte_original": "recortes/original/q080.png",
+      "ruta": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\q080.jpg",
+      "ruta_recorte_control": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\recortes\\q080.png",
+      "ruta_recorte_original": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\recortes\\original\\q080.png",
+      "sha256": "cd72082910c96f7565b41f5804bcf84db2815e8a69272f07c9a3306d64d4f543"
+    },
+    {
+      "calidad": 0.7,
+      "archivo": "q070.jpg",
+      "bytes": 731647,
+      "control_texto": "control_texto/q070.jpg",
+      "recorte_control": "recortes/q070.png",
+      "recorte_original": "recortes/original/q070.png",
+      "ruta": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\q070.jpg",
+      "ruta_recorte_control": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\recortes\\q070.png",
+      "ruta_recorte_original": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\recortes\\original\\q070.png",
+      "sha256": "fec8c4d9fc00f331b6f89d569bb6debb2c1bb0e929324fda0ab75275618cad84"
+    },
+    {
+      "calidad": 0.6,
+      "archivo": "q060.jpg",
+      "bytes": 626098,
+      "control_texto": "control_texto/q060.jpg",
+      "recorte_control": "recortes/q060.png",
+      "recorte_original": "recortes/original/q060.png",
+      "ruta": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\q060.jpg",
+      "ruta_recorte_control": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\recortes\\q060.png",
+      "ruta_recorte_original": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\recortes\\original\\q060.png",
+      "sha256": "a9b763c53ea200893b10795433e52fb88a70b54379ca3faa3acfef7fb3dcde10"
+    }
+  ],
+  "original": {
+    "ruta_conservada": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\original_C2.jpg",
+    "bytes": 4024113,
+    "sha256": "6cfdba9496915ece2d1649ad93b84a551f310f5ed9abdee52f75a0557f09b79e",
+    "naturaleza": "Misma imagen sintética de ruido de C2. No tiene carteles ni números de serie.",
+    "q080_coincide_con_referencia_C2_bytes": true
+  },
+  "recortes": {
+    "carpeta": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\recortes",
+    "dimensiones_px": [
+      400,
+      300
+    ],
+    "region_xy": [
+      160,
+      160
+    ],
+    "control": "Placa y número de serie simulados superpuestos antes de comprimir; no se alteraron los tres JPEG usados para medir el original.",
+    "imagenes_control": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\control_texto",
+    "recortes_sin_texto_del_original": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\recortes\\original",
+    "texto_control": [
+      "[Ejemplo] PLACA SIMULADA",
+      "SERIE RP-2048-0816",
+      "BOQUILLA / FILTRO - CONTROL",
+      "0 O 1 I 2 Z 5 S 6 G 8 B",
+      "ABC-1234567890 / RP-0806",
+      "Referencia simulada 08-B50-S12"
+    ],
+    "fuentes_px_despues_de_reducir": [
+      18,
+      16,
+      14,
+      12,
+      10,
+      8
+    ],
+    "formato_recorte": "PNG para evitar una segunda compresión con pérdida."
+  },
+  "calidad_elegida": 0.7,
+  "motivo": "A escala 100 %, q070 mantiene la lectura del número de serie y de las líneas pequeñas del control simulado respecto de q080. Se selecciona 0.7 según el criterio pedido.",
+  "limites_evidencia": "La fuente original es ruido sintético. La legibilidad se verificó con texto simulado, no con una foto real de boquillas o filtros.",
+  "ahorro_sobre_q080": {
+    "bytes": 142220,
+    "porcentaje": 16.27,
+    "bytes_20_fotos_q080": 17477340,
+    "bytes_20_fotos_q070": 14632940
+  },
+  "cambios_codigo": {
+    "app/static/fotos.js": "Valor por defecto 0.8 a 0.7 y protección if(locked)return ante cierre repetido, detectado por la regresión de navegador.",
+    "app/static/service-worker.js": "Solo clave de caché a readyproof-ui-v14-fotos-c2-1, necesaria porque los scripts usan cache-first."
+  },
+  "limites_sin_cambios": {
+    "bytes_por_foto": 2097152,
+    "fotos_por_carga": 20
+  },
+  "sin_cambios_en_servidor_migraciones_y_tests_C2": true,
+  "tests": {
+    "primera_completa": {
+      "cantidad": 586,
+      "passed": 584,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0,
+      "salida_exacta": "2 failed, 584 passed in 2280.37s (0:38:00)",
+      "comando": "C:\\Users\\jorge\\Readyproof\\.venv\\Scripts\\python.exe -m pytest -q --tb=short --basetemp=C:/Users/jorge/Readyproof-fotos/out/qtmp01",
+      "inicio": "2026-10-31T13:40:10.015227-03:00",
+      "casos": [
+        "FAILED tests/test_interfaz.py::test_administracion_y_cambio_de_cuenta_en_navegador",
+        "FAILED tests/test_multisistema.py::test_pdf_sdi_sbc_sal_genera[SG-PEM-IFI-SBC-6]"
+      ],
+      "log": "out/calidad_fotos/pytest_completo_01.log"
+    },
+    "diagnostico_tras_proteger_cierre": {
+      "passed": 2,
+      "failed": 0,
+      "salida_exacta": "2 passed in 31.91s",
+      "log": "out/calidad_fotos/pytest_diagnostico_02.log",
+      "SBC6_paso_sin_cambiar_servidor": true,
+      "causa_primer_fallo_PDF_no_confirmada": true
+    },
+    "segunda_completa": {
+      "estado": "interrumpida_tras_error_confirmado_de_disco",
+      "passed": null,
+      "failed": null,
+      "errors": null,
+      "resumen_final_disponible": false,
+      "aprobaciones_visibles_parciales": 131,
+      "errores_visibles_parciales": 1,
+      "casos_con_error": [
+        "tests/test_auth.py::test_migracion_conserva_autoria_historica"
+      ],
+      "comando": "C:\\Users\\jorge\\Readyproof\\.venv\\Scripts\\python.exe -m pytest -q --tb=short --basetemp=C:/Users/jorge/Readyproof-fotos/out/qtmp02",
+      "log": "out/calidad_fotos/pytest_completo_02.log"
+    },
+    "suite_completa_en_verde": true,
+    "compileall_codigo_salida": 0,
+    "node_check_codigo_salida": 0,
+    "tercera_completa": {
+      "estado": "finalizada_con_error_de_disco",
+      "comando": "C:\\Users\\jorge\\Readyproof\\.venv\\Scripts\\python.exe -m pytest -q --tb=short --basetemp=C:/Users/jorge/Readyproof-fotos/out/qtmp03",
+      "inicio": "2026-10-31T14:38:05.909989-03:00",
+      "log": "out/calidad_fotos/pytest_completo_03.log",
+      "passed": 585,
+      "failed": 0,
+      "errors": 1,
+      "cantidad": 586,
+      "skipped": 0,
+      "salida_exacta": "585 passed, 1 error in 3099.68s (0:51:39)",
+      "fin": "2026-10-31T15:29:51.849529-03:00"
+    },
+    "ajuste_ejecutor_local": "gc.collect() al comienzo de cada prueba para liberar objetos inalcanzables. Plugin solo en out, no modifica pruebas ni aserciones; no forma parte del código de la aplicación.",
+    "cuarta_completa": {
+      "estado": "aprobada",
+      "cantidad": 586,
+      "passed": 586,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "codigo_salida": 0,
+      "salida_exacta": "586 passed in 3169.67s (0:52:49)",
+      "comando": "C:\\Users\\jorge\\Readyproof\\.venv\\Scripts\\python.exe -m pytest -q --tb=short -p out.calidad_fotos.pytest_gc_local --basetemp=C:/Users/jorge/Readyproof-fotos/out/qtmp04",
+      "inicio": "2026-10-31T15:31:50.234426-03:00",
+      "fin": "2026-10-31T16:24:54.256481-03:00",
+      "basetemp": "C:\\Users\\jorge\\Readyproof-fotos\\out\\qtmp04",
+      "log": "out/calidad_fotos/pytest_completo_04.log",
+      "compileall_codigo_salida": 0
+    },
+    "resultado_final": "Cuarta corrida completa: 586 passed, 0 failed, 0 errors, 0 skipped. Las anteriores quedan como antecedentes separados.",
+    "ejecutor_gc_local": {
+      "ruta": "C:\\Users\\jorge\\Readyproof-fotos\\out\\calidad_fotos\\pytest_gc_local.py",
+      "sha256": "42f79394d0eeff693dcd21495bce610cbcc6f2b37f11db939b266f377f2dca69",
+      "accion": "gc.collect() al inicio de cada caso; libera objetos inalcanzables. No modifica fixtures, datos, aserciones, resultados ni ejecuta reintentos.",
+      "casos_ejecutados": 586,
+      "misma_lista_y_orden_de_casos_de_la_coleccion_original": true,
+      "objetos_liberados_total": 7072149,
+      "incluido_en_commit": false,
+      "log": "out/calidad_fotos/gc_entre_casos_04.jsonl"
+    }
+  },
+  "bloqueo": {
+    "tipo": "error_de_disco_confirmado_en_base_temporal",
+    "evidencia": [
+      "2026-10-31 14:25:39.307 -03 [28956] ERROR:  could not extend file \"base/45047/45384\": No space left on device"
+    ],
+    "log_postgresql": "C:\\Users\\jorge\\Readyproof-fotos\\out\\qtmp02\\postgres_local0\\postgres.log",
+    "no_se_borro_ni_movio_nada_para_liberar_espacio": true,
+    "accion": "Se detuvo el segundo intento tras el error. Se solicitó espacio adicional antes de repetir la suite; no se commitea sin verde.",
+    "respuesta_Jorge": "No puedo liberar más por ahora",
+    "respuesta_fecha_local": "2026-10-31T14:30:00.507646-03:00",
+    "accion_pendiente": null,
+    "instruccion_posterior_Jorge": "vamos, continuemos",
+    "estado_actual": "Sin bloqueo para esta entrega: la cuarta corrida terminó completa en verde. No se afirma que se haya eliminado la causa de las variaciones de espacio.",
+    "no_se_cambio_configuracion_de_Windows": true,
+    "metricas_finales": "out/calidad_fotos/espacio_completo_04.jsonl"
+  },
+  "alembic": {
+    "heads": [
+      "019_fotos_carga (head)"
+    ],
+    "cantidad": 1,
+    "revision": "019_fotos_carga"
+  },
+  "commit": {
+    "tipo": "local",
+    "rama": "codex/fotos",
+    "base": "13a80bf3d0cff77ac8cc000b456ed82e2c96e5f4",
+    "mensaje": "Fotos: calidad de carga ajustada"
+  },
+  "mensaje_commit_previsto": "Fotos: calidad de carga ajustada",
+  "push": false,
+  "tags": false,
+  "despliegue": false,
+  "arbol_principal": {
+    "sin_modificar_verificado_por_sha256": true,
+    "archivos_pendientes_preservados": 27,
+    "rama_codex_frente_b_sin_cambios": true
+  },
+  "fecha_final_local": "2026-10-31T16:26:24.965004-03:00"
+}

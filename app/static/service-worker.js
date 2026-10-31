@@ -1,4 +1,4 @@
-const CACHE = 'readyproof-ui-v13-fotos-c2';
+const CACHE = 'readyproof-ui-v14-fotos-c2-1';
 const STATIC = [
   '/static/fotos.js','/static/carga.css','/static/carga.js','/static/auth.js','/static/cuenta.css',
   '/static/admin.js','/static/cuenta.js','/static/pwa.js','/static/buscar.js',
