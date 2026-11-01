@@ -187,3 +187,18 @@ def test_ejemplo_v2_para_revision(muestra,tmp_path_factory):
     (base/"pdftotext.txt").write_text(texto,encoding="utf-8")
     assert "[Ejemplo] Revisar unión y válvula." in texto
 
+
+def test_borde_blanco_y_anillo_oscuro(muestra):
+    pdf=lector(muestra[4]);ops=ContentStream(pdf.pages[0].get_contents(),pdf).operations
+    stroke=None;width=None;curves=0;white=dark=0
+    expected=tuple(int("1B2430"[i:i+2],16)/255 for i in (0,2,4))
+    for values,op in ops:
+        if op==b"RG":stroke=tuple(map(float,values))
+        elif op==b"w":width=float(values[0])
+        elif op==b"m":curves=0
+        elif op==b"c":curves+=1
+        elif op in (b"B",b"B*",b"S"):
+            if curves==4 and op in (b"B",b"B*") and stroke==(1.,1.,1.) and width==2.5:white+=1
+            if curves==4 and op==b"S" and stroke==pytest.approx(expected,abs=.00001) and width==.8:dark+=1
+            curves=0
+    assert white==5 and dark==5

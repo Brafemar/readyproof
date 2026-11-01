@@ -23,6 +23,10 @@ ANCHO_TEXTO = A4_PT[0] - 2 * MARGEN - 75
 PIE_Y = A4_PT[1] - MARGEN - 10
 LISTA_FIN = PIE_Y - 25
 COLOR_MARCAS = "#D41120"
+BORDE_BLANCO_PT = 2.5
+ANILLO_OSCURO = "#1B2430"
+ANILLO_OSCURO_PT = 0.8
+RADIO_MARCA_PT = 9
 TAMANIO_TEXTO = 11
 INTERLINEADO = 15
 CODIGOS = ("✓", "O", "X", "NA")
@@ -282,8 +286,13 @@ def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, confi
                 x, cy = left+mark["x"]*width, A4_PT[1]-photo_top-mark["y"]*height
                 canvas.setFillColor(HexColor(COLOR_MARCAS))
                 canvas.setStrokeColor(HexColor("#FFFFFF"))
-                canvas.setLineWidth(1.3)
-                canvas.circle(x, cy, 9, fill=1, stroke=1)
+                canvas.setLineWidth(BORDE_BLANCO_PT)
+                canvas.circle(x, cy, RADIO_MARCA_PT, fill=1, stroke=1)
+                canvas.setStrokeColor(HexColor(ANILLO_OSCURO))
+                canvas.setLineWidth(ANILLO_OSCURO_PT)
+                # Anillo tangente al borde blanco: no reduce su espesor visible.
+                exterior = RADIO_MARCA_PT + BORDE_BLANCO_PT/2 + ANILLO_OSCURO_PT/2
+                canvas.circle(x, cy, exterior, fill=0, stroke=1)
                 canvas.setFillColor(HexColor("#FFFFFF"))
                 text = str(number)
                 font_size = 11
