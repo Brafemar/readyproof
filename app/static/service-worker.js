@@ -1,6 +1,6 @@
-const CACHE = 'readyproof-ui-v14-fotos-c2-1';
+const CACHE = 'readyproof-ui-v20-fotos-sin-diagnostico';
 const STATIC = [
-  '/static/fotos.js','/static/carga.css','/static/carga.js','/static/auth.js','/static/cuenta.css',
+  '/static/fotos.js','/static/fotos.css','/static/carga.css','/static/carga.js','/static/auth.js','/static/cuenta.css',
   '/static/admin.js','/static/cuenta.js','/static/pwa.js','/static/buscar.js',
   '/static/icono.svg','/static/manifest.json','/static/manifest.webmanifest',
   '/static/icons/icon-192x192.png','/static/icons/icon-512x512.png',

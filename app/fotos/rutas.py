@@ -1,17 +1,21 @@
 """Persistencia de JPEG recibidos del canvas, sin guardar originales."""
+import json
+
 from hashlib import sha256
 from io import BytesIO
 from uuid import UUID
 
-from flask import Blueprint, abort, g, jsonify, request
+from flask import Blueprint, Response, abort, g, jsonify, request
 from PIL import Image, UnidentifiedImageError
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
 from . import MAX_FOTO_BYTES
+from .anotaciones import validar_anotaciones
+from .items import items_punto2
 from ..carga.servicios import registrar_auditoria
 from ..db import sesion
-from ..models import Carga, FotoCarga
-from ..models.fotos import MAX_FOTOS_POR_CARGA
+from ..models import Carga, FotoAnotacion, FotoCarga, Planilla
+from ..models.fotos import MAX_FOTOS_POR_CARGA, FotoAnotacionItem
 from ..rutas.api import obtener
 
 fotos_api = Blueprint('fotos', __name__, url_prefix='/api/cargas')
@@ -90,3 +94,89 @@ def subir(carga_id):
     registrar_auditoria('foto_carga', foto.id, 'INSERT', g.usuario.id, None, dict(result, carga_id=carga_id))
     db.commit()
     return jsonify(result), 201
+
+
+def foto_autorizada(carga_id, foto_id):
+    obtener(Carga, carga_id)
+    foto = sesion().scalar(select(FotoCarga).where(FotoCarga.id == foto_id, FotoCarga.carga_id == carga_id))
+    if foto is None:
+        abort(404, description="La foto no pertenece a esta planilla o no existe: revisá la carga seleccionada.")
+    return foto
+
+
+def marcas_foto(foto_id):
+    rows = sesion().scalars(select(FotoAnotacion).where(FotoAnotacion.foto_id == foto_id).order_by(FotoAnotacion.numero))
+    result = []
+    for r in rows:
+        value = dict(id=r.id, numero=r.numero, x=r.x, y=r.y, codigo=r.codigo, texto=r.texto)
+        item = sesion().get(FotoAnotacionItem, r.id)
+        if item is not None:
+            value["item"] = dict(bloque=item.bloque, campo=item.campo, texto=item.texto)
+        result.append(value)
+    return result
+
+
+def version_marcas(marcas):
+    return sha256(json.dumps(marcas, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def respuesta_marcas(marcas):
+    response = jsonify(marcas)
+    response.set_etag(version_marcas(marcas))
+    return response
+
+
+@fotos_api.get('/<carga_id>/fotos/items')
+def items_fotos(carga_id):
+    carga = obtener(Carga, carga_id)
+    planilla = sesion().get(Planilla, carga.planilla_id)
+    return jsonify(items_punto2(planilla.definicion))
+
+
+@fotos_api.get('/<carga_id>/fotos/<foto_id>/imagen')
+def imagen(carga_id, foto_id):
+    foto = foto_autorizada(carga_id, foto_id)
+    return Response(bytes(foto.imagen), mimetype='image/jpeg', headers={'Cache-Control': 'no-store'})
+
+
+@fotos_api.get('/<carga_id>/fotos/<foto_id>/anotaciones')
+def leer_anotaciones(carga_id, foto_id):
+    foto_autorizada(carga_id, foto_id)
+    return respuesta_marcas(marcas_foto(foto_id))
+
+
+@fotos_api.post('/<carga_id>/fotos/<foto_id>/anotaciones')
+def guardar_anotaciones(carga_id, foto_id):
+    obtener(Carga, carga_id)
+    db = sesion()
+    carga = db.scalar(select(Carga).where(Carga.id == carga_id).with_for_update().execution_options(populate_existing=True))
+    if carga.estado != 'borrador':
+        abort(409, description='La planilla ya está finalizada o emitida: solicitá su desbloqueo antes de editar las marcas.')
+    foto_autorizada(carga_id, foto_id)
+    anterior = marcas_foto(foto_id)
+    if not request.is_json:
+        abort(400, description='Enviá las marcas como JSON desde Guardar marcas en la app.')
+    definicion = db.get(Planilla, carga.planilla_id).definicion
+    values = validar_anotaciones(request.get_json(silent=True), definicion)
+    if request.headers.get('If-Match') is not None and not request.if_match.contains(version_marcas(anterior)):
+        actuales = [{key: row[key] for key in ('numero', 'x', 'y', 'codigo', 'texto', 'item') if key in row} for row in anterior]
+        if actuales == values:
+            return respuesta_marcas(anterior)
+        abort(409, description='Las marcas cambiaron en otro dispositivo. Conservá el borrador y reabrí la foto para comparar antes de guardar.')
+    # Nada se elimina hasta haber validado todas las marcas.
+    try:
+        db.execute(delete(FotoAnotacion).where(FotoAnotacion.foto_id == foto_id))
+        nuevas = [(FotoAnotacion(foto_id=foto_id, **{k: v for k, v in value.items() if k != "item"}), value.get("item")) for value in values]
+        db.add_all(row for row, item in nuevas)
+        db.flush()
+        db.add_all(FotoAnotacionItem(anotacion_id=row.id, **item) for row, item in nuevas if item is not None)
+        db.flush()
+        nuevo = marcas_foto(foto_id)
+        registrar_auditoria('fotos_anotacion', foto_id, 'UPDATE', g.usuario.id,
+                           {'carga_id': carga_id, 'anotaciones': anterior},
+                           {'carga_id': carga_id, 'anotaciones': nuevo})
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    return respuesta_marcas(nuevo)

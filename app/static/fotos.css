@@ -1,0 +1,21 @@
+#foto-editor[hidden]{display:none}
+#fotos-lista li{margin:.6rem 0;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+#foto-editor{border-top:1px solid #ddd;margin-top:1rem;padding-top:1rem;min-width:0}
+.foto-editor-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.foto-aviso-local{padding:.8rem;background:#fff3cd;color:#4f3900;border-radius:.4rem}
+.foto-editor-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;align-items:start}
+.foto-visor{min-width:0}
+.foto-lienzo{position:relative;display:table;max-width:100%;margin:1.2rem auto;touch-action:manipulation}
+.foto-lienzo img{display:block;max-width:100%;height:auto;max-height:65vh;width:auto}
+.foto-marcas{position:absolute;inset:0;pointer-events:none}
+.foto-marca{position:absolute;transform:translate(-50%,-50%);width:2.75rem;height:2.75rem;border:3px solid white;border-radius:50%;background:#1d1d1b;color:white;font-size:1rem;font-weight:bold;pointer-events:auto;cursor:pointer;box-shadow:0 0 0 1px #222}
+.foto-marca.seleccionada{background:#a20c18;outline:3px solid #e6b800}
+.foto-anotaciones{list-style:none;margin:0;padding:0;display:grid;gap:.8rem;min-width:0}
+.foto-anotaciones li{display:grid;gap:.4rem;border:1px solid #ccc;border-radius:.4rem;padding:.8rem;min-width:0}
+.foto-anotaciones li.seleccionada{border-color:#a20c18;box-shadow:inset 3px 0 #a20c18}
+.foto-anotaciones label{font-weight:600}
+.foto-anotaciones textarea,.foto-anotaciones select{box-sizing:border-box;width:100%;min-width:0;font:inherit;padding:.6rem;border:1px solid #777;border-radius:.3rem;background:white}
+.foto-texto-ayuda{font-size:.85rem;color:#555}
+#foto-marcas-estado{min-height:1.5em}
+@media(min-width:900px){.foto-editor-grid{grid-template-columns:minmax(0,3fr) minmax(15rem,2fr)}}
+

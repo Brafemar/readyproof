@@ -1,7 +1,7 @@
 """Fotos de campo y anotaciones de cargas (frente C, subfase C1)."""
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, Float, ForeignKey, Integer, LargeBinary, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from . import Base, ahora, identificador
@@ -46,3 +46,14 @@ class FotoAnotacion(Base):
     codigo: Mapped[str] = mapped_column(String(2), nullable=False)
     texto: Mapped[str] = mapped_column(String(MAX_TEXTO_ANOTACION), nullable=False)
     creada_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora, nullable=False)
+
+
+class FotoAnotacionItem(Base):
+    __tablename__ = "fotos_anotacion_item"
+    __table_args__ = (
+        CheckConstraint("char_length(bloque) > 0 AND char_length(campo) > 0 AND char_length(texto) > 0", name="ck_anotacion_item_referencia"),
+    )
+    anotacion_id: Mapped[str] = mapped_column(ForeignKey("fotos_anotacion.id", ondelete="CASCADE"), primary_key=True)
+    bloque: Mapped[str] = mapped_column(Text, nullable=False)
+    campo: Mapped[str] = mapped_column(String(80), nullable=False)
+    texto: Mapped[str] = mapped_column(Text, nullable=False)

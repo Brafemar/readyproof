@@ -31,6 +31,7 @@ TAMANIO_TEXTO = 11
 INTERLINEADO = 15
 CODIGOS = ("✓", "O", "X", "NA")
 TEXTO_MAX = 140
+SIGNIFICADOS = {"✓": "cumple", "O": "no cumple", "X": "no apreciable", "NA": "no aplicable"}
 
 
 def ruta_fuente(fuente=None):
@@ -81,6 +82,7 @@ def _observaciones(observaciones, font, ancho):
     if not isinstance(observaciones, list) or not observaciones:
         raise ValueError("La lista de observaciones está vacía: agregá al menos una referencia para generar el anexo.")
     rows, numbers = [], set()
+    detalle_items = any(isinstance(row, dict) and row.get("item") is not None for row in observaciones)
     for row in observaciones:
         if not isinstance(row, dict):
             raise ValueError("Cada observación debe indicar número, código y texto.")
@@ -92,8 +94,14 @@ def _observaciones(observaciones, font, ancho):
             raise ValueError("Corregí la referencia: código ✓, O, X o NA y texto de hasta 140 caracteres.")
         if code in ("O", "X") and not text.strip():
             raise ValueError(f"La observación {number} con código {code} requiere texto: completalo antes de generar el anexo.")
-        lines = _lineas(text, _Metrica(font, TAMANIO_TEXTO), ancho)
-        rows.append(dict(numero=number, codigo=code, texto=text, lineas=lines, alto=max(1, len(lines))*INTERLINEADO+8))
+        visible = text
+        if detalle_items:
+            item = row.get("item")
+            if item is not None and (not isinstance(item, dict) or not isinstance(item.get("texto"), str) or not item["texto"].strip() or "\x00" in item["texto"]):
+                raise ValueError("El ítem debe incluir el texto de la planilla: volvé a elegirlo antes de generar el anexo.")
+            visible = f"Ítem: {item['texto'] if item else '—'}\nCódigo: {code} ({SIGNIFICADOS[code]})\nObservación: {text or '—'}"
+        lines = _lineas(visible, _Metrica(font, TAMANIO_TEXTO), ancho)
+        rows.append(dict(numero=number, codigo=code, texto=text, detalle_item=detalle_items, lineas=lines, alto=max(1, len(lines))*INTERLINEADO+8))
         numbers.add(number)
     return sorted(rows, key=lambda row: row["numero"])
 
@@ -302,17 +310,27 @@ def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, confi
                 canvas.drawCentredString(x, cy-font_size*.33, text)
         canvas.setFillColor(HexColor("#1D1D1B"))
         if references:
-            for x, title in ((MARGEN,"N.°"),(MARGEN+25,"Código"),(MARGEN+75,"Observación")):
+            titulos = ((MARGEN,"N.°"),(MARGEN+75,"Ítem, código y observación")) if references[0]["detalle_item"] else ((MARGEN,"N.°"),(MARGEN+25,"Código"),(MARGEN+75,"Observación"))
+            for x, title in titulos:
                 _texto(canvas,font,x,y,title,9)
             y += 20
             for row in references:
                 _texto(canvas,font,MARGEN,y,str(row["numero"]))
-                if row["codigo"] == "✓":
-                    _check(canvas,font,MARGEN+25,y)
-                else:
-                    _texto(canvas,font,MARGEN+25,y,row["codigo"])
+                if not row["detalle_item"]:
+                    if row["codigo"] == "✓":
+                        _check(canvas,font,MARGEN+25,y)
+                    else:
+                        _texto(canvas,font,MARGEN+25,y,row["codigo"])
                 for offset, line in enumerate(row["lineas"]):
-                    _texto(canvas,font,MARGEN+75,y+offset*INTERLINEADO,line)
+                    top=y+offset*INTERLINEADO
+                    if row["detalle_item"] and line.startswith("Código: ✓"):
+                        x=MARGEN+75
+                        _texto(canvas,font,x,top,"Código: ")
+                        x+=pdfmetrics.stringWidth("Código: ",font,TAMANIO_TEXTO)
+                        _check(canvas,font,x,top)
+                        _texto(canvas,font,x+12,top," (cumple)")
+                    else:
+                        _texto(canvas,font,MARGEN+75,top,line)
                 y += row["alto"]
         else:
             _texto(canvas,font,MARGEN,y,"Referencias en la página siguiente.",10)
