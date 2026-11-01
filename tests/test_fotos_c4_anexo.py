@@ -39,14 +39,14 @@ def abrir(pdf, paginas):
 def test_una_marca_pdf_a4_y_posicion():
     points, refs = listas()
     result = abrir(anexo.generar_anexo(jpeg(), points, refs), 1)
-    rendered = result.pages[0].images[0].image.convert("RGB")
-    width = anexo.PAGINA_PX[0] - 2 * anexo.MARGEN
-    height = round(1200 * width / 1600)
-    left = (anexo.PAGINA_PX[0] - width) // 2
-    cx = left + round(points[0]["x"] * width)
-    cy = anexo.FOTO_Y + round(points[0]["y"] * height)
-    assert max(rendered.getpixel((cx-15, cy))) < 90
-    assert max(rendered.getpixel((cx+60, cy))) > 150
+    # El JPEG ya no lleva las marcas: se superponen como vectores.
+    from pypdf.generic import ContentStream
+    operations = ContentStream(result.pages[0].get_contents(), result).operations
+    matrix = next(values for values, op in operations if op == b"cm")
+    width, _, _, height, left, bottom = map(float, matrix)
+    x = left + points[0]["x"]*width
+    y = bottom + (1-points[0]["y"])*height
+    assert any(op == b"m" and abs(float(values[0])-x-9)<.01 and abs(float(values[1])-y)<.01 for values, op in operations)
 
 
 
@@ -59,14 +59,13 @@ def test_texto_largo_entero_pasa_a_segunda_hoja(tmp_path):
     points = [dict(numero=1, x=.5, y=.5)]
     refs = [dict(numero=1, codigo="O", texto="[Ejemplo] " + "W" * 130)]
     pdf = abrir(anexo.generar_anexo(jpeg((600,1600)), points, refs), 2)
-    assert len(pdf.pages[0].images) == len(pdf.pages[1].images) == 1
+    assert len(pdf.pages[0].images) == 1 and len(pdf.pages[1].images) == 0
     # Conservar todas las letras al envolver, sin elipsis ni truncamiento.
     font = ImageFont.truetype(str(anexo.ruta_fuente()), 24)
     lines = anexo._lineas(refs[0]["texto"], font, anexo.ANCHO_TEXTO)
     assert "".join(lines) == refs[0]["texto"]
     assert all(font.getlength(line) <= anexo.ANCHO_TEXTO for line in lines)
-    for i, page in enumerate(pdf.pages, 1):
-        page.images[0].image.save(tmp_path / f"continuacion_{i}.png")
+    assert sum(page.extract_text().count("W") for page in pdf.pages) == 130
 
 
 @pytest.mark.parametrize("codigo", ["✓", "NA"])

@@ -1,5 +1,13 @@
 # Registro de cambios: readyproof
 
+## 2026-11-01 — C4b: anexo con texto vectorial y JPEG original
+
+- Jorge autorizó agregar reportlab para incrustar IBM Plex Sans y generar encabezado, referencias y pie como texto seleccionable. Se fijan reportlab==5.1.0 y su dependencia charset-normalizer==3.5.2; Pillow y pypdf conservan sus versiones.
+- El JPEG estandarizado se inserta como XObject DCTDecode con sus bytes originales, sin redimensionar ni recodificar la imagen. Las marcas numeradas se superponen como vectores en coordenadas normalizadas, con color configurable en COLOR_MARCAS.
+- El check visible es un trazo propio; se conserva el carácter U+2713 de la serie para búsqueda y copia. El pie se lee de la leyenda existente y del kit. La cabecera usa cliente, equipo, inspector y fecha guardados en la carga; datos ausentes se muestran con raya.
+- Pruebas nuevas C4b: 20 aprobadas en 0.71 s, sin fallos. Se verifican pdftotext, fuente TrueType incrustada, igualdad SHA-256 del JPEG, A4 y paginación. Primera corrida: 16 aprobadas y 4 fallidas por no detectar pdftotext; resuelto usando la copia instalada con Git, sin instalar utilidades adicionales.
+- Módulo de anexo independiente: no se cambia el generador de planillas, no se integra a emisión ni se modifican PDFs emitidos, correo, Contabilium o migraciones. Sin suite completa, commit, push, tags ni despliegue; revisión visual y elección final de color pendientes de Jorge.
+
 ## 2026-10-30 — A2-3: identificación técnica según modo
 
 - El prefijo exacto [Ejemplo] se elimina solo del nombre presentado del técnico en nuevos PDF REAL. PILOTO conserva el prefijo; identidad almacenada, historial y PDF anteriores intactos.
