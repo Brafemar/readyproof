@@ -11,7 +11,7 @@ Sistema: {{ sistema_codigo }} · {{ sistema_nombre }}
 Fecha de emisión: {{ fecha_emision }}
 Supervisor del mantenedor: {{ firmante_mantenedor }}
 Responsable de la instalación: {{ firmante_instalacion }}
-{% if cantidad_fotos %}Fotos del anexo: {{ cantidad_fotos }}
+{% if cantidad_fotos %}Fotos de campo: {{ cantidad_fotos }} (anexo incluido en el PDF)
 {% endif %}
 Estimado/a{% if contacto_nombre %} {{ contacto_nombre }}{% endif %}:
 

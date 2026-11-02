@@ -343,7 +343,9 @@ def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, confi
             for offset,line in enumerate(pie_lines):
                 _texto(canvas,font,MARGEN,PIE_Y+offset*10,line,8)
         canvas.setFont(font,8)
+        canvas._code.append("/RPPaginacion BMC")
         canvas.drawRightString(A4_PT[0]-MARGEN,A4_PT[1]-PIE_Y-8,f"Pág. {index+1} de {len(pages)}")
+        canvas._code.append("EMC")
         canvas.showPage()
     canvas.save()
     writer = PdfWriter()
@@ -364,9 +366,66 @@ def unir_pdf(planilla_pdf, anexo_pdf):
             reader = PdfReader(BytesIO(data))
             if reader.is_encrypted or not reader.pages:
                 raise ValueError(f"El PDF de {nombre} está protegido o vacío: usá un PDF legible.")
+            if nombre == 'planilla' and reader.metadata:
+                writer.add_metadata(reader.metadata)
             writer.append(reader)
         except (PdfReadError,OSError,TypeError) as error:
             raise ValueError(f"No se pudo abrir el PDF de {nombre}: revisá el documento antes de unirlo.") from error
+    _numerar_documento(writer)
+    output = BytesIO()
+    writer.write(output)
+    return output.getvalue()
+
+
+def _numerar_documento(writer):
+    """Sustituye solo la numeración marcada por la del documento completo."""
+    font = writer._add_object(DictionaryObject({NameObject('/Type'): NameObject('/Font'),
+        NameObject('/Subtype'): NameObject('/Type1'), NameObject('/BaseFont'): NameObject('/Helvetica'),
+        NameObject('/Encoding'): NameObject('/WinAnsiEncoding')}))
+    total = len(writer.pages)
+    writer.add_metadata({"/ReadyproofPaginas": str(total)})
+    for numero, page in enumerate(writer.pages, 1):
+        contents = page.get_contents()
+        if contents is not None:
+            clean, depth = [], 0
+            for operands, operator in contents.operations:
+                if depth:
+                    if operator in (b'BMC', b'BDC'):
+                        depth += 1
+                    elif operator == b'EMC':
+                        depth -= 1
+                elif operator == b'BMC' and operands == [NameObject('/RPPaginacion')]:
+                    depth = 1
+                else:
+                    clean.append((operands, operator))
+            contents.operations = clean
+            page.replace_contents(contents)
+        resources = DictionaryObject(dict(page.get('/Resources', DictionaryObject()).get_object()))
+        fonts = DictionaryObject(dict(resources.get('/Font', DictionaryObject()).get_object()))
+        fonts[NameObject('/RPPagina')] = font
+        resources[NameObject('/Font')] = fonts
+        page[NameObject('/Resources')] = resources
+        label = f'Pág. {numero} de {total}'
+        x = float(page.mediabox.right) - MARGEN - pdfmetrics.stringWidth(label, 'Helvetica', 8)
+        y = float(page.mediabox.bottom) + MARGEN + 2
+        stream = DecodedStreamObject()
+        stream.set_data((f'/RPPaginacion BMC q 0.333 g BT /RPPagina 8 Tf '
+                         f'1 0 0 1 {x:.6f} {y:.6f} Tm <{label.encode("cp1252").hex()}> Tj ET Q EMC\n').encode('ascii'))
+        current = page.get('/Contents')
+        resolved = current.get_object() if current is not None else None
+        array = ArrayObject(list(resolved) if isinstance(resolved, ArrayObject) else [current] if current is not None else [])
+        array.append(writer._add_object(stream))
+        page[NameObject('/Contents')] = array
+
+
+def numerar_pdf(payload):
+    """Numera una emisión nueva completa, conservando sus metadatos."""
+    reader = PdfReader(BytesIO(payload))
+    if reader.metadata and reader.metadata.get('/ReadyproofPaginas') == str(len(reader.pages)):
+        return payload
+    writer = PdfWriter()
+    writer.clone_document_from_reader(reader)
+    _numerar_documento(writer)
     output = BytesIO()
     writer.write(output)
     return output.getvalue()

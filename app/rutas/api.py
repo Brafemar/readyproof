@@ -398,7 +398,8 @@ def generar_pdf_carga(carga, datos):
             payload = incorporar_registro(payload, carga.numero_registro, carga.revision_publica)
         from ..planillas.registro_pdf import incorporar_modo
         payload = incorporar_modo(payload, 'PILOTO' if es_piloto() else 'REAL')
-        return payload
+        from ..fotos.anexo_pdf import numerar_pdf
+        return numerar_pdf(payload)
 
 
 @api.post("/cargas/<carga_id>/vista-previa")

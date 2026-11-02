@@ -11,6 +11,7 @@ from reportlab.pdfgen.canvas import Canvas
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.fotos.anexo_pdf import numerar_pdf
 from app.fotos.emision import incorporar_fotos_carga
 from app.fotos.items import items_punto2
 from app.models import Carga, Cliente, EmisionCarga, Planilla, Sistema
@@ -108,7 +109,7 @@ def test_sin_fotos_conserva_bytes_del_flujo_anterior(app, client, carga_emision,
     carga, datos, _ = carga_emision
     assert emitir(client, carga).status_code == 201
     pdf, numero, revision = pdf_guardado(app, carga)
-    anterior = incorporar_modo(incorporar_registro(conversion_fija, numero, revision), 'REAL')
+    anterior = numerar_pdf(incorporar_modo(incorporar_registro(conversion_fija, numero, revision), 'REAL'))
     assert pdf == anterior
     assert len(lector(pdf).pages) == 1
     with Session(app.extensions['db_engine']) as db:

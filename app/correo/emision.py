@@ -1,14 +1,16 @@
 """Presentación de correos a partir de la copia de la emisión."""
 from datetime import datetime
+from hashlib import sha256
 import re
 import unicodedata
 from zoneinfo import ZoneInfo
 
 from flask import current_app
 from jinja2 import StrictUndefined
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from ..models import EmisionCarga, FirmaCarga, Planilla
+from ..models.fotos import FotoCarga
 from ..modo import es_piloto
 
 
@@ -42,6 +44,8 @@ def renderizar_emision(contexto):
     data['numero_registro']=f'{number:04d}' if number is not None else 'Sin número'
     data.setdefault('contacto_nombre','')
     data.setdefault('cantidad_fotos',None)
+    if data['cantidad_fotos'] is not None and (isinstance(data['cantidad_fotos'],bool) or not isinstance(data['cantidad_fotos'],int) or data['cantidad_fotos']<0):
+        raise ValueError('La cantidad de fotos debe ser un entero mayor o igual a cero.')
     digest=data.pop('pdf_hash')
     if not re.fullmatch('[0-9a-f]{64}',digest):raise ValueError('La emisión requiere una huella SHA-256 válida.')
     data['pdf_sha256_corto']=digest[:16]
@@ -57,6 +61,9 @@ def renderizar_emision(contexto):
 
 
 def contenido_emision(session,carga):
+    digest=sha256(bytes(carga.pdf)).hexdigest()
+    if digest!=carga.pdf_sha256 or (carga.pdf_hash and digest!=carga.pdf_hash):
+        raise ValueError('La huella del PDF emitido no coincide.')
     planilla=session.get(Planilla,carga.planilla_id)
     archived=session.scalar(select(EmisionCarga).where(EmisionCarga.carga_id==carga.id,
         EmisionCarga.revision_publica==carga.revision_publica,EmisionCarga.pdf_sha256==carga.pdf_sha256))
@@ -76,4 +83,5 @@ def contenido_emision(session,carga):
         emitida_en=archived.emitida_en if archived else carga.emitida_en,
         firmante_mantenedor=technician,firmante_instalacion=responsible,
         certificado_n=header.get('numero_mantenedor') or current_app.config.get('CERTIFICADO_N',''),
-        pdf_hash=carga.pdf_hash or carga.pdf_sha256,cantidad_fotos=None))
+        pdf_hash=carga.pdf_sha256,
+        cantidad_fotos=session.scalar(select(func.count(FotoCarga.id)).where(FotoCarga.carga_id==carga.id))))

@@ -47,7 +47,7 @@ def test_render_formato_y_prefijo_por_modo(contexto_render,piloto):
         assert '{{' not in result[key] and '}}' not in result[key]
         assert 'abababababababab' in result[key]
         assert 'contacto@example.invalid' in result[key] and '0000-0000000' in result[key]
-        assert 'Fotos del anexo' not in result[key]
+        assert 'Fotos de campo' not in result[key]
         assert ('[Ejemplo]' in result[key]) == piloto
         assert 'firmada digitalmente' not in result[key]
     assert data==before
@@ -71,8 +71,8 @@ def test_sin_contactos_no_se_prepara_correo(contexto_render,key):
 def test_cantidad_fotos_solo_si_existe_anexo(contexto_render):
     data=datos_correo();data['cantidad_fotos']=3
     result=renderizar_emision(data)
-    assert 'Fotos del anexo: 3' in result['cuerpo']
-    assert 'Fotos del anexo' in result['html']
+    assert 'Fotos de campo: 3 (anexo incluido en el PDF)' in result['cuerpo']
+    assert 'Fotos de campo' in result['html']
 
 
 def test_real_requiere_numero_y_huella(contexto_render):

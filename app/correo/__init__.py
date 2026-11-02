@@ -98,17 +98,22 @@ def preparar_envio(session, carga, destinatario, usuario_id, asunto=None, cuerpo
 
 
 def crear_mensaje(envio,*,html=None,nombre_adjunto='readyproof-planilla.pdf'):
-    configured=os.getenv("MAIL_FROM") or os.getenv("SMTP_FROM") or os.getenv("SMTP_USER")
-    if not modo_prueba() and not configured:
-        raise ValueError("Configurar MAIL_FROM para SMTP.")
-    sender=direccion(configured or "readyproof@example.invalid")
+    configured=(os.getenv("MAIL_FROM") or os.getenv("SMTP_FROM")
+                or current_app.config.get("MAIL_FROM") or "readyproof.ar@gmail.com")
+    sender=direccion(configured)
     message=EmailMessage(policy=policy.SMTP)
     message["From"]=sender;message["To"]=direccion(envio.destinatario)
     message["Subject"]=envio.asunto
     message["Date"]=format_datetime(ahora())
     message["Message-ID"]=f"<{envio.id}@{sender.split('@')[1]}>"
     message.set_content(envio.cuerpo)
-    if html is not None:message.add_alternative(html,subtype='html')
+    if html is not None:
+        from .imagenes import imagenes_cabecera
+        message.add_alternative(html,subtype='html')
+        html_part=message.get_payload()[-1]
+        for image in imagenes_cabecera():
+            html_part.add_related(image['bytes'],maintype='image',subtype=image['subtipo'],
+                                  cid='<'+image['cid']+'>',disposition='inline',filename=image['nombre'])
     message.add_attachment(envio.pdf_copia,maintype="application",subtype="pdf",filename=nombre_adjunto)
     return message.as_bytes()
 
@@ -168,7 +173,14 @@ def send_email(session, envio, *, encolar=False, fecha=None, transporte=None):
         if current_app.config.get('DESTINATARIO_PRUEBA'):allowed.append(current_app.config['DESTINATARIO_PRUEBA'])
         if envio.destinatario not in allowed:raise ValueError('El piloto solo transmite a destinatarios de prueba configurados.')
     if not envio.mensaje_eml:
-        envio.mensaje_eml=crear_mensaje(envio);envio.eml_sha256=sha256(envio.mensaje_eml).hexdigest()
+        carga=session.get(Carga,envio.carga_id)
+        if bytes(carga.pdf or b'')!=bytes(envio.pdf_copia or b''):
+            raise ValueError('La copia pendiente corresponde a otra revisión; prepará el envío desde esa emisión.')
+        from .emision import contenido_emision
+        contenido=contenido_emision(session,carga)
+        envio.asunto=contenido['asunto'];envio.cuerpo=contenido['cuerpo']
+        envio.mensaje_eml=crear_mensaje(envio,html=contenido['html'],nombre_adjunto=contenido['nombre_adjunto'])
+        envio.eml_sha256=sha256(envio.mensaje_eml).hexdigest()
     if sha256(envio.mensaje_eml).hexdigest()!=envio.eml_sha256 or sha256(envio.pdf_copia).hexdigest()!=envio.pdf_sha256:
         raise ValueError("La copia inmutable del envío no coincide con su huella.")
     archivar(envio)

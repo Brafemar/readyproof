@@ -24,6 +24,7 @@ def configuracion():
         'MODO_PILOTO':piloto,
         'EMPRESA_MANTENEDORA':os.environ.get('EMPRESA_MANTENEDORA','[Ejemplo] readyproof').strip(),
         'CERTIFICADO_N':os.environ.get('CERTIFICADO_N','IFI-2024-00000').strip(),
+        'MAIL_FROM':(os.environ.get('MAIL_FROM') or os.environ.get('SMTP_FROM') or 'readyproof.ar@gmail.com').strip(),
         'CONTACTO_TELEFONO':os.environ.get('CONTACTO_TELEFONO','').strip(),
         'CONTACTO_CORREO':os.environ.get('CONTACTO_CORREO','').strip(),
         'DESTINATARIO_PRUEBA':os.environ.get('DESTINATARIO_PRUEBA','').strip(),
