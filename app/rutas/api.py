@@ -391,6 +391,8 @@ def generar_pdf_carga(carga, datos):
         if not es_piloto():identidad['empresa_mantenedora']=current_app.config['EMPRESA_MANTENEDORA']
         result = convertir_pdf(source, Path(directory) / "planilla.pdf", firmas=firmas_guardadas(carga), firmantes=identidad)
         payload = result.read_bytes()
+        from ..fotos.emision import incorporar_fotos_carga
+        payload = incorporar_fotos_carga(payload, carga, datos, sesion())
         if carga.numero_registro is not None:
             from ..planillas.registro_pdf import incorporar_registro
             payload = incorporar_registro(payload, carga.numero_registro, carga.revision_publica)

@@ -284,6 +284,11 @@
     if(!response.ok){if(response.status===401)window.readyproofExpired();throw new Error(data.error||"No se pudo subir la foto. Conservamos la copia en este dispositivo.");}
     return data;
   }
+  function controlesFotos(motivo) {
+    for(const id of ["agregar-foto","elegir-fototeca","foto-archivo","foto-fototeca"])$(id).disabled=Boolean(motivo);
+    $("fotos-bloqueo").textContent=motivo;
+    $("fotos-bloqueo").hidden=!motivo;
+  }
   async function paint() {
     if(!account||locked)return;
     const selected=contexto,items=await storage("readonly","getAll");
@@ -293,8 +298,11 @@
     const marcasLocales=await almacen("anotaciones","readonly","getAll");
     if(locked||selected!==contexto)return;
     const count=pending.length+(converting===selected?.localId?1:0)+marcasLocales.filter(row=>row.localId===selected?.localId&&(row.pendienteServidor||row.borradorMarcas!=null)).length;
-    $("agregar-foto").disabled=!selected||selected.readOnly||Boolean(converting)||saved.length+pending.length>=20;
-    $("foto-archivo").disabled=$("agregar-foto").disabled;
+    const motivo=!selected?"Seleccioná una planilla y abrí o creá un borrador para agregar fotos.":
+      selected.readOnly?"La planilla está en solo lectura. Volvé a un borrador editable para agregar fotos.":
+      converting?"Esperá a que termine de prepararse la foto actual.":
+      saved.length+pending.length>=20?"La planilla ya tiene 20 fotos, incluidas las pendientes. No se pueden agregar más.":"";
+    controlesFotos(motivo);
     $("fotos-lista").replaceChildren();
     for(const [rows,pendingPhoto] of [[saved,false],[pending,true]])for(const row of rows){
       const li=document.createElement("li"),label=document.createElement("span"),button=document.createElement("button");
@@ -348,11 +356,12 @@
   window.addEventListener("online",()=>{remoteKey=null;refresh().catch(error=>status(error.message));});
   window.addEventListener("readyproof-lock",()=>{
     if(locked)return;
-    cerrarEditor();locked=true;contexto=null;$("agregar-foto").disabled=true;$("foto-archivo").value="";$("fotos-lista").replaceChildren();$("fotos-estado").textContent="";
+    cerrarEditor();locked=true;contexto=null;controlesFotos("La sesión está cerrada. Volvé a ingresar para agregar fotos.");$("foto-archivo").value="";$("foto-fototeca").value="";$("fotos-lista").replaceChildren();$("fotos-estado").textContent="";
     database?.then(db=>db.close());
   });
   $("agregar-foto").onclick=()=>$("foto-archivo").click();
-  $("foto-archivo").onchange=async event=>{
+  $("elegir-fototeca").onclick=()=>$("foto-fototeca").click();
+  async function agregarArchivo(event) {
     const file=event.target.files[0],selected=contexto;
     if(!file||!selected||selected.readOnly||locked)return;
     converting=selected.localId;
@@ -366,7 +375,9 @@
       status("Foto guardada en este dispositivo. Se subirá al conectar y sincronizar el borrador.");
     } catch(error){status(error.message||"No se pudo guardar la foto. Volvé a intentar y no cierres esta pantalla.");}
     finally{converting=null;event.target.value="";await paint();await flush();}
-  };
+  }
+  $("foto-archivo").onchange=agregarArchivo;
+  $("foto-fototeca").onchange=agregarArchivo;
   (async()=>{
     try{
       account=await window.readyproofSession;

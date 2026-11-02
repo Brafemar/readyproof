@@ -254,12 +254,13 @@ def _insertar_jpeg(writer, jpeg, size, mode, box):
     page[NameObject("/Contents")] = ArrayObject([writer._add_object(stream), *contents])
 
 
-def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, configuracion_planilla=None):
+def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, configuracion_planilla=None, permitir_sin_marcas=False):
     """Texto vectorial y fuente incrustada; la foto conserva todos sus bytes JPEG."""
     size, mode = _foto(jpeg)
     font = _registrar_fuente(str(ruta_fuente(fuente)))
-    rows = _observaciones(observaciones, font, ANCHO_TEXTO)
-    points = _marcas(marcas, rows)
+    sin_marcas = permitir_sin_marcas and marcas == [] and observaciones == []
+    rows = [] if sin_marcas else _observaciones(observaciones, font, ANCHO_TEXTO)
+    points = {} if sin_marcas else _marcas(marcas, rows)
     campos = datos_cabecera(carga)
     pie, _ = origen_pie(configuracion_planilla)
     # Medir la cabecera con las mismas métricas usadas en el dibujo.
@@ -333,7 +334,7 @@ def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, confi
                         _texto(canvas,font,MARGEN+75,top,line)
                 y += row["alto"]
         else:
-            _texto(canvas,font,MARGEN,y,"Referencias en la página siguiente.",10)
+            _texto(canvas,font,MARGEN,y,"Sin marcas registradas." if sin_marcas else "Referencias en la página siguiente.",10)
         canvas.setFillColor(HexColor("#555555"))
         if pie:
             pie_lines = _lineas(pie, _Metrica(font,8), A4_PT[0]-2*MARGEN-65)
