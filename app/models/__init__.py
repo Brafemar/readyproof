@@ -29,6 +29,9 @@ class Cliente(Base):
     nombre: Mapped[str] = mapped_column(String(200))
     es_ejemplo: Mapped[bool] = mapped_column(Boolean, default=True)
     cuit: Mapped[str | None] = mapped_column(String(11), nullable=True)
+    contacto: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    contabilium_id: Mapped[str | None] = mapped_column(String(40), nullable=True, unique=True)
+    sincronizado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     @validates('cuit')
     def validar_cuit_asignado(self, key, value):
