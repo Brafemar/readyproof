@@ -23,6 +23,17 @@
   let catalog = null, draft = null, schema = null, syncPromise = null, timer = null;
   let operation = false, previewVersion = -1, previewUrl = null, serviceAvailable = navigator.onLine;
   const controls = [], drawVersion = {tecnico:0,responsable:0};
+  const firmasActivas = new Set();
+  window.readyproofActualizacionCarga = async () => {
+    if (operation || syncPromise || firmasActivas.size) return "Esperá a que termine la operación o la firma antes de actualizar.";
+    if (!draft) return "";
+    if (draft.pending || draft.conflicto) return "Guardá y sincronizá el borrador; resolvé cualquier conflicto antes de actualizar.";
+    const selected = draft;
+    const saved = await storage("borradores", "readonly", "get", selected.localId);
+    if (draft !== selected || operation || syncPromise || firmasActivas.size || draft.pending || draft.conflicto || !saved || saved.editVersion !== draft.editVersion || saved.pending !== draft.pending)
+      return "Todavía hay cambios por guardar. Esperá a que se sincronicen antes de actualizar.";
+    return "";
+  };
   const database = new Promise((resolve, reject) => {
     const request = indexedDB.open(databaseName, 1);
     request.onupgradeneeded = () => {
@@ -321,9 +332,9 @@
   for(const role of roles){
     const canvas=$("firma-"+role),ctx=canvas.getContext("2d");let active=null,last=null,moved=false;
     function point(event){const rect=canvas.getBoundingClientRect();return [(event.clientX-rect.left)*canvas.width/rect.width,(event.clientY-rect.top)*canvas.height/rect.height];}
-    canvas.addEventListener("pointerdown",event=>{if(isReadOnly()||!draft)return;event.preventDefault();active=event.pointerId;last=point(event);moved=false;drawVersion[role]++;canvas.setPointerCapture(active);});
+    canvas.addEventListener("pointerdown",event=>{if(isReadOnly()||!draft)return;event.preventDefault();active=event.pointerId;firmasActivas.add(role);last=point(event);moved=false;drawVersion[role]++;canvas.setPointerCapture(active);});
     canvas.addEventListener("pointermove",event=>{if(active!==event.pointerId)return;event.preventDefault();const next=point(event);ctx.strokeStyle="#172a2f";ctx.lineWidth=4;ctx.lineCap="round";ctx.lineJoin="round";ctx.beginPath();ctx.moveTo(...last);ctx.lineTo(...next);ctx.stroke();last=next;moved=true;});
-    const finish=event=>{if(active!==event.pointerId)return;active=null;if(moved){draft.firmas[role]=canvas.toDataURL("image/png");changed();}};
+    const finish=event=>{if(active!==event.pointerId)return;active=null;firmasActivas.delete(role);if(moved){draft.firmas[role]=canvas.toDataURL("image/png");changed();}};
     canvas.addEventListener("pointerup",finish);canvas.addEventListener("pointercancel",finish);
   }
   document.querySelectorAll("[data-clear]").forEach(button=>button.onclick=()=>{const role=button.dataset.clear;drawVersion[role]++;const canvas=$("firma-"+role);canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);draft.firmas[role]=null;changed();});

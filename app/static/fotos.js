@@ -34,6 +34,18 @@
   const RESULTADOS=["✓","O","X","NA"];
   const SIGNIFICADO_RESULTADOS={"✓":"cumple","O":"no cumple","X":"no apreciable","NA":"no aplicable"};
   let editor=null, editorURL=null, editorToken=0, escritura=Promise.resolve(), sincronizandoMarcas=false, repetirSincronizacion=false;
+  window.readyproofActualizacionFotos = async () => {
+    if (!account || !database || locked) return "Esperá a que se abra la sesión y el almacenamiento de fotos.";
+    if (converting || working || sincronizandoMarcas) return "Esperá a que termine la preparación o la sincronización de las fotos.";
+    if (editor) return "Guardá las marcas y cerrá la foto antes de actualizar.";
+    const pendingWrite = escritura;
+    await pendingWrite;
+    const photos = await storage("readonly", "getAll");
+    const marks = await almacen("anotaciones", "readonly", "getAll");
+    if (converting || working || sincronizandoMarcas || editor || pendingWrite !== escritura || photos.length || marks.some(row => row.pendienteServidor || row.borradorMarcas != null || row.conflicto))
+      return "Hay fotos o marcas pendientes. Guardalas y sincronizalas antes de actualizar.";
+    return "";
+  };
 
   function numerarMarcas(marcas) { return marcas.map((marca,i)=>({...marca,numero:i+1})); }
   function validarMarca(marca) {
