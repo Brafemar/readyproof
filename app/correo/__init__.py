@@ -103,6 +103,7 @@ def crear_mensaje(envio,*,html=None,nombre_adjunto='readyproof-planilla.pdf'):
     sender=direccion(configured)
     message=EmailMessage(policy=policy.SMTP)
     message["From"]=sender;message["To"]=direccion(envio.destinatario)
+    message["Reply-To"]=direccion(current_app.config.get("CONTACTO_CORREO") or "informes@readyproof.ar")
     message["Subject"]=envio.asunto
     message["Date"]=format_datetime(ahora())
     message["Message-ID"]=f"<{envio.id}@{sender.split('@')[1]}>"
