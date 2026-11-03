@@ -175,15 +175,75 @@ def restablecer_clave(usuario_id):
     return jsonify(mensaje="Contraseña reemplazada; sesiones del usuario cerradas.")
 
 
+def cliente_json(cliente):
+    return dict(id=cliente.id, nombre=cliente.nombre, es_ejemplo=cliente.es_ejemplo,
+                cuit=cliente.cuit, contacto=cliente.contacto or {})
+
+
+def guardar_datos_cliente(cliente, data):
+    nombre = ejemplo_texto(data['nombre'], 200)
+    cuit = cliente.cuit
+    if 'cuit' in data:
+        from ..utils.cuit_validator import normalizar_cuit, validar_cuit
+        value = data['cuit']
+        if value is None or isinstance(value, str) and not value.strip():
+            cuit = None
+        else:
+            if not validar_cuit(value):
+                raise DatosInvalidos('Ingresá un CUIT válido de once dígitos, con o sin guiones.')
+            cuit = normalizar_cuit(value)
+        if cuit and sesion().scalar(select(Cliente.id).where(Cliente.cuit == cuit, Cliente.id != cliente.id)):
+            abort(409, description='El CUIT ya está registrado en otro cliente; revisá el dato.')
+    contacto = dict(cliente.contacto or {})
+    if 'contacto' in data:
+        incoming = data['contacto']
+        limits = {'direccion': 500, 'telefono': 120, 'email': 254}
+        if not isinstance(incoming, dict) or set(incoming) - set(limits):
+            raise DatosInvalidos('El contacto admite dirección, teléfono y correo; revisá los campos enviados.')
+        for key, value in incoming.items():
+            if not isinstance(value, str) or len(value.strip()) > limits[key]:
+                raise DatosInvalidos(f'El campo {key} debe ser texto de hasta {limits[key]} caracteres.')
+            value = value.strip()
+            if key == 'email' and value:
+                from ..correo import direccion
+                try: direccion(value)
+                except ValueError: raise DatosInvalidos('Ingresá un correo de contacto válido.') from None
+            contacto[key] = value
+    cliente.nombre, cliente.cuit, cliente.contacto = nombre, cuit, contacto
+
+
+@auth.get('/api/admin/clientes')
+def listar_clientes_admin():
+    exigir_admin()
+    query = select(Cliente).order_by(Cliente.nombre)
+    if es_piloto(): query = query.where(Cliente.es_ejemplo.is_(True))
+    return jsonify([cliente_json(c) for c in sesion().scalars(query)])
+
+
+@auth.get('/api/admin/clientes/<cliente_id>')
+def consultar_cliente_admin(cliente_id):
+    exigir_admin(); cliente = obtener(Cliente, cliente_id)
+    if es_piloto() and not cliente.es_ejemplo: abort(403)
+    return jsonify(cliente_json(cliente))
+
+
+@auth.put('/api/admin/clientes/<cliente_id>')
+def editar_cliente(cliente_id):
+    exigir_admin(); cliente = obtener(Cliente, cliente_id)
+    if es_piloto() and not cliente.es_ejemplo: abort(403)
+    data = objeto({'nombre'}, {'cuit', 'contacto'})
+    guardar_datos_cliente(cliente, data)
+    sesion().flush(); g.evento_auth = 'cliente_editado'; g.acceso_cliente_id = cliente.id
+    return jsonify(cliente_json(cliente))
+
+
 @auth.post("/api/admin/clientes")
 def crear_cliente():
-    exigir_admin();data=objeto({"nombre"},{'cuit'})
-    client=Cliente(nombre=ejemplo_texto(data["nombre"],200),es_ejemplo=es_piloto())
-    if 'cuit' in data:
-        try:client.cuit=data['cuit']
-        except ValueError as error:raise DatosInvalidos(str(error)) from None
-    sesion().add(client);sesion().flush();g.evento_auth="cliente_creado"
-    return jsonify(id=client.id,nombre=client.nombre,es_ejemplo=client.es_ejemplo,cuit=client.cuit),201
+    exigir_admin(); data = objeto({'nombre'}, {'cuit', 'contacto'})
+    cliente = Cliente(es_ejemplo=es_piloto())
+    guardar_datos_cliente(cliente, data)
+    sesion().add(cliente); sesion().flush(); g.evento_auth = 'cliente_creado'
+    return jsonify(cliente_json(cliente)), 201
 
 
 @auth.post("/api/admin/clientes/<cliente_id>/sistemas")

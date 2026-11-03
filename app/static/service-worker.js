@@ -1,4 +1,4 @@
-const CACHE = 'readyproof-ui-v22-fotos-camara-fototeca';
+const CACHE = 'readyproof-ui-v23-edicion-clientes';
 const STATIC = [
   '/static/fotos.js','/static/fotos.css','/static/carga.css','/static/carga.js','/static/auth.js','/static/cuenta.css',
   '/static/admin.js','/static/cuenta.js','/static/pwa.css','/static/pwa.js','/static/buscar.js',
