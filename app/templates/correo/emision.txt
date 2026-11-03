@@ -27,4 +27,4 @@ READYPROOF
 Certificado {{ certificado_n }}
 {{ contacto_telefono }} · {{ contacto_correo }}
 
-Este mensaje fue generado automáticamente por READYPROOF. Por favor, no responda a esta dirección.
+Este mensaje fue generado automáticamente por READYPROOF.
