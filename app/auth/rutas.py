@@ -242,6 +242,7 @@ def crear_cliente():
     exigir_admin(); data = objeto({'nombre'}, {'cuit', 'contacto'})
     cliente = Cliente(es_ejemplo=es_piloto())
     guardar_datos_cliente(cliente, data)
+    cliente.contacto = {key: value for key, value in cliente.contacto.items() if value.strip()}
     sesion().add(cliente); sesion().flush(); g.evento_auth = 'cliente_creado'
     return jsonify(cliente_json(cliente)), 201
 

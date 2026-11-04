@@ -23,6 +23,29 @@
   function editClient(cliente){editingClient=cliente.id;$("cliente-nombre").value=cliente.nombre;$("cliente-cuit").value=cliente.cuit||"";for(const key of ["direccion","telefono","email"])$("cliente-"+key).value=cliente.contacto?.[key]||"";$("cliente-editor-title").textContent="Editar cliente";$("cliente-form").scrollIntoView({behavior:"smooth"});}
   $("cliente-nuevo").onclick=resetClient;
   $("cliente-form").onsubmit=async event=>{event.preventDefault();try{const wasEditing=!!editingClient,body={nombre:$("cliente-nombre").value,cuit:$("cliente-cuit").value.trim()||null,contacto:{direccion:$("cliente-direccion").value,telefono:$("cliente-telefono").value,email:$("cliente-email").value}};await api(editingClient?"/api/admin/clientes/"+editingClient:"/api/admin/clientes",{method:editingClient?"PUT":"POST",body:JSON.stringify(body)});resetClient();await refresh();message(wasEditing?"Cliente guardado.":$("cliente-form").dataset.piloto==="true"?"Cliente de ejemplo creado.":"Cliente creado.");}catch(error){message(error.message);}};
+  if($("consultar-arca"))$("consultar-arca").onclick=async()=>{
+    const button=$("consultar-arca");button.disabled=true;
+    try{
+      const data=await api("/api/admin/contabilium/arca?cuit="+encodeURIComponent($("cliente-cuit").value.trim()));
+      $("cliente-nombre").value=data.nombre;$("cliente-cuit").value=data.cuit;
+      for(const key of ["direccion","telefono","email"])if(data.contacto?.[key])$("cliente-"+key).value=data.contacto[key];
+      message("Datos recibidos del padrón a través de Contabilium. Revisalos y tocá Guardar cliente para guardarlos.");
+    }catch(error){message(error.message);}finally{button.disabled=false;}
+  };
+  if($("contabilium-form"))$("contabilium-form").onsubmit=async event=>{
+    event.preventDefault();const button=event.submitter;button.disabled=true;
+    try{
+      const data=await api("/api/admin/contabilium/clientes?buscar="+encodeURIComponent($("contabilium-buscar").value.trim()));
+      const results=$("contabilium-resultados");results.replaceChildren();
+      if(!data.clientes.length)results.textContent="No se encontraron clientes. Probá con otro nombre o CUIT.";
+      for(const cliente of data.clientes){
+        const row=document.createElement("p"),label=document.createElement("span"),sync=document.createElement("button");
+        label.textContent=cliente.nombre+" · "+(cliente.cuit||"Sin CUIT")+" ";sync.type="button";sync.className="button secondary small";sync.textContent="Traer / actualizar cliente";
+        sync.onclick=async()=>{sync.disabled=true;try{await api("/api/admin/contabilium/sincronizar",{method:"POST",body:JSON.stringify({contabilium_id:cliente.contabilium_id})});await refresh();message("Cliente sincronizado. Seleccionalo al crear una planilla nueva; los borradores anteriores conservan sus datos.");}catch(error){message(error.message);}finally{sync.disabled=false;}};
+        row.append(label,sync);results.append(row);
+      }
+    }catch(error){message(error.message);}finally{button.disabled=false;}
+  };
   $("sistema-form").onsubmit=async event=>{event.preventDefault();try{await api("/api/admin/clientes/"+$("sistema-cliente").value+"/sistemas",{method:"POST",body:JSON.stringify({tipo:$("sistema-tipo").value,designacion:$("sistema-nombre").value})});$("sistema-nombre").value="";message("Sistema de ejemplo creado.");}catch(error){message(error.message);}};
   reset();refresh().catch(error=>message(error.message));
 })();
