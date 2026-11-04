@@ -22,6 +22,8 @@ def configuracion():
     piloto=raw_mode=='true'
     return {
         'MODO_PILOTO':piloto,
+        'CONTABILIUM_CLIENT_ID':os.environ.get('CONTABILIUM_CLIENT_ID','').strip(),
+        'CONTABILIUM_CLIENT_SECRET':os.environ.get('CONTABILIUM_CLIENT_SECRET','').strip(),
         'EMPRESA_MANTENEDORA':os.environ.get('EMPRESA_MANTENEDORA','[Ejemplo] readyproof').strip(),
         'CERTIFICADO_N':os.environ.get('CERTIFICADO_N','IFI-2024-00000').strip(),
         'MAIL_FROM':(os.environ.get('MAIL_FROM') or os.environ.get('SMTP_FROM') or 'readyproof.ar@gmail.com').strip(),

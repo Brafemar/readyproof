@@ -51,6 +51,8 @@ def create_app(test_config=None):
     app.register_blueprint(auth)
     from .documentacion import documentacion
     app.register_blueprint(documentacion)
+    from .contabilium import contabilium
+    app.register_blueprint(contabilium)
     @app.before_request
     def acceso_local():
         if request.remote_addr not in {"127.0.0.1", "::1"}:

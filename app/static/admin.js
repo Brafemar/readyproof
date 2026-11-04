@@ -24,13 +24,15 @@
   $("cliente-nuevo").onclick=resetClient;
   $("cliente-form").onsubmit=async event=>{event.preventDefault();try{const wasEditing=!!editingClient,body={nombre:$("cliente-nombre").value,cuit:$("cliente-cuit").value.trim()||null,contacto:{direccion:$("cliente-direccion").value,telefono:$("cliente-telefono").value,email:$("cliente-email").value}};await api(editingClient?"/api/admin/clientes/"+editingClient:"/api/admin/clientes",{method:editingClient?"PUT":"POST",body:JSON.stringify(body)});resetClient();await refresh();message(wasEditing?"Cliente guardado.":$("cliente-form").dataset.piloto==="true"?"Cliente de ejemplo creado.":"Cliente creado.");}catch(error){message(error.message);}};
   if($("consultar-arca"))$("consultar-arca").onclick=async()=>{
-    const button=$("consultar-arca");button.disabled=true;
+    const button=$("consultar-arca"),estado=$("arca-estado");button.disabled=true;
+    const informar=text=>{estado.textContent=text;message(text);};
+    estado.textContent="Consultando ARCA mediante Contabilium…";
     try{
       const data=await api("/api/admin/contabilium/arca?cuit="+encodeURIComponent($("cliente-cuit").value.trim()));
       $("cliente-nombre").value=data.nombre;$("cliente-cuit").value=data.cuit;
       for(const key of ["direccion","telefono","email"])if(data.contacto?.[key])$("cliente-"+key).value=data.contacto[key];
-      message("Datos recibidos del padrón a través de Contabilium. Revisalos y tocá Guardar cliente para guardarlos.");
-    }catch(error){message(error.message);}finally{button.disabled=false;}
+      informar("Datos recibidos del padrón a través de Contabilium. Revisalos y tocá Guardar cliente para guardarlos.");
+    }catch(error){informar(error.message);}finally{button.disabled=false;}
   };
   if($("contabilium-form"))$("contabilium-form").onsubmit=async event=>{
     event.preventDefault();const button=event.submitter;button.disabled=true;
