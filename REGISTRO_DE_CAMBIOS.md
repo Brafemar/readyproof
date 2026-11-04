@@ -1466,3 +1466,8 @@ Validación pendiente: la revisión automática de comandos no pudo completarse 
 Jorge autoriza retomar sin la aserción navigator.onLine. Chrome verificó manifest, cuatro iconos, un worker activado y cero errores de instalabilidad. Con Flask apagado, la pantalla y carga.js se recuperaron de caché y la API quedó inaccesible. Tests PWA 3/3 y regresión del worker aprobados; compilación código 0. Suite aislada Linux 499 aprobados. Windows: 46 aprobados y un error DiskFull de PostgreSQL; Jorge confirma la etapa local completada y pide verificar los tres tests en el servidor.
 
 La verificación remota será por túnel privado, sin cambiar el HTTPS público. Puerto real del servicio: 8000, destino del reenvío local 8443. Se conserva la fuente, las credenciales, el modo REAL y los registros existentes. El resultado efectivo y la publicación del tag se documentan en REPORTE_PWA_FINAL.json, sin anticipar éxito antes de las comprobaciones.
+
+
+## 2026-11-04 — Alta a demanda por CUIT (copia de prueba)
+
+Búsqueda exacta en Contabilium mediante el filtro documentado en la colección local. Acción manual en el alta: completa solo campos vacíos, conserva valores ingresados y descarta respuestas de consultas anteriores. Si no hay resultado, se ofrece la consulta ARCA manual para razón social y domicilio fiscal. No guarda automáticamente, no incorpora migraciones ni dependencias. Pruebas con datos ficticios y transporte bloqueado, incluida conservación de campos y ausencia de mutaciones desde el navegador. Contrato y funcionamiento en docs/BUSQUEDA_CUIT_CONTABILIUM.md. Sin despliegue ni llamadas reales.

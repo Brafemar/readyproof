@@ -89,6 +89,28 @@ class APIContabilium:
     def cliente(self, identificador):
         return normalizar_cliente(self.consultar('/api/clientes/?' + urlencode({'id': identificador})), externo=True)
 
+    def buscar_por_cuit(self, cuit):
+        if not validar_cuit(cuit):
+            raise ErrorContabilium('Ingresá un CUIT válido de once dígitos.', 400)
+        cuit = normalizar_cuit(cuit)
+        result = self.consultar('/api/clientes/search?' + urlencode({'pageSize': 50, 'filtro': cuit}))
+        if not isinstance(result, dict) or not isinstance(result.get('Items'), list):
+            raise ErrorContabilium('Contabilium devolvió un listado con formato no reconocido.')
+        coincidencias = []
+        for row in result['Items']:
+            if not isinstance(row, dict):
+                raise ErrorContabilium('Contabilium devolvió un listado con formato no reconocido.')
+            if str(row.get('TipoDoc', '')).strip().upper() == 'CUIT' and validar_cuit(row.get('NroDoc')):
+                if normalizar_cuit(row['NroDoc']) == cuit:
+                    coincidencias.append(row)
+        if len(coincidencias) > 1:
+            raise ErrorContabilium('Hay más de un cliente con ese CUIT en Contabilium. Revisá el duplicado en origen.', 409)
+        # El filtro admite coincidencias parciales; un lote truncado no prueba ausencia ni unicidad.
+        total = result.get('TotalItems', len(result['Items']))
+        if isinstance(total, bool) or not str(total).isdigit() or int(total) > len(result['Items']):
+            raise ErrorContabilium('La búsqueda devolvió resultados incompletos. No se completaron datos.')
+        return normalizar_cliente(coincidencias[0], externo=True) if coincidencias else None
+
     def arca(self, cuit):
         result = self.consultar('/api/clientes/datosAfip?' + urlencode({'documento': cuit}))
         # La documentación no publica un ejemplo de respuesta del padrón.
@@ -149,6 +171,16 @@ def buscar():
     if not 3 <= len(filtro) <= 200:
         abort(400, description='Ingresá al menos tres caracteres del nombre o CUIT.')
     return jsonify(clientes=api.buscar(filtro))
+
+
+@contabilium.get('/cliente-por-cuit')
+def buscar_por_cuit():
+    api = servicio()
+    cuit = request.args.get('cuit', '').strip()
+    if not validar_cuit(cuit):
+        abort(400, description='Ingresá un CUIT válido de once dígitos.')
+    cliente = api.buscar_por_cuit(normalizar_cuit(cuit))
+    return jsonify(encontrado=cliente is not None, cliente=cliente)
 
 
 @contabilium.get('/arca')

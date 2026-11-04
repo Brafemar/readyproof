@@ -19,20 +19,40 @@
   $("usuario-form").onsubmit=async event=>{event.preventDefault();try{const cliente_ids=[...$("cliente-checks").querySelectorAll("input:checked")].map(i=>i.value);const body={rol:$("usuario-rol").value,cliente_ids};if(editing){body.activo=$("usuario-activo").checked;await api("/api/admin/usuarios/"+editing,{method:"PUT",body:JSON.stringify(body)});}else{Object.assign(body,{login:$("usuario-login").value,nombre:$("usuario-nombre").value,clave:$("usuario-clave").value});await api("/api/admin/usuarios",{method:"POST",body:JSON.stringify(body)});}reset();await refresh();message("Cuenta guardada. Las sesiones de una cuenta modificada deben volver a ingresar.");}catch(error){message(error.message);}};
   $("nuevo-usuario").onclick=reset;
   $("restablecer-clave").onclick=async()=>{try{await api("/api/admin/usuarios/"+editing+"/clave",{method:"POST",body:JSON.stringify({nueva:$("usuario-clave").value})});$("usuario-clave").value="";message("Contraseña reemplazada y sesiones cerradas.");}catch(error){message(error.message);}};
-  function resetClient(){editingClient=null;$("cliente-form").reset();$("cliente-editor-title").textContent="Agregar cliente";}
-  function editClient(cliente){editingClient=cliente.id;$("cliente-nombre").value=cliente.nombre;$("cliente-cuit").value=cliente.cuit||"";for(const key of ["direccion","telefono","email"])$("cliente-"+key).value=cliente.contacto?.[key]||"";$("cliente-editor-title").textContent="Editar cliente";$("cliente-form").scrollIntoView({behavior:"smooth"});}
+  let consultaCliente=0;
+  const cuitActual=()=>$("cliente-cuit").value.trim().replaceAll("-","");
+  function cuitValido(){const raw=$("cliente-cuit").value.trim(),cuit=cuitActual();if(!/^(?:[0-9]{11}|[0-9]{2}-[0-9]{8}-[0-9])$/.test(raw))return false;const pesos=[5,4,3,2,7,6,5,4,3,2];let digito=11-pesos.reduce((s,p,i)=>s+p*Number(cuit[i]),0)%11;if(digito===11)digito=0;return digito<10&&digito===Number(cuit[10]);}
+  function completarVacios(data,campos){for(const key of campos){const input=$("cliente-"+key),value=key==="nombre"?data.nombre:data.contacto?.[key];if(!input.value.trim()&&value)input.value=value;}}
+  function resetClient(){consultaCliente++;editingClient=null;$("cliente-form").reset();$("cliente-editor-title").textContent="Agregar cliente";if($("buscar-cliente-cuit"))$("buscar-cliente-cuit").hidden=false;if($("contabilium-cuit-estado"))$("contabilium-cuit-estado").textContent="";}
+  function editClient(cliente){consultaCliente++;editingClient=cliente.id;if($("buscar-cliente-cuit"))$("buscar-cliente-cuit").hidden=true;$("cliente-nombre").value=cliente.nombre;$("cliente-cuit").value=cliente.cuit||"";for(const key of ["direccion","telefono","email"])$("cliente-"+key).value=cliente.contacto?.[key]||"";$("cliente-editor-title").textContent="Editar cliente";$("cliente-form").scrollIntoView({behavior:"smooth"});}
+  $("cliente-cuit").addEventListener("input",()=>{consultaCliente++;if($("contabilium-cuit-estado"))$("contabilium-cuit-estado").textContent="";});
   $("cliente-nuevo").onclick=resetClient;
   $("cliente-form").onsubmit=async event=>{event.preventDefault();try{const wasEditing=!!editingClient,body={nombre:$("cliente-nombre").value,cuit:$("cliente-cuit").value.trim()||null,contacto:{direccion:$("cliente-direccion").value,telefono:$("cliente-telefono").value,email:$("cliente-email").value}};await api(editingClient?"/api/admin/clientes/"+editingClient:"/api/admin/clientes",{method:editingClient?"PUT":"POST",body:JSON.stringify(body)});resetClient();await refresh();message(wasEditing?"Cliente guardado.":$("cliente-form").dataset.piloto==="true"?"Cliente de ejemplo creado.":"Cliente creado.");}catch(error){message(error.message);}};
+  if($("buscar-cliente-cuit"))$("buscar-cliente-cuit").onclick=async()=>{
+    const button=$("buscar-cliente-cuit"),estado=$("contabilium-cuit-estado");
+    if(editingClient)return;
+    if(!cuitValido()){estado.textContent="Ingresá un CUIT válido de once dígitos.";return;}
+    const cuit=cuitActual(),consulta=++consultaCliente;button.disabled=true;estado.textContent="Buscando en Contabilium…";
+    try{
+      const data=await api("/api/admin/contabilium/cliente-por-cuit?cuit="+encodeURIComponent(cuit));
+      if(consulta!==consultaCliente||cuitActual()!==cuit||editingClient)return;
+      if(!data.encontrado){estado.textContent="No se encontró ese CUIT en Contabilium. Podés usar Consultar ARCA y completar el resto a mano.";return;}
+      if(data.cliente?.cuit!==cuit)throw new Error("La respuesta no corresponde al CUIT consultado.");
+      completarVacios(data.cliente,["nombre","direccion","telefono","email"]);
+      estado.textContent="Se completaron los campos vacíos desde Contabilium. Revisalos y tocá Guardar cliente cuando decidas guardarlo.";
+    }catch(error){if(consulta===consultaCliente)estado.textContent=error.message;}finally{button.disabled=false;}
+  };
   if($("consultar-arca"))$("consultar-arca").onclick=async()=>{
     const button=$("consultar-arca"),estado=$("arca-estado");button.disabled=true;
     const informar=text=>{estado.textContent=text;message(text);};
+    const cuit=cuitActual(),consulta=++consultaCliente,clienteEditado=editingClient;
     estado.textContent="Consultando ARCA mediante Contabilium…";
     try{
       const data=await api("/api/admin/contabilium/arca?cuit="+encodeURIComponent($("cliente-cuit").value.trim()));
-      $("cliente-nombre").value=data.nombre;$("cliente-cuit").value=data.cuit;
-      for(const key of ["direccion","telefono","email"])if(data.contacto?.[key])$("cliente-"+key).value=data.contacto[key];
+      if(consulta!==consultaCliente||cuitActual()!==cuit||editingClient!==clienteEditado)return;
+      completarVacios(data,["nombre","direccion"]);
       informar("Datos recibidos del padrón a través de Contabilium. Revisalos y tocá Guardar cliente para guardarlos.");
-    }catch(error){informar(error.message);}finally{button.disabled=false;}
+    }catch(error){if(consulta===consultaCliente)informar(error.message);}finally{button.disabled=false;}
   };
   if($("contabilium-form"))$("contabilium-form").onsubmit=async event=>{
     event.preventDefault();const button=event.submitter;button.disabled=true;
