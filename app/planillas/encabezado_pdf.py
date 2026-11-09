@@ -123,8 +123,9 @@ def reponer_logos(origen_excel, origen_pdf, destino_pdf, *, logo_izquierdo=None)
                 raise RuntimeError("El PDF ya contiene una imagen con el identificador reservado del encabezado.")
             xobjects[name] = reference
             page_width, page_height = float(page.mediabox.width), float(page.mediabox.height)
-            if anchor == "RH" and height > 32:
-                width, height = width * 32 / height, 32
+            if anchor == "RH":
+                iso_height = 72 if logo_izquierdo is not None else min(height, 32)
+                width, height = width * iso_height / height, iso_height
             if anchor == "LH" and logo_izquierdo is not None:
                 with Image.open(BytesIO(logo_izquierdo)) as image:
                     width, height = 140, 140 * image.height / image.width
