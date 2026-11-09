@@ -396,7 +396,7 @@
     catch(error){message(error.message);}
     finally{operation=false;update();}
   };
-  let correoBusy=false, correoReady=false, correoCarga=null, correoEnvios=[];
+  let correoBusy=false, correoReady=false, correoCarga=null, correoEnvios=[],correoConsulta=0,correoDestinoEditado=false;
   function correoStatus(row){
     if(row.estado==="enviado")return `Correo enviado a ${row.destinatario}. Gmail aceptó el PDF adjunto; verificá la recepción en destino.`;
     return `Existe una solicitud de envío a ${row.destinatario}, sin entrega confirmada. Consultá a Administración antes de repetir.`;
@@ -412,20 +412,23 @@
   $("enviar-pdf").onclick=async()=>{
     if(operation||!draft||draft.estado!=="emitida")return;
     correoReady=false;correoEnvios=[];correoCarga=draft.serverId;
+    const consulta=++correoConsulta,carga=correoCarga,pdfHash=draft.pdfHash;
+    correoDestinoEditado=false;$("correo-destinatario").value="";
     $("correo-dialog").showModal();$("correo-estado").textContent="Consultando el servicio de correo…";correoUpdate();
     try{
-      const [config,rows]=await Promise.all([json("/api/correo/configuracion"),json(`/api/cargas/${correoCarga}/envios`)]);
-      correoEnvios=rows.filter(row=>row.pdf_sha256===draft.pdfHash);correoReady=config.habilitado;
+      const [config,rows]=await Promise.all([json("/api/correo/configuracion"),json(`/api/cargas/${carga}/envios`)]);
+      if(consulta!==correoConsulta||!$("correo-dialog").open||draft?.serverId!==carga)return;
+      correoEnvios=rows.filter(row=>row.pdf_sha256===pdfHash);correoReady=config.habilitado;
       $("correo-destinatarios").replaceChildren();
       for(const address of config.destinatarios)$("correo-destinatarios").append(new Option(address,address));
-      $("correo-destinatario").value=config.destinatarios[0]||"";
+      if(!correoDestinoEditado)$("correo-destinatario").value=config.destinatarios[0]||"";
       if(!correoReady)$("correo-estado").textContent="Administración debe habilitar el envío de planillas en este entorno.";
       correoUpdate();
-    }catch(error){$("correo-estado").textContent=error.message;}
+    }catch(error){if(consulta===correoConsulta&&$("correo-dialog").open)$("correo-estado").textContent=error.message;}
   };
-  $("cerrar-correo").onclick=()=>{if(!correoBusy)$("correo-dialog").close();};
-  $("correo-dialog").addEventListener("cancel",event=>{if(correoBusy)event.preventDefault();});
-  $("correo-destinatario").addEventListener("input",correoUpdate);
+  $("cerrar-correo").onclick=()=>{if(!correoBusy){correoConsulta++;$("correo-dialog").close();}};
+  $("correo-dialog").addEventListener("cancel",event=>{if(correoBusy)event.preventDefault();else correoConsulta++;});
+  $("correo-destinatario").addEventListener("input",()=>{correoDestinoEditado=true;correoUpdate();});
   $("correo-form").onsubmit=async event=>{
     event.preventDefault();
     if(correoBusy||!correoReady||!$("correo-form").reportValidity())return;
