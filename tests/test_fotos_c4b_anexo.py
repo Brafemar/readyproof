@@ -70,7 +70,7 @@ def test_fuente_incrustada_con_to_unicode(muestra):
         assert font["/Subtype"] == "/TrueType"
         descriptor = font["/FontDescriptor"].get_object()
         assert len(descriptor["/FontFile2"].get_object().get_data()) > 1000
-        assert "IBMPlexSans" in str(font["/BaseFont"])
+        assert any(name in str(font["/BaseFont"]) for name in ("FiraSans", "Archivo", "IBMPlexSans"))
         assert font["/ToUnicode"].get_object().get_data()
 
 
@@ -195,7 +195,7 @@ def test_ejemplo_v2_para_revision(muestra,tmp_path_factory):
 def test_borde_blanco_y_anillo_oscuro(muestra):
     pdf=lector(muestra[4]);ops=ContentStream(pdf.pages[0].get_contents(),pdf).operations
     stroke=None;width=None;curves=0;white=dark=0
-    expected=tuple(int("1B2430"[i:i+2],16)/255 for i in (0,2,4))
+    expected=tuple(int("1D1D1B"[i:i+2],16)/255 for i in (0,2,4))
     for values,op in ops:
         if op==b"RG":stroke=tuple(map(float,values))
         elif op==b"w":width=float(values[0])

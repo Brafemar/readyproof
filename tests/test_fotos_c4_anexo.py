@@ -62,7 +62,7 @@ def test_texto_largo_entero_pasa_a_segunda_hoja(tmp_path):
     assert len(pdf.pages[0].images) == 2 and len(pdf.pages[1].images) == 1
     assert '/RPFOTO' not in pdf.pages[1]['/Resources']['/XObject']
     # Conservar todas las letras al envolver, sin elipsis ni truncamiento.
-    font = ImageFont.truetype(str(anexo.ruta_fuente()), 24)
+    font = ImageFont.truetype(str(anexo.FUENTE_SIMBOLOS), 24)
     lines = anexo._lineas(refs[0]["texto"], font, anexo.ANCHO_TEXTO)
     assert "".join(lines) == refs[0]["texto"]
     assert all(font.getlength(line) <= anexo.ANCHO_TEXTO for line in lines)
@@ -128,7 +128,7 @@ def test_marcas_y_referencias_deben_coincidir():
 
 
 def test_fuente_contiene_codigo_check():
-    font = ImageFont.truetype(str(anexo.ruta_fuente()), 24)
+    font = ImageFont.truetype(str(anexo.FUENTE_SIMBOLOS), 24)
     assert bytes(font.getmask("✓")) != bytes(font.getmask("\u0378"))
 
 

@@ -23,28 +23,29 @@ MARGEN = 15 * 72 / 25.4
 ANCHO_TEXTO = A4_PT[0] - 2 * MARGEN - 75
 PIE_Y = A4_PT[1] - MARGEN - 10
 LISTA_FIN = PIE_Y - 25
-COLOR_MARCAS = "#D41120"
+COLOR_MARCAS = "#D3111F"
 BORDE_BLANCO_PT = 2.5
-ANILLO_OSCURO = "#1B2430"
+ANILLO_OSCURO = "#1D1D1B"
 ANILLO_OSCURO_PT = 0.8
 RADIO_MARCA_PT = 9
 TAMANIO_TEXTO = 11
 INTERLINEADO = 15
 CODIGOS = ("✓", "O", "X", "NA")
 TEXTO_MAX = 140
+FUENTE_SIMBOLOS = Path(__file__).resolve().parents[1] / "fuentes/IBMPlexSans[wdth,wght].ttf"
 SIGNIFICADOS = {"✓": "cumple", "O": "no cumple", "X": "no apreciable", "NA": "no aplicable"}
 
 
 def ruta_fuente(fuente=None):
-    result = Path(fuente) if fuente is not None else Path(__file__).resolve().parents[1] / "fuentes/IBMPlexSans[wdth,wght].ttf"
+    result = Path(fuente) if fuente is not None else Path(__file__).resolve().parents[1] / "static/marca/FiraSans-Regular.ttf"
     if not result.is_file():
-        raise ValueError("No se encontró IBM Plex Sans: revisá la fuente TrueType incluida en app/fuentes.")
+        raise ValueError("No se encontró la fuente TrueType para el anexo.")
     return result.resolve()
 
 
 @lru_cache(maxsize=8)
 def _registrar_fuente(path):
-    name = "ReadyproofPlex_" + sha256(Path(path).read_bytes()).hexdigest()[:12]
+    name = "Readyproof_" + sha256(Path(path).read_bytes()).hexdigest()[:12]
     pdfmetrics.registerFont(TTFont(name, path))
     return name
 
@@ -203,11 +204,12 @@ def _cabecera(canvas, font, campos):
 
     logo = ImageReader(BytesIO(logo_readyproof()))
     width, height = logo.getSize()
-    logo_width = 125
+    logo_width = 140
     logo_height = logo_width * height / width
     canvas.drawImage(logo, MARGEN, A4_PT[1] - MARGEN - logo_height, logo_width, logo_height, mask="auto")
     title_top = MARGEN + logo_height + 10
-    _texto(canvas, font, MARGEN, title_top, "ANEXO FOTOGRÁFICO", 17)
+    title_font = _registrar_fuente(str(Path(__file__).resolve().parents[1] / "static/marca/Archivo-Black.ttf"))
+    _texto(canvas, title_font, MARGEN, title_top, "ANEXO FOTOGRÁFICO", 17)
     top = title_top + 30
     width = (A4_PT[0] - 2*MARGEN - 20)/2
     for names in (("Cliente", "Equipo"), ("Técnico", "Fecha")):
@@ -220,7 +222,7 @@ def _cabecera(canvas, font, campos):
                 _texto(canvas, font, x, top+13+offset*13, line, 10.5)
             max_height = max(max_height, 13+len(lines)*13)
         top += max_height+8
-    canvas.setStrokeColor(HexColor("#D41120"))
+    canvas.setStrokeColor(HexColor(COLOR_MARCAS))
     canvas.setLineWidth(.8)
     canvas.line(MARGEN, A4_PT[1]-top, A4_PT[0]-MARGEN, A4_PT[1]-top)
     return top+12
@@ -230,7 +232,7 @@ def _check(canvas, font, x, top):
     # Copiar/buscar conserva U+2713; la forma visible es un trazo propio, no el glifo fino de Plex.
     y = A4_PT[1]-top-11
     text = canvas.beginText(x, y)
-    text.setFont(font, 11)
+    text.setFont(_registrar_fuente(str(FUENTE_SIMBOLOS)), 11)
     text.setTextRenderMode(3)
     text.textOut("✓")
     text.setTextRenderMode(0)
@@ -344,7 +346,7 @@ def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, confi
                 y += row["alto"]
         else:
             _texto(canvas,font,MARGEN,y,"Sin marcas registradas." if sin_marcas else "Referencias en la página siguiente.",10)
-        canvas.setFillColor(HexColor("#555555"))
+        canvas.setFillColor(HexColor("#6C6C6B"))
         if pie:
             pie_lines = _lineas(pie, _Metrica(font,8), A4_PT[0]-2*MARGEN-65)
             if len(pie_lines)>2:

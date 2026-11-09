@@ -13,14 +13,14 @@ from app.planillas.marca_agua import incorporar_marca_agua,OPACIDAD,ESTADO
 
 
 def verificar_marca_agua(reader):
-    assert reader.metadata["/ReadyproofMarcaAgua"]=="readyproof + ISO; opacidad 0.055"
+    assert reader.metadata["/ReadyproofMarcaAgua"]=="ISO; opacidad 0.055"
     for page in reader.pages:
         state=page["/Resources"]["/ExtGState"][ESTADO].get_object()
         assert abs(float(state["/ca"])-OPACIDAD)<1e-6
         assert state["/BM"]=="/Multiply"
         operations=ContentStream(page.get_contents(),reader).operations
         names=[str(args[0]) for args,op in operations if op==b"Do"]
-        assert names.count("/RPLogo0")==2 and names.count("/RPLogo1")==2
+        assert names.count("/RPLogo0")==1 and names.count("/RPLogo1")==2
 
 
 def test_marca_agua_automatica_y_sin_doble_aplicacion(tmp_path):

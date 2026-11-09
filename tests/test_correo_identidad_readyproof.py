@@ -38,7 +38,7 @@ def test_identidad_y_linea_condicional(contexto_render, cantidad):
     data['cantidad_fotos'] = cantidad
     result = renderizar_emision(data)
     html = result['html']
-    assert '#D41120' in html and '#1B2430' in html
+    assert '#D3111F' in html and '#1D1D1B' in html
     assert '#0f2f4f' not in html.lower() and '#d32f2f' not in html.lower()
     assert 'font-family:Arial,Helvetica,sans-serif' in html
     assert '@font-face' not in html

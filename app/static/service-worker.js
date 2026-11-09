@@ -1,7 +1,10 @@
-const CACHE = 'readyproof-ui-v26-destinatario';
+const CACHE = 'readyproof-ui-v27-identidad-readyproof';
 const STATIC = [
   '/static/fotos.js','/static/fotos.css','/static/carga.css','/static/carga.js','/static/auth.js','/static/cuenta.css',
   '/static/admin.js','/static/cuenta.js','/static/pwa.css','/static/pwa.js','/static/buscar.js',
+  '/static/marca/identidad.css','/static/marca/horizontal-color.svg',
+  '/static/marca/Archivo-Black.ttf','/static/marca/FiraSans-Regular.ttf',
+  '/static/marca/FiraSans-SemiBold.ttf','/static/marca/FiraSans-Bold.ttf',
   '/static/icono.svg','/static/manifest.json','/static/manifest.webmanifest',
   '/static/icons/icon-192x192.png','/static/icons/icon-512x512.png',
   '/static/icons/icon-maskable-192.png','/static/icons/icon-maskable-512.png'

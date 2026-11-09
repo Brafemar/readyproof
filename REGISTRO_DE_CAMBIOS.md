@@ -1481,3 +1481,8 @@ El diálogo conserva el destinatario escrito o borrado por el usuario mientras l
 ## 2026-11-09 — Formato A4 de planillas emitidas
 
 Se amplió el ancho útil en la copia de impresión, se unificaron las filas de identificación y se amplió la celda del certificado. Los resultados cargados se muestran centrados y en negrita. Se incorporó la marca vigente al encabezado y al anexo fotográfico, se reservó espacio para el sello ISO y se quitó del pie la repetición de empresa y fecha. El certificado vigente, las definiciones del kit y los PDF archivados se conservan. La numeración por sistema queda pendiente de confirmación.
+
+
+## 2026-11-09 — Identidad Readyproof, manual 1.0
+
+Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorporan los recursos originales del kit de marca. Se aplican la variante horizontal, el sello reducido, la paleta BFM y las tipografías Archivo Black y Fira Sans. El correo usa Arial como alternativa prevista por el manual. La marca de agua de Readyproof deja de aplicarse a las nuevas emisiones. Los archivos de fuentes incluyen sus licencias OFL.

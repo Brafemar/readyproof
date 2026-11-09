@@ -84,7 +84,10 @@ def test_logo_reemplazado(tmp_path):
     asset=ROOT/"app/static/logo_readyproof.png"
     with Image.open(asset) as logo:
         assert logo.format=="PNG" and logo.width>=600 and logo.height>=100
-        expected=sha256(logo.convert("RGB").tobytes()).hexdigest()
+        rgba=logo.convert("RGBA")
+        background=Image.new("RGB",rgba.size,"white")
+        background.paste(rgba,mask=rgba.getchannel("A"))
+        expected=sha256(background.tobytes()).hexdigest()
     source=generar_saa1(datos_ejemplo(),tmp_path/"SAA-1_readyproof.xlsx")
     pdf=convertir_pdf(source,tmp_path/"SAA-1_readyproof.pdf")
     reader=PdfReader(pdf)

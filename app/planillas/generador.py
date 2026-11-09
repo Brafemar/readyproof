@@ -102,8 +102,9 @@ def _generar_paquete(spec, cambios, destino):
         with ZipFile(base) as source:
             tree = etree.fromstring(source.read("xl/worksheets/sheet1.xml"))
             styles = etree.fromstring(source.read('xl/styles.xml'))
-            from .impresion import ajustar_tabla, destacar_resultados
+            from .impresion import ajustar_tabla, aplicar_identidad, destacar_resultados
             ajustar_tabla(tree)
+            aplicar_identidad(styles)
             cambios = {'Q7' if address == 'R7' else address: value
                        for address, value in cambios.items()}
             destacar_resultados(tree, styles, cambios)

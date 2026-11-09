@@ -8,10 +8,30 @@ from lxml import etree
 NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 MARGEN = 10 / 25.4
 ESCALA_UNA_HOJA = .70
+# Fira Sans 11 pt alcanza 8,184 px en el dígito más ancho a 96 ppp.
+ANCHO_DIGITO_PX = 9
+
+
+def aplicar_identidad(styles):
+    """Aplica la marca en la salida sin editar los estilos del kit fuente."""
+    for font in styles.find(NS+'fonts'):
+        name = font.find(NS+'name')
+        if name is not None:
+            # El Archivo-Black.ttf entregado tiene peso 900 y familia interna Archivo SemiBold.
+            name.set('val', 'Archivo SemiBold' if name.get('val') == 'Arial' else 'Fira Sans')
+        scheme = font.find(NS+'scheme')
+        if scheme is not None:
+            font.remove(scheme)
+    for node in styles.iter():
+        if node.get('rgb') in {'00000000', 'FF000000'}:
+            node.set('rgb', 'FF1D1D1B')
 
 
 def ajustar_tabla(sheet):
     """Ajusta el ancho y la cabecera solo en la copia interna de emisión."""
+    header = sheet.find(NS+'headerFooter/'+NS+'oddHeader')
+    if header is not None and header.text:
+        header.text = header.text.replace('Arial,Negrita', 'Fira Sans,Negrita')
     for column in sheet.findall(NS+'cols/'+NS+'col'):
         column.set('width', '8.7')
     for number in (5, 6, 7):
@@ -68,7 +88,7 @@ def preparar_impresion(sheet, workbook, *, titulos=(), mantener_bloques=False):
     margins = sheet.find(NS+'pageMargins')
     for key in ('left', 'right', 'bottom'):
         margins.set(key, str(max(MARGEN, float(margins.get(key, '0')))))
-    margins.set('top', str(max(29 / 25.4, float(margins.get('top', '0')))))
+    margins.set('top', str(max(35 / 25.4, float(margins.get('top', '0')))))
     page = sheet.find(NS+'pageSetup')
     page.set('orientation', 'landscape'); page.set('paperSize', '9')
     page.set('fitToWidth', '1'); page.attrib.pop('scale', None)
@@ -113,7 +133,10 @@ def preparar_impresion(sheet, workbook, *, titulos=(), mantener_bloques=False):
     if observations is not None:
         forbidden.update(range(observations, last))
     header = height(1, 8)
-    widths = sum((floor((256*float(col.get('width', '13'))+floor(128/7))/256*7)+5)*(int(col.get('max'))-int(col.get('min'))+1) for col in sheet.findall(NS+'cols/'+NS+'col'))*.75
+    digit = ANCHO_DIGITO_PX
+    widths = sum((floor((256*float(col.get('width', '13'))+floor(128/digit))/256*digit)+5)
+                 *(int(col.get('max'))-int(col.get('min'))+1)
+                 for col in sheet.findall(NS+'cols/'+NS+'col'))*.75
     available_width = 297/25.4*72-(float(margins.get('left'))+float(margins.get('right')))*72
     width_percent = min(100, floor(100*available_width/widths))
     if mantener_bloques:

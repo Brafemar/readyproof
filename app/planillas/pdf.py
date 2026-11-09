@@ -4,8 +4,23 @@ from pathlib import Path
 import shutil
 import subprocess
 from tempfile import TemporaryDirectory
+from xml.etree import ElementTree
 
 from .encabezado_pdf import reponer_logos
+
+
+def _entorno_fuentes(profile):
+    env = os.environ.copy()
+    config = Path(env.get('FONTCONFIG_FILE', '/etc/fonts/fonts.conf'))
+    if not config.is_file():
+        return env
+    root = ElementTree.Element('fontconfig')
+    ElementTree.SubElement(root, 'include').text = str(config.resolve())
+    ElementTree.SubElement(root, 'dir').text = str(Path(__file__).resolve().parents[1] / 'static/marca')
+    private_config = Path(profile) / 'readyproof-fonts.conf'
+    ElementTree.ElementTree(root).write(private_config, encoding='utf-8', xml_declaration=True)
+    env['FONTCONFIG_FILE'] = str(private_config)
+    return env
 
 
 def localizar_libreoffice():
@@ -48,7 +63,7 @@ def convertir_pdf(origen, destino, *, timeout=120, firmas=None,firmantes=None):
              "--nologo", "--nodefault", "--norestore", "--convert-to", "pdf:calc_pdf_Export",
              "--outdir", str(temp), str(origen)],
             capture_output=True, text=True, encoding="utf-8", errors="replace",
-            timeout=timeout, check=False,
+            timeout=timeout, check=False, env=_entorno_fuentes(profile_dir),
         )
         output = temp / (origen.stem + ".pdf")
         if result.returncode != 0 or not output.is_file():

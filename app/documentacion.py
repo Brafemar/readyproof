@@ -43,7 +43,7 @@ def mensaje(usuario,key,destinatario=None):
            'La clave temporal inicial se entrega por un canal privado separado.\n'
            'Soporte: Jorge Sánchez, por el canal interno acordado.\n')
     mail.set_content(guide)
-    mail.add_alternative('<html lang="es-AR"><body><img src="cid:logo-readyproof" alt="readyproof" width="240" height="60">'
+    mail.add_alternative('<html lang="es-AR"><body style="font-family:Arial,Helvetica,sans-serif;color:#1D1D1B"><img src="cid:logo-readyproof" alt="Readyproof" width="240" style="height:auto;max-width:100%">'
                          f'<p>Hola {escape(usuario.nombre)}</p><p>Tu usuario: <strong>{escape(usuario.login)}</strong></p>'
                          '<p>Acceder con el túnel privado activo: <a href="http://127.0.0.1:8876/login">readyproof</a>.</p>'
                          f'<p>{escape(sistemas)}</p>'
@@ -51,7 +51,7 @@ def mensaje(usuario,key,destinatario=None):
                          '<li>Descargá y revisá el PDF.</li></ol><p>Usá solo datos y firmas ficticios.</p>'
                          '<p>Adjuntamos las guías. La contraseña se cambia en Mi cuenta y no se envía por correo.</p>'
                          '<p>Soporte: Jorge Sánchez, por el canal interno acordado.</p></body></html>',subtype='html')
-    mail.get_payload()[1].add_related((RAIZ/'app/static/logo_readyproof.png').read_bytes(),maintype='image',subtype='png',cid='<logo-readyproof>')
+    mail.get_payload()[1].add_related((RAIZ/'app/static/correo/logo_readyproof_principal.png').read_bytes(),maintype='image',subtype='png',cid='<logo-readyproof>')
     for source,name in [('GUIA_ACCESO_BRAFEMAR.md','readyproof-guia-de-uso.md'),('ACCESO_TECNICO_BRAFEMAR.md','readyproof-acceso-tecnico.md')]:
         body=(RAIZ/'docs'/source).read_text(encoding='utf-8').replace('`tecnico_readyproof`',f'`{usuario.login}`')
         mail.add_attachment(body,subtype='markdown',filename=name)

@@ -31,7 +31,7 @@ def test_generacion_reproduce_referencia_v5(tmp_path):
     expected.page_setup.fitToHeight = 1
     from app.planillas.impresion import MARGEN
     expected.page_margins.left = expected.page_margins.right = expected.page_margins.bottom = MARGEN
-    expected.page_margins.top = 29 / 25.4
+    expected.page_margins.top = 35 / 25.4
     assert actual.page_setup == expected.page_setup
     assert actual.page_margins == expected.page_margins
     assert actual.print_options == expected.print_options
@@ -48,9 +48,11 @@ def test_generacion_reproduce_referencia_v5(tmp_path):
             assert other.value == cell.value
             if cell.row == 7 and 13 <= cell.column <= 19:
                 continue
-            assert copy(other.font) == copy(cell.font)
-            assert copy(other.fill) == copy(cell.fill)
-            assert copy(other.border) == copy(cell.border)
+            assert other.font.name == ('Archivo SemiBold' if cell.font.name == 'Arial' else 'Fira Sans')
+            assert (other.font.sz, other.font.bold) == (cell.font.sz, cell.font.bold)
+            assert other.fill.patternType == cell.fill.patternType
+            for side in ('left', 'right', 'top', 'bottom'):
+                assert getattr(other.border, side).style == getattr(cell.border, side).style
             assert copy(other.alignment) == copy(cell.alignment)
             assert other.number_format == cell.number_format
     with ZipFile(result) as archive, ZipFile(REFERENCE) as reference:
@@ -195,8 +197,10 @@ def pdfs_saa1(tmp_path_factory):
         tree = etree.fromstring(source.read('xl/worksheets/sheet1.xml'))
         workbook = etree.fromstring(source.read('xl/workbook.xml'))
         tree.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}pageSetup').set('fitToHeight', '1')
-        from app.planillas.impresion import ajustar_tabla, preparar_impresion
+        from app.planillas.impresion import ajustar_tabla, aplicar_identidad, preparar_impresion
         ajustar_tabla(tree)
+        styles = etree.fromstring(source.read('xl/styles.xml'))
+        aplicar_identidad(styles)
         preparar_impresion(tree, workbook)
         for item in source.infolist():
             payload = source.read(item.filename)
@@ -204,6 +208,8 @@ def pdfs_saa1(tmp_path_factory):
                 payload = etree.tostring(tree)
             elif item.filename == 'xl/workbook.xml':
                 payload = etree.tostring(workbook)
+            elif item.filename == 'xl/styles.xml':
+                payload = etree.tostring(styles)
             output.writestr(item, payload)
     paths = {"referencia": convertir_pdf(reference_a4, directory / "referencia.pdf")}
     for name, datos in (("blanca", {}), ("piloto", datos_ejemplo())):

@@ -69,7 +69,7 @@ def test_preparador_por_defecto_usa_plantilla_y_cid(app, carga_emitida, usuario_
         message = BytesParser(policy=policy.default).parsebytes(envio.mensaje_eml)
         assert str(message['From']) == 'readyproof.ar@gmail.com'
         html = message.get_body(preferencelist=('html',)).get_content()
-        assert '#D41120' in html and '#1B2430' in html
+        assert '#D3111F' in html and '#1D1D1B' in html
         assert 'font-family:Arial,Helvetica,sans-serif' in html
         assert 'Asunto heredado' not in str(message['Subject'])
         assert 'Cuerpo heredado' not in html
@@ -90,7 +90,7 @@ def test_cola_sin_mime_tambien_usa_plantilla(app, carga_emitida, usuario_admin):
         result = send_email(db, envio, encolar=True)
         message = BytesParser(policy=policy.default).parsebytes(result.mensaje_eml)
         html = message.get_body(preferencelist=('html',)).get_content()
-        assert '#D41120' in html and 'cid:logo-readyproof' in html and 'cid:sello-iso' in html
+        assert '#D3111F' in html and 'cid:logo-readyproof' in html and 'cid:sello-iso' in html
         assert 'Antiguo' not in str(message['Subject'])
         assert sha256(result.mensaje_eml).hexdigest() == result.eml_sha256
 
