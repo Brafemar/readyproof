@@ -59,7 +59,8 @@ def test_texto_largo_entero_pasa_a_segunda_hoja(tmp_path):
     points = [dict(numero=1, x=.5, y=.5)]
     refs = [dict(numero=1, codigo="O", texto="[Ejemplo] " + "W" * 130)]
     pdf = abrir(anexo.generar_anexo(jpeg((600,1600)), points, refs), 2)
-    assert len(pdf.pages[0].images) == 1 and len(pdf.pages[1].images) == 0
+    assert len(pdf.pages[0].images) == 2 and len(pdf.pages[1].images) == 1
+    assert '/RPFOTO' not in pdf.pages[1]['/Resources']['/XObject']
     # Conservar todas las letras al envolver, sin elipsis ni truncamiento.
     font = ImageFont.truetype(str(anexo.ruta_fuente()), 24)
     lines = anexo._lineas(refs[0]["texto"], font, anexo.ANCHO_TEXTO)
@@ -93,7 +94,7 @@ def test_union_planilla_primero_y_anexo_despues():
     points, refs = listas()
     result = abrir(anexo.unir_pdf(planilla, anexo.generar_anexo(jpeg(), points, refs)), 2)
     assert len(result.pages[0].images) == 0
-    assert len(result.pages[1].images) == 1
+    assert len(result.pages[1].images) == 2
     assert sha256(planilla).hexdigest() == digest
 
 

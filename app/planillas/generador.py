@@ -15,7 +15,7 @@ NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 CABECERA = {
     "fecha": "V4", "cliente": "C5", "cuit": "O5", "telefono": "V5",
     "direccion": "C6", "edificio": "O6", "sector": "V6",
-    "empresa_mantenedora": "E7", "numero_mantenedor": "Q7", "inspector": "V7",
+    "empresa_mantenedora": "E7", "numero_mantenedor": "R7", "inspector": "V7",
     "sistema_designacion": "A8",
 }
 
@@ -104,6 +104,8 @@ def _generar_paquete(spec, cambios, destino):
             styles = etree.fromstring(source.read('xl/styles.xml'))
             from .impresion import ajustar_tabla, destacar_resultados
             ajustar_tabla(tree)
+            cambios = {'Q7' if address == 'R7' else address: value
+                       for address, value in cambios.items()}
             destacar_resultados(tree, styles, cambios)
             for coordenada, valor in cambios.items():
                 cell = tree.find(f".//{NS}c[@r='{coordenada}']")
