@@ -98,12 +98,6 @@ def codigo_de_planilla(origen_excel):
 def reponer_logos(origen_excel, origen_pdf, destino_pdf, *, logo_izquierdo=None):
     """Usa las medidas del Excel; no cambia filas, escala ni contenido del PDF."""
     logos, margins = logos_del_excel(origen_excel)
-    # El ajuste del área del cuerpo conserva las anclas del encabezado del kit.
-    from .definiciones.saa1 import MODELO
-    with ZipFile(MODELO) as model:
-        original_margins = _xml(model.read('xl/worksheets/sheet1.xml')).find(S+'pageMargins')
-        for key in ('left', 'right', 'header'):
-            margins[key] = float(original_margins.get(key))*72
     if logo_izquierdo is not None:
         if sum(anchor=="LH" for anchor,_,_,_ in logos)!=1:
             raise RuntimeError("No hay un único espacio izquierdo para el logo readyproof.")
@@ -129,6 +123,8 @@ def reponer_logos(origen_excel, origen_pdf, destino_pdf, *, logo_izquierdo=None)
                 raise RuntimeError("El PDF ya contiene una imagen con el identificador reservado del encabezado.")
             xobjects[name] = reference
             page_width, page_height = float(page.mediabox.width), float(page.mediabox.height)
+            if anchor == "RH" and height > 32:
+                width, height = width * 32 / height, 32
             x = margins["left"] if anchor == "LH" else (page_width - margins["right"] - width if anchor == "RH" else (page_width - width) / 2)
             y = page_height - margins["header"] - height
             if anchor=="LH" and logo_izquierdo is not None:

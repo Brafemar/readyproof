@@ -83,7 +83,7 @@ def test_esquema_valido_en_todas_planillas(app):
 def test_logo_reemplazado(tmp_path):
     asset=ROOT/"app/static/logo_readyproof.png"
     with Image.open(asset) as logo:
-        assert logo.format=="PNG" and logo.width>=600 and logo.height>=150
+        assert logo.format=="PNG" and logo.width>=600 and logo.height>=100
         expected=sha256(logo.convert("RGB").tobytes()).hexdigest()
     source=generar_saa1(datos_ejemplo(),tmp_path/"SAA-1_readyproof.xlsx")
     pdf=convertir_pdf(source,tmp_path/"SAA-1_readyproof.pdf")

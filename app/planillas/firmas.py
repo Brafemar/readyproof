@@ -22,7 +22,7 @@ def logo_readyproof():
     path=Path(__file__).resolve().parents[1]/"static"/"logo_readyproof.png"
     payload=path.read_bytes()
     with Image.open(BytesIO(payload)) as image:
-        if image.format!="PNG" or image.width<600 or image.height<150:
+        if image.format!="PNG" or image.width<600 or image.height<100:
             raise RuntimeError("El logo readyproof debe ser un PNG completo con resolución suficiente.")
         image.verify()
     return payload

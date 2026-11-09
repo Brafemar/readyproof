@@ -1,4 +1,5 @@
-"""Paginación de la copia Excel sin modificar celdas, filas ni el kit."""
+"""Formato y paginación de la copia interna de emisión, sin cambiar el kit."""
+from copy import deepcopy
 from math import floor
 import re
 
@@ -9,7 +10,57 @@ MARGEN = 10 / 25.4
 ESCALA_UNA_HOJA = .70
 
 
-def preparar_impresion(sheet, workbook, *, titulos=()):
+def ajustar_tabla(sheet):
+    """Ajusta el ancho y la cabecera solo en la copia interna de emisión."""
+    for column in sheet.findall(NS+'cols/'+NS+'col'):
+        column.set('width', '8.7')
+    for number in (5, 6, 7):
+        row = sheet.find(f"{NS}sheetData/{NS}row[@r='{number}']")
+        row.set('ht', '22')
+        row.set('customHeight', '1')
+    merges = sheet.find(NS+'mergeCells')
+    merges.find(f"{NS}mergeCell[@ref='M7:Q7']").set('ref', 'M7:P7')
+    merges.find(f"{NS}mergeCell[@ref='R7:S7']").set('ref', 'Q7:S7')
+    row = sheet.find(f"{NS}sheetData/{NS}row[@r='7']")
+    row.remove(row.find(f"{NS}c[@r='Q7']"))
+    row.find(f"{NS}c[@r='R7']").set('r', 'Q7')
+
+
+def destacar_resultados(sheet, styles, cambios):
+    """Aplica el estilo solo a valores cargados en el cuerpo de la planilla."""
+    fonts = styles.find(NS+'fonts')
+    formats = styles.find(NS+'cellXfs')
+    replacements = {}
+    for cell in sheet.findall('.//'+NS+'c'):
+        address = cell.get('r', '')
+        match = re.fullmatch(r'([A-Z]+)(\d+)', address)
+        if address not in cambios or not match or match[1] == 'A' or int(match[2]) < 9:
+            continue
+        original = int(cell.get('s', '0'))
+        if original not in replacements:
+            style = deepcopy(formats[original])
+            font = deepcopy(fonts[int(style.get('fontId', '0'))])
+            bold = font.find(NS+'b')
+            if bold is None:
+                bold = etree.SubElement(font, NS+'b')
+            bold.set('val', '1')
+            style.set('fontId', str(len(fonts)))
+            style.set('applyFont', '1')
+            fonts.append(font)
+            alignment = style.find(NS+'alignment')
+            if alignment is None:
+                alignment = etree.SubElement(style, NS+'alignment')
+            alignment.set('horizontal', 'center')
+            alignment.set('vertical', 'center')
+            style.set('applyAlignment', '1')
+            replacements[original] = str(len(formats))
+            formats.append(style)
+        cell.set('s', replacements[original])
+    fonts.set('count', str(len(fonts)))
+    formats.set('count', str(len(formats)))
+
+
+def preparar_impresion(sheet, workbook, *, titulos=(), mantener_bloques=False):
     rows = sheet.findall(NS+'sheetData/'+NS+'row')
     last = max(int(row.get('r')) for row in rows)
     heights = {int(row.get('r')): float(row.get('ht', '15')) for row in rows}
@@ -17,7 +68,7 @@ def preparar_impresion(sheet, workbook, *, titulos=()):
     margins = sheet.find(NS+'pageMargins')
     for key in ('left', 'right', 'bottom'):
         margins.set(key, str(max(MARGEN, float(margins.get(key, '0')))))
-    margins.set('top', str(max(MARGEN, float(margins.get('top', '0')))))
+    margins.set('top', str(max(29 / 25.4, float(margins.get('top', '0')))))
     page = sheet.find(NS+'pageSetup')
     page.set('orientation', 'landscape'); page.set('paperSize', '9')
     page.set('fitToWidth', '1'); page.attrib.pop('scale', None)
@@ -48,23 +99,35 @@ def preparar_impresion(sheet, workbook, *, titulos=()):
         if len(limits) == 2:
             forbidden.update(range(int(limits[0]), int(limits[1])))
     observations = None
+    headings = []
     for row in rows:
         number = int(row.get('r'))
-        label = ''.join(row.itertext())
+        first = row.find(f"{NS}c[@r='A{number}']")
+        label = ''.join(first.itertext()) if first is not None else ''
         if 'OBSERVACIONES:' in label: observations = number
-        if any(label == value for value in titulos): forbidden.add(number)
+        if label in titulos:
+            headings.append(number)
+            forbidden.add(number)
+            if mantener_bloques:
+                forbidden.add(number + 1)
     if observations is not None:
         forbidden.update(range(observations, last))
+    header = height(1, 8)
+    widths = sum((floor((256*float(col.get('width', '13'))+floor(128/7))/256*7)+5)*(int(col.get('max'))-int(col.get('min'))+1) for col in sheet.findall(NS+'cols/'+NS+'col'))*.75
+    available_width = 297/25.4*72-(float(margins.get('left'))+float(margins.get('right')))*72
+    width_percent = min(100, floor(100*available_width/widths))
+    if mantener_bloques:
+        ends = headings[1:] + [observations or last + 1]
+        for start, end in zip(headings, ends):
+            if (header + height(start, end - 1)) * width_percent / 100 <= available:
+                forbidden.update(range(start, end - 1))
     groups = []; start = 9
     for end in range(9, last+1):
         if end not in forbidden:
             groups.append((start, end)); start = end+1
     if start <= last: groups.append((start, last))
-    header = height(1, 8)
     largest = max(height(start, end) for start, end in groups)
-    widths = sum((floor((256*float(col.get('width', '13'))+floor(128/7))/256*7)+5)*(int(col.get('max'))-int(col.get('min'))+1) for col in sheet.findall(NS+'cols/'+NS+'col'))*.75
-    available_width = 297/25.4*72-(float(margins.get('left'))+float(margins.get('right')))*72
-    percent = min(100, floor(100*available_width/widths), floor(100*available/(header+largest)))
+    percent = min(width_percent, floor(100*available/(header+largest)))
     if percent < 10: raise ValueError('Un bloque indivisible supera el área imprimible a la escala mínima de Excel.')
     setup.set('fitToPage', '0'); setup.set('autoPageBreaks', '0')
     page.set('scale', str(percent)); page.set('fitToHeight', '0')

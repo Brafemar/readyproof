@@ -23,22 +23,31 @@ def test_generacion_reproduce_referencia_v5(tmp_path):
     expected, actual = load_workbook(REFERENCE).active, load_workbook(result).active
     assert actual.max_row == expected.max_row == 44
     assert actual.max_column == expected.max_column == 25
-    assert str(actual.merged_cells) == str(expected.merged_cells)
+    merges = {str(cell_range) for cell_range in expected.merged_cells.ranges}
+    assert {str(cell_range) for cell_range in actual.merged_cells.ranges} == (
+        merges - {'M7:Q7', 'R7:S7'} | {'M7:P7', 'Q7:S7'}
+    )
     assert str(actual.print_area) == str(expected.print_area)
     expected.page_setup.fitToHeight = 1
     from app.planillas.impresion import MARGEN
     expected.page_margins.left = expected.page_margins.right = expected.page_margins.bottom = MARGEN
+    expected.page_margins.top = 29 / 25.4
     assert actual.page_setup == expected.page_setup
     assert actual.page_margins == expected.page_margins
     assert actual.print_options == expected.print_options
     for key, dimension in expected.column_dimensions.items():
+        dimension.width = 8.7
         assert dict(actual.column_dimensions[key]) == dict(dimension)
     for key, dimension in expected.row_dimensions.items():
-        assert dict(actual.row_dimensions[key]) == dict(dimension)
+        if key not in (5, 6, 7):
+            assert dict(actual.row_dimensions[key]) == dict(dimension)
+    assert [actual.row_dimensions[key].height for key in (5, 6, 7)] == [22, 22, 22]
     for row in expected:
         for cell in row:
             other = actual[cell.coordinate]
             assert other.value == cell.value
+            if cell.row == 7 and 13 <= cell.column <= 19:
+                continue
             assert copy(other.font) == copy(cell.font)
             assert copy(other.fill) == copy(cell.fill)
             assert copy(other.border) == copy(cell.border)
@@ -53,7 +62,8 @@ def test_generacion_reproduce_referencia_v5(tmp_path):
 def test_carga_conserva_logos_textos_y_opciones(tmp_path):
     from app.planillas.piloto import datos_ejemplo
     datos = datos_ejemplo()
-    datos["cabecera"] = {"cliente": "[Ejemplo] Planta", "fecha": "25/10/2026"}
+    datos["cabecera"] = {"cliente": "[Ejemplo] Planta", "fecha": "25/10/2026",
+                         "numero_mantenedor": "IFI-2024-10001"}
     datos["observaciones"] = [f"[Ejemplo] Observación {i}" for i in range(1, 5)]
     posiciones = {}
     bloque = None
@@ -86,8 +96,11 @@ def test_carga_conserva_logos_textos_y_opciones(tmp_path):
     actual, expected = load_workbook(result).active, load_workbook(blank).active
     assert actual["C5"].value == "[Ejemplo] Planta"
     assert actual["V4"].value == "25/10/2026"
+    assert actual["Q7"].value == "IFI-2024-10001"
     for campo, valor in esperado.items():
-        assert actual[f"J{posiciones[campo]}"].value == valor, campo
+        cell = actual[f"J{posiciones[campo]}"]
+        assert cell.value == valor, campo
+        assert cell.font.bold and cell.alignment.horizontal == 'center'
     for fila, valor in enumerate(datos["observaciones"], 36):
         assert actual[f"A{fila}"].value == valor
     assert actual["T3"].value == "T.C. 3 AÑOS"
@@ -105,7 +118,7 @@ def test_carga_conserva_logos_textos_y_opciones(tmp_path):
                         if etree.QName(child).localname in {"created", "modified"}:
                             tree.remove(child)
                 assert etree.tostring(left) == etree.tostring(right)
-            elif name != "xl/worksheets/sheet1.xml":
+            elif name not in ("xl/worksheets/sheet1.xml", "xl/styles.xml"):
                 assert filled.read(name) == base.read(name)
 
 
@@ -182,7 +195,8 @@ def pdfs_saa1(tmp_path_factory):
         tree = etree.fromstring(source.read('xl/worksheets/sheet1.xml'))
         workbook = etree.fromstring(source.read('xl/workbook.xml'))
         tree.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}pageSetup').set('fitToHeight', '1')
-        from app.planillas.impresion import preparar_impresion
+        from app.planillas.impresion import ajustar_tabla, preparar_impresion
+        ajustar_tabla(tree)
         preparar_impresion(tree, workbook)
         for item in source.infolist():
             payload = source.read(item.filename)

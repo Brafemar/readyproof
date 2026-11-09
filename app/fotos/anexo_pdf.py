@@ -13,6 +13,7 @@ from pypdf import PdfReader, PdfWriter
 from pypdf.errors import PdfReadError
 from pypdf.generic import ArrayObject, DecodedStreamObject, DictionaryObject, EncodedStreamObject, NameObject, NumberObject
 from reportlab.lib.colors import HexColor
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
@@ -198,8 +199,16 @@ def _texto(canvas, font, x, top, text, size=11):
 
 def _cabecera(canvas, font, campos):
     canvas.setFillColor(HexColor("#1D1D1B"))
-    _texto(canvas, font, MARGEN, MARGEN, "ANEXO FOTOGRÁFICO", 17)
-    top = MARGEN + 30
+    from ..planillas.firmas import logo_readyproof
+
+    logo = ImageReader(BytesIO(logo_readyproof()))
+    width, height = logo.getSize()
+    logo_width = 125
+    logo_height = logo_width * height / width
+    canvas.drawImage(logo, MARGEN, A4_PT[1] - MARGEN - logo_height, logo_width, logo_height, mask="auto")
+    title_top = MARGEN + logo_height + 10
+    _texto(canvas, font, MARGEN, title_top, "ANEXO FOTOGRÁFICO", 17)
+    top = title_top + 30
     width = (A4_PT[0] - 2*MARGEN - 20)/2
     for names in (("Cliente", "Equipo"), ("Técnico", "Fecha")):
         max_height = 0

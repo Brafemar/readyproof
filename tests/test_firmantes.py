@@ -62,7 +62,8 @@ def test_identidad_tecnico_historial_y_pdf(client,catalogo,datos_api,app,usuario
     emitted=client.post(route+'/emitir',json=dict(revision=final.json['revision']));assert emitted.status_code==201,emitted.json
     payload=client.get(route+'/pdf').data;reader=PdfReader(BytesIO(payload));assert len(reader.pages)==1
     text=reader.pages[0].extract_text()
-    for value in ['[Ejemplo] Responsable de prueba','DNI: 00000000','Cargo: No informado',usuario_admin['login'],'Empresa: readyproof','Fecha del servicio:']:
+    assert 'Fecha del servicio:' not in text and 'Empresa: readyproof' not in text
+    for value in ['[Ejemplo] Responsable de prueba','DNI: 00000000','Cargo: No informado',usuario_admin['login']]:
         assert value in text,value
     assert reader.metadata['/ReadyproofFirmantes']
     out=Path('out/final_v1/pdf');out.mkdir(parents=True,exist_ok=True);(out/'SAA-1_firmantes.pdf').write_bytes(payload)

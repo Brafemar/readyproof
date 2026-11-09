@@ -5,15 +5,14 @@ from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
 import runpy
-import shutil
 import subprocess
 from tempfile import gettempdir
 from zipfile import ZipFile
 
 from lxml import etree
 from openpyxl import load_workbook
-from PIL import Image
 from pypdf import PdfReader
+import pypdfium2 as pdfium
 import pytest
 
 from app.planillas.generador import _generar_paquete
@@ -78,10 +77,10 @@ def test_paginacion_por_formato(tmp_path, kind, large):
         if large: assert '[Ejemplo] Sistema de prueba'.upper() in text
     last_text = reader.pages[-1].extract_text()
     assert 'OBSERVACIONES:' in last_text and 'FIRMA / ACLARACIÓN' in last_text
-    subprocess.run([shutil.which('pdftoppm'), '-r','100','-png',str(marked),str(tmp_path/'raster')], check=True, capture_output=True)
-    for path in tmp_path.glob('raster-*.png'):
-        with Image.open(path) as image:
-            gray = image.convert('L')
+    with pdfium.PdfDocument(str(marked)) as document:
+        for page in document:
+            bitmap = page.render(scale=100/72)
+            gray = bitmap.to_pil().convert('L')
             # Encabezado oficial exceptuado del mínimo de 10 mm, con mínimo 4 mm.
             mask = gray.point(lambda v:255 if v < 230 else 0)
             box = mask.getbbox()
@@ -90,6 +89,9 @@ def test_paginacion_por_formato(tmp_path, kind, large):
             bbox = body.point(lambda v:255 if v < 230 else 0).getbbox()
             assert bbox[0] >= 39 and body.width-bbox[2] >= 39
             assert body.height-bbox[3] >= 39
+            gray.close()
+            bitmap.close()
+            page.close()
 
 
 def test_scc2_referencia_real_una_pagina_sin_modificar_original(tmp_path):

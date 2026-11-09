@@ -15,7 +15,7 @@ NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 CABECERA = {
     "fecha": "V4", "cliente": "C5", "cuit": "O5", "telefono": "V5",
     "direccion": "C6", "edificio": "O6", "sector": "V6",
-    "empresa_mantenedora": "E7", "numero_mantenedor": "R7", "inspector": "V7",
+    "empresa_mantenedora": "E7", "numero_mantenedor": "Q7", "inspector": "V7",
     "sistema_designacion": "A8",
 }
 
@@ -101,6 +101,10 @@ def _generar_paquete(spec, cambios, destino):
         build(spec, str(base), str(MODELO))
         with ZipFile(base) as source:
             tree = etree.fromstring(source.read("xl/worksheets/sheet1.xml"))
+            styles = etree.fromstring(source.read('xl/styles.xml'))
+            from .impresion import ajustar_tabla, destacar_resultados
+            ajustar_tabla(tree)
+            destacar_resultados(tree, styles, cambios)
             for coordenada, valor in cambios.items():
                 cell = tree.find(f".//{NS}c[@r='{coordenada}']")
                 if cell is None:
@@ -113,12 +117,14 @@ def _generar_paquete(spec, cambios, destino):
                 text.text = valor
             workbook = etree.fromstring(source.read('xl/workbook.xml'))
             from .impresion import preparar_impresion
-            preparar_impresion(tree, workbook, titulos=[title for title, _ in spec['bloques']])
+            preparar_impresion(tree, workbook, titulos=[title for title, _ in spec['bloques']],
+                               mantener_bloques=spec['tipo'] == 'checklist')
             filled = Path(temporal) / "cargada.xlsx"
             with ZipFile(filled, "w") as output:
                 for entry in source.infolist():
                     data = (etree.tostring(tree) if entry.filename == 'xl/worksheets/sheet1.xml' else
-                            etree.tostring(workbook) if entry.filename == 'xl/workbook.xml' else source.read(entry.filename))
+                            etree.tostring(workbook) if entry.filename == 'xl/workbook.xml' else
+                            etree.tostring(styles) if entry.filename == 'xl/styles.xml' else source.read(entry.filename))
                     output.writestr(entry, data)
             payload = filled.read_bytes()
     with destino.open("xb") as output:

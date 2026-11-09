@@ -1476,3 +1476,8 @@ Búsqueda exacta en Contabilium mediante el filtro documentado en la colección 
 ## 2026-11-04 — Conservar destinatario al cargar correo
 
 El diálogo conserva el destinatario escrito o borrado por el usuario mientras llega la configuración. El valor predeterminado se propone solo si no hubo edición. Cada apertura parte con el campo vacío y las respuestas anteriores se descartan al cerrar o volver a abrir. Se actualiza la versión de caché y se agregan cinco casos de navegador a 390 px con configuración demorada, sin envíos reales ni dependencias nuevas. Evidencia y comparación de suite en CORRECCION_DESTINATARIO.json. Sin despliegue.
+
+
+## 2026-11-09 — Formato A4 de planillas emitidas
+
+Se amplió el ancho útil en la copia de impresión, se unificaron las filas de identificación y se amplió la celda del certificado. Los resultados cargados se muestran centrados y en negrita. Se incorporó la marca vigente al encabezado y al anexo fotográfico, se reservó espacio para el sello ISO y se quitó del pie la repetición de empresa y fecha. El certificado vigente, las definiciones del kit y los PDF archivados se conservan. La numeración por sistema queda pendiente de confirmación.

@@ -76,7 +76,7 @@ def test_fuente_incrustada_con_to_unicode(muestra):
 
 def test_cinco_marcas_una_hoja_a4(muestra):
     pdf = lector(muestra[4])
-    assert len(pdf.pages)==1 and len(pdf.pages[0].images)==1
+    assert len(pdf.pages)==1 and len(pdf.pages[0].images)==2
     assert float(pdf.pages[0].mediabox.width)==pytest.approx(anexo.A4_PT[0],abs=.001)
     assert float(pdf.pages[0].mediabox.height)==pytest.approx(anexo.A4_PT[1],abs=.001)
     assert pdf.pages[0]["/Resources"]["/XObject"]["/RPFOTO"]["/Width"]==1600
@@ -140,14 +140,18 @@ def test_pie_configurado_prevalece(muestra):
     assert "[Ejemplo] Pie configurado" in text and "IRAM" not in text
 
 
-def test_texto_largo_no_se_corta_y_hojas_a4(muestra,tmp_path):
+def test_texto_largo_no_se_corta_y_hojas_a4(muestra):
     image=Image.new("RGB",(600,1600),"white");stream=BytesIO();image.save(stream,format="JPEG")
     rows=[dict(numero=1,codigo="O",texto="[Ejemplo] "+"W"*130)]
     data=anexo.generar_anexo(stream.getvalue(),[dict(numero=1,x=.5,y=.5)],rows)
     pdf=lector(data)
-    assert len(pdf.pages)==2 and len(pdf.pages[1].images)==0
+    assert len(pdf.pages)==2
+    assert len(pdf.pages[1].images)==1  # Encabezado de marca, sin repetir la foto.
+    assert '/RPFOTO' not in pdf.pages[1]['/Resources']['/XObject']
     assert sum(page.extract_text().count("W") for page in pdf.pages)==130
-    assert pdftotext(data,tmp_path/"continuacion.pdf").count("W")==130
+    import pypdfium2 as pdfium
+    with pdfium.PdfDocument(data) as rendered:
+        assert sum(page.get_textpage().get_text_range().count("W") for page in rendered)==130
     assert all(float(page.mediabox.height)==pytest.approx(anexo.A4_PT[1],abs=.001) for page in pdf.pages)
 
 

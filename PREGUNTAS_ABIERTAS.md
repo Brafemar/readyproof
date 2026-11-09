@@ -463,3 +463,8 @@ La habilitación configurable está implementada; el servidor permanece en pilot
 ## 2026-10-28 — Confirmación final de transición y unidades
 
 Jorge autoriza modo REAL, confirma mantenedora READYPROOF y certificado IFI-2024-10001 y aprueba el checklist. Comunica decisión de Martín: bar en presión. Aclara conservar los cuatro estados SDI y crear las versiones necesarias antes del corte. Se resuelve SCC-1 mediante versión 00-26-bar1 y migración 017, sin tocar fuente ni datos históricos. SDI no incorpora mediciones nuevas ni pierde estados. El alcance ampliado del backlog no se declara implementado por esta autorización.
+
+
+## 2026-11-09 — Certificado en planillas por sistema
+
+Confirmar con Jorge y Martín si el certificado debe variar por sistema y cuál es el identificador oficial completo de cada uno. Hasta recibir esa confirmación, la emisión conserva el certificado vigente.

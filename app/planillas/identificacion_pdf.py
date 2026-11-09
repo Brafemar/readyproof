@@ -1,5 +1,4 @@
 """Franja de identificación complementaria al pie, sin modificar filas del kit."""
-from datetime import date
 import textwrap
 from .firmantes import nombre_tecnico_segun_modo
 
@@ -12,13 +11,12 @@ BASE=44
 
 def lineas_firmantes(datos,ancho):
     tecnico=datos['tecnico'];responsable=datos['responsable']
-    fecha=date.fromisoformat(datos['fecha']).strftime('%d/%m/%Y')
     nombre=nombre_tecnico_segun_modo(tecnico.get('nombre'))
     # El login conserva la identidad autenticada si el nombre usa otra escritura.
     try:nombre.encode('cp1252')
     except UnicodeEncodeError:nombre=tecnico.get('login') or ''
-    columnas=[['TÉCNICO DE READYPROOF',f"Usuario: {tecnico.get('login') or 'Sin firma registrada'}",f'Nombre: {nombre}', 'Empresa: '+datos.get('empresa_mantenedora','readyproof'),f'Fecha del servicio: {fecha}'],
-              ['RESPONSABLE DE LA INSTALACIÓN',f"Nombre: {responsable.get('nombre_firmante') or 'Sin completar'}",f"DNI: {responsable.get('dni_firmante') or 'Sin completar'}",f"Cargo: {responsable.get('cargo_firmante') or 'No informado'}",f"Empresa: {datos['empresa']}",f'Fecha del servicio: {fecha}']]
+    columnas=[['TÉCNICO DE READYPROOF',f"Usuario: {tecnico.get('login') or 'Sin firma registrada'}",f'Nombre: {nombre}'],
+              ['RESPONSABLE DE LA INSTALACIÓN',f"Nombre: {responsable.get('nombre_firmante') or 'Sin completar'}",f"DNI: {responsable.get('dni_firmante') or 'Sin completar'}",f"Cargo: {responsable.get('cargo_firmante') or 'No informado'}"]]
     # El glifo más ancho de Helvetica WinAnsi ocupa 1,015 em.
     limite=max(1,int(ancho/(FUENTE*1.02)))
     return [[part for linea in columna for part in textwrap.wrap(linea,width=limite,break_long_words=True,break_on_hyphens=False)] for columna in columnas]
