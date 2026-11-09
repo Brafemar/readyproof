@@ -129,7 +129,7 @@ def reponer_logos(origen_excel, origen_pdf, destino_pdf, *, logo_izquierdo=None)
                 with Image.open(BytesIO(logo_izquierdo)) as image:
                     width, height = 140, 140 * image.height / image.width
             x = margins["left"] if anchor == "LH" else (page_width - margins["right"] - width if anchor == "RH" else (page_width - width) / 2)
-            header = min(margins["header"], 5) if anchor == "LH" and logo_izquierdo is not None else margins["header"]
+            header = min(margins["header"], 8) if anchor == "LH" and logo_izquierdo is not None else margins["header"]
             y = page_height - header - height
             commands.append(f"q {width:.5f} 0 0 {height:.5f} {x:.5f} {y:.5f} cm {name} Do Q\n")
         if commands:
