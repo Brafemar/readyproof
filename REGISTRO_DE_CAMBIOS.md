@@ -1486,3 +1486,8 @@ Se amplió el ancho útil en la copia de impresión, se unificaron las filas de 
 ## 2026-11-09 — Identidad Readyproof, manual 1.0
 
 Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorporan los recursos originales del kit de marca. Se aplican la variante horizontal, el sello reducido, la paleta BFM y las tipografías Archivo Black y Fira Sans. El correo usa Arial como alternativa prevista por el manual. La marca de agua de Readyproof deja de aplicarse a las nuevas emisiones. Los archivos de fuentes incluyen sus licencias OFL.
+
+## 2026-11-09 — Variante principal de identidad
+
+- Por indicación de Jorge, se usa el logotipo principal vertical original del kit en la app, planillas, anexos y correos. El favicon y los iconos instalables usan el sello reducido.
+- Se ajusta la reserva de encabezado A4 y se renueva la caché de la PWA para cargar el SVG principal.

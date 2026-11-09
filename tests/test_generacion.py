@@ -31,7 +31,7 @@ def test_generacion_reproduce_referencia_v5(tmp_path):
     expected.page_setup.fitToHeight = 1
     from app.planillas.impresion import MARGEN
     expected.page_margins.left = expected.page_margins.right = expected.page_margins.bottom = MARGEN
-    expected.page_margins.top = 35 / 25.4
+    expected.page_margins.top = 66 / 25.4
     assert actual.page_setup == expected.page_setup
     assert actual.page_margins == expected.page_margins
     assert actual.print_options == expected.print_options

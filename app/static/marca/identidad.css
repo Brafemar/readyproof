@@ -31,7 +31,7 @@ h1, h2, h3 {
 }
 a.brand {
   flex: 0 0 auto;
-  width: 204px;
+  width: 176px;
   max-width: 100%;
 }
 .brand img {

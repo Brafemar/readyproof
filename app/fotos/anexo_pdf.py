@@ -204,7 +204,7 @@ def _cabecera(canvas, font, campos):
 
     logo = ImageReader(BytesIO(logo_readyproof()))
     width, height = logo.getSize()
-    logo_width = 140
+    logo_width = 108
     logo_height = logo_width * height / width
     canvas.drawImage(logo, MARGEN, A4_PT[1] - MARGEN - logo_height, logo_width, logo_height, mask="auto")
     title_top = MARGEN + logo_height + 10

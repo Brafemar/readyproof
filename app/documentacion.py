@@ -43,7 +43,7 @@ def mensaje(usuario,key,destinatario=None):
            'La clave temporal inicial se entrega por un canal privado separado.\n'
            'Soporte: Jorge Sánchez, por el canal interno acordado.\n')
     mail.set_content(guide)
-    mail.add_alternative('<html lang="es-AR"><body style="font-family:Arial,Helvetica,sans-serif;color:#1D1D1B"><img src="cid:logo-readyproof" alt="Readyproof" width="240" style="height:auto;max-width:100%">'
+    mail.add_alternative('<html lang="es-AR"><body style="font-family:Arial,Helvetica,sans-serif;color:#1D1D1B"><img src="cid:logo-readyproof" alt="Readyproof" width="176" style="height:auto;max-width:100%">'
                          f'<p>Hola {escape(usuario.nombre)}</p><p>Tu usuario: <strong>{escape(usuario.login)}</strong></p>'
                          '<p>Acceder con el túnel privado activo: <a href="http://127.0.0.1:8876/login">readyproof</a>.</p>'
                          f'<p>{escape(sistemas)}</p>'

@@ -88,7 +88,7 @@ def preparar_impresion(sheet, workbook, *, titulos=(), mantener_bloques=False):
     margins = sheet.find(NS+'pageMargins')
     for key in ('left', 'right', 'bottom'):
         margins.set(key, str(max(MARGEN, float(margins.get(key, '0')))))
-    margins.set('top', str(max(35 / 25.4, float(margins.get('top', '0')))))
+    margins.set('top', str(max(66 / 25.4, float(margins.get('top', '0')))))
     page = sheet.find(NS+'pageSetup')
     page.set('orientation', 'landscape'); page.set('paperSize', '9')
     page.set('fitToWidth', '1'); page.attrib.pop('scale', None)
