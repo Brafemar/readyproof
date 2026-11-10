@@ -8,7 +8,7 @@ from sqlalchemy import delete, func, select, text
 from . import (autorizar_cliente, cerrar_sesion, comprobar_clave, csrf_token, exigir_admin, exigir_usuario,
     hash_clave, iniciar_sesion, normalizar_login, revocar, usuario_json)
 from ..db import sesion
-from ..models import Cliente, RegistroAcceso, Sistema, Usuario, UsuarioCliente, ahora
+from ..models import Auditoria, Cliente, RegistroAcceso, Sistema, Usuario, UsuarioCliente, ahora
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import objeto, obtener
 from ..config import SISTEMAS_HABILITADOS
@@ -166,8 +166,13 @@ def editar_usuario(usuario_id):
         count=sesion().scalar(select(func.count()).select_from(Usuario).where(Usuario.rol=="admin",Usuario.activo.is_(True)))
         if count<=1:abort(409,description="Debe quedar al menos un administrador activo.")
     ids=validar_asignaciones(data["cliente_ids"])
-    if "certificado_conjunto" in data:
-        user.certificado_conjunto = data["certificado_conjunto"]
+    permiso = data.get("certificado_conjunto", user.certificado_conjunto)
+    if permiso != user.certificado_conjunto:
+        sesion().add(Auditoria(tabla="usuarios", registro_id=user.id, accion="UPDATE",
+                               usuario_id=g.usuario.id,
+                               datos_anterior={"certificado_conjunto": user.certificado_conjunto},
+                               datos_nuevo={"certificado_conjunto": permiso}))
+        user.certificado_conjunto = permiso
     user.rol=data["rol"];user.activo=data["activo"];asignar(user,ids);revocar(user.id);g.evento_auth="usuario_actualizado"
     return jsonify(vista_usuario(user))
 

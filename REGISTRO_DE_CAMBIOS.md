@@ -1501,3 +1501,9 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - Permiso administrable por cuenta, con asignación inicial en la migración y control en servidor.
 - Se prepara una propuesta con planillas ficticias, anexos y certificado al final. Se conserva la leyenda de propuesta y el sello vectorial de la referencia.
 - El correo de prueba se descarga como archivo EML. La emisión y el transporte real quedan pendientes de autorización.
+
+## Corrección de la propuesta de certificado conjunto
+
+- La propuesta conserva el encabezado de la referencia y el firmante aprobado. La firma se lee de la referencia V2 privada, verificada por SHA-256, y queda fuera del repositorio.
+- La migración 022 crea el permiso deshabilitado para todas las cuentas. Administración registra cada habilitación o revocación en auditoría.
+- El formulario de propuesta es exclusivo de Administración y bloquea una tercera planilla. La descarga verifica el permiso en el servidor.

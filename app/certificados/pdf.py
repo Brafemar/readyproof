@@ -1,4 +1,5 @@
 """Compone una propuesta de certificado sobre la plantilla aprobada."""
+from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
 
@@ -10,6 +11,16 @@ from ..fotos.anexo_pdf import _numerar_documento
 from ..planillas.validacion import DatosInvalidos
 
 PLANTILLA = Path(__file__).with_name("plantilla_propuesta.pdf")
+
+
+def extraer_firma_aprobada(referencia):
+    if sha256(referencia).hexdigest() != "832271563f622193cb937f8e8b4dd26e294d575608fa98960e4f59360aa63fc6":
+        raise ValueError("La referencia de la firma no coincide con la aprobada.")
+    pagina = PdfReader(BytesIO(referencia)).pages[0]
+    firma = pagina.images["/FormXob.3f70379b043c51fb7b35703d34208835"].image
+    salida = BytesIO()
+    firma.save(salida, format="PNG")
+    return salida.getvalue()
 
 
 def separar_documentos(documentos):
@@ -30,7 +41,7 @@ def generar_propuesta(documentos, filas, ficha, firma):
     escritor = PdfWriter()
     for page in planillas + anexos:
         escritor.add_page(page)
-    certificado = PdfReader(PLANTILLA).pages[0]
+    certificado = escritor.add_page(PdfReader(PLANTILLA).pages[0])
     capa = BytesIO()
     lienzo = canvas.Canvas(capa, pagesize=(float(certificado.mediabox.width), float(certificado.mediabox.height)))
 
@@ -59,17 +70,15 @@ def generar_propuesta(documentos, filas, ficha, firma):
                     (160, "Planillas: " + ficha["referencias"]),
                     (145, "Informe técnico: " + ficha["informe"]),
                     (130, f"Anexo fotográfico: {len(anexos)} página(s)"),
-                    (54, ficha["firmante"]), (42, "Firma gráfica del responsable técnico")):
-        linea(420, y, dato, 383, negrita=y==54)
-    linea(641, 514, "Registro de propuesta", 162)
-    total = len(escritor.pages) + 1
+                    (42, "Mat. A 11576")):
+        linea(420, y, dato, 383)
+    total = len(escritor.pages)
     linea(693, 28, f"T.C. 3 AÑOS · Pág. {total} de {total}", 120, puntos=8)
     lienzo.drawImage(ImageReader(BytesIO(firma)), 440, 70, width=96, height=35,
                      preserveAspectRatio=True, anchor="sw", mask="auto")
     lienzo.save()
     capa.seek(0)
     certificado.merge_page(PdfReader(capa).pages[0])
-    escritor.add_page(certificado)
     _numerar_documento(escritor, ultima_con_numeracion_propia=True)
     salida = BytesIO()
     escritor.write(salida)

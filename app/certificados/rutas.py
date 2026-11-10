@@ -1,26 +1,26 @@
 """Generación local de propuestas sin emisión ni transporte externo."""
-from base64 import b64encode
 from datetime import date
 from email.message import EmailMessage
 from hashlib import sha256
 from io import BytesIO
+from pathlib import Path
 from uuid import UUID
 
-from flask import Blueprint, abort, g, render_template, request, send_file
+from flask import Blueprint, abort, current_app, g, render_template, request, send_file
 from pypdf.errors import PdfReadError
 from sqlalchemy import select
 
-from ..auth import csrf_token, exigir_usuario, permitido
+from ..auth import csrf_token, exigir_admin, exigir_usuario
 from ..db import sesion
 from ..models import Carga, Cliente, Planilla, Sistema
 from ..modo import es_piloto
-from ..planillas.firmas import validar_firmas
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import obtener
 from .calendario import vencimiento
-from .pdf import generar_propuesta
+from .pdf import extraer_firma_aprobada, generar_propuesta
 
 certificados = Blueprint("certificados", __name__)
+MAX_PLANILLAS_PROPUESTA = 2
 
 
 def exigir_propuesta():
@@ -33,6 +33,7 @@ def exigir_propuesta():
 
 @certificados.get("/certificados")
 def formulario():
+    exigir_admin()
     exigir_propuesta()
     db = sesion()
     filas = db.execute(select(Carga.id, Carga.numero_registro, Sistema.designacion,
@@ -43,8 +44,17 @@ def formulario():
         .where(Carga.estado == "emitida", Carga.pdf.is_not(None), Carga.estado_anulada.is_(False),
                Cliente.es_ejemplo.is_(True), Cliente.nombre.startswith("[Ejemplo] "))
         .order_by(Carga.emitida_en.desc())).all()
-    opciones = [r for r in filas if permitido(r[3])]
-    return render_template("certificado_propuesta.html", opciones=opciones, csrf=csrf_token())
+    return render_template("certificado_propuesta.html", opciones=filas, csrf=csrf_token(),
+                           max_planillas=MAX_PLANILLAS_PROPUESTA)
+
+
+def firma_aprobada():
+    referencia = current_app.config.get("CERTIFICADO_REFERENCIA_V2") or (
+        Path(current_app.instance_path) / "certificado_referencia_v2.pdf")
+    try:
+        return extraer_firma_aprobada(Path(referencia).read_bytes())
+    except (OSError, ValueError, PdfReadError):
+        abort(503, description="La firma gráfica aprobada no está disponible en este entorno.")
 
 
 def dato(nombre, limite, *, obligatorio=True):
@@ -57,6 +67,10 @@ def dato(nombre, limite, *, obligatorio=True):
 @certificados.post("/api/certificados/propuesta")
 def propuesta():
     exigir_propuesta()
+    campos_carga = [key for key in request.form if key.startswith("carga_")]
+    permitidos = {f"carga_{i}" for i in range(1, MAX_PLANILLAS_PROPUESTA + 1)}
+    if any(key not in permitidos or len(request.form.getlist(key)) > 1 for key in campos_carga):
+        raise DatosInvalidos(f"La propuesta admite como máximo {MAX_PLANILLAS_PROPUESTA} planillas.")
     if request.form.get("confirmacion") != "si":
         raise DatosInvalidos("Confirmá las periodicidades y el dictamen.")
     try:
@@ -66,7 +80,7 @@ def propuesta():
     filas, cargas, sistemas, referencias = [], [], [], []
     cliente = None
     periodos = []
-    for i in (1, 2):
+    for i in range(1, MAX_PLANILLAS_PROPUESTA + 1):
         raw_id = request.form.get(f"carga_{i}")
         if not raw_id:
             if i == 1:
@@ -96,16 +110,12 @@ def propuesta():
         referencias.append(f"{planilla.codigo} / {carga.numero_registro or 's/n'} / R{carga.revision_publica}")
         periodos.append(f"{cantidad} {'día(s)' if unidad=='dias' else 'mes(es)'}")
         cargas.append(carga)
-    subida=request.files.get("firma")
-    raw=subida.stream.read(200001) if subida else b""
-    if not raw or len(raw)>200000:
-        raise DatosInvalidos("Adjuntá una firma gráfica ficticia PNG de hasta 200 KB.")
-    firma=validar_firmas({"tecnico":"data:image/png;base64,"+b64encode(raw).decode("ascii")})["tecnico"]
+    firma = firma_aprobada()
     ficha=dict(fecha=fecha,cliente=cliente.nombre,intervencion=f"{cliente.cuit or 'Sin CUIT'} · {dato('intervencion',50)}",
                establecimiento=dato("establecimiento",120),sistemas=" / ".join(dict.fromkeys(sistemas)),
                periodicidades=" / ".join(periodos),dictamen=dato("dictamen",120),
                observaciones=dato("observaciones",120,obligatorio=False),referencias=" · ".join(referencias),
-               informe=dato("informe",90,obligatorio=False) or "No indicado",firmante=g.usuario.nombre)
+               informe=dato("informe",90,obligatorio=False) or "No indicado")
     try:
         pdf=generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha, firma)
     except PdfReadError:

@@ -14,11 +14,12 @@ from threading import Thread
 from PIL import Image, ImageDraw
 from pypdf import PdfReader
 from reportlab.pdfgen import canvas
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from werkzeug.serving import make_server
 
 from app.certificados.calendario import vencimiento
-from app.models import Carga, Usuario
+from app.models import Auditoria, Carga, Usuario
 from tests.test_smtp_gmail import carga_emitida
 
 
@@ -49,8 +50,7 @@ def configurar(app, usuario_admin, carga_emitida):
 def datos(carga):
     return dict(carga_1=carga, unidad_1="meses", cantidad_1="1", fecha="2028-01-31",
                 intervencion="2028-01-30", establecimiento="[Ejemplo] Sede ficticia",
-                dictamen="[Ejemplo] Dictamen de prueba", confirmacion="si",
-                firma=(BytesIO(firma_ficticia()), "firma.png"))
+                dictamen="[Ejemplo] Dictamen de prueba", confirmacion="si")
 
 
 def test_vencimiento_calendario():
@@ -59,7 +59,8 @@ def test_vencimiento_calendario():
     assert vencimiento(date(2027, 12, 31), dias=7) == date(2028, 1, 7)
 
 
-def test_permiso_en_servidor_y_propuesta(app, client, usuario_admin, carga_emitida):
+def test_permiso_en_servidor_y_propuesta(app, client, usuario_admin, carga_emitida, monkeypatch):
+    monkeypatch.setattr("app.certificados.rutas.firma_aprobada", firma_ficticia)
     ruta = "/api/certificados/propuesta"
     assert client.get("/certificados").status_code == 403
     assert client.post(ruta, data=datos(carga_emitida)).status_code == 403
@@ -67,6 +68,8 @@ def test_permiso_en_servidor_y_propuesta(app, client, usuario_admin, carga_emiti
     configurar(app, usuario_admin, carga_emitida)
     assert client.get("/certificados").status_code == 200
     assert client.post(ruta, data=datos(carga_emitida) | {"confirmacion": ""}).status_code == 422
+    exceso = client.post(ruta, data=datos(carga_emitida) | {"carga_3": carga_emitida})
+    assert exceso.status_code == 422 and "máximo 2" in exceso.json["error"]
     resultado = client.post(ruta, data=datos(carga_emitida))
     assert resultado.status_code == 200, resultado.get_json()
     paginas = PdfReader(BytesIO(resultado.data)).pages
@@ -77,6 +80,8 @@ def test_permiso_en_servidor_y_propuesta(app, client, usuario_admin, carga_emiti
     texto = paginas[2].extract_text()
     assert all(t in texto for t in ("CERTIFICADO DE INSPECCIÓN", "PROPUESTA / NO EMITIDO", "29/02/2028"))
     assert "Grupo BFM" not in texto
+    assert "Registro [NNNN] · Revisión [R]" in texto
+    assert "Lic. Martín Marcos A. Sánchez" in texto and "Mat. A 11576" in texto
     correo = client.post(ruta, data=datos(carga_emitida) | {"salida": "correo_prueba"})
     assert correo.status_code == 200
     mensaje = BytesParser(policy=policy.default).parsebytes(correo.data)
@@ -98,12 +103,14 @@ def test_administrador_habilita_y_revoca(client, usuario_admin):
     assert respuesta.status_code == 200 and respuesta.json["certificado_conjunto"] is False
     nuevo = login_cliente(app, usuario_admin["login"], usuario_admin["clave"])
     assert nuevo.get("/certificados").status_code == 403
+    with Session(app.extensions["db_engine"]) as db:
+        rows = db.scalars(select(Auditoria).where(Auditoria.tabla == "usuarios", Auditoria.registro_id == usuario_admin["id"])).all()
+        assert {row.datos_nuevo["certificado_conjunto"] for row in rows} == {True, False}
 
 
-def test_certificado_navegador(app, usuario_admin, carga_emitida, tmp_path):
+def test_certificado_navegador(app, usuario_admin, carga_emitida, tmp_path, monkeypatch):
+    monkeypatch.setattr("app.certificados.rutas.firma_aprobada", firma_ficticia)
     configurar(app, usuario_admin, carga_emitida)
-    path = tmp_path / "firma_ficticia.png"
-    path.write_bytes(firma_ficticia())
     server = make_server("127.0.0.1", 0, app, threaded=True)
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -113,7 +120,7 @@ def test_certificado_navegador(app, usuario_admin, carga_emitida, tmp_path):
         result = subprocess.run([os.environ.get("READYPROOF_NODE") or shutil.which("node"),
                                  "tests/browser/certificado_conjunto.cjs"],
             input=json.dumps(dict(url=f"http://127.0.0.1:{server.server_port}", usuario=usuario_admin,
-                                  firma=str(path), salida=str(salida))), text=True, capture_output=True, timeout=90)
+                                  salida=str(salida))), text=True, capture_output=True, timeout=90)
         assert result.returncode == 0, result.stderr
         assert len(PdfReader(salida / "propuesta_conjunta.pdf").pages) == 3
     finally:

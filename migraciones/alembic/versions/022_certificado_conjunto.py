@@ -11,8 +11,6 @@ depends_on = None
 def upgrade():
     op.add_column("usuarios", sa.Column("certificado_conjunto", sa.Boolean(),
                                          server_default=sa.false(), nullable=False))
-    usuarios = sa.table("usuarios", sa.column("login"), sa.column("certificado_conjunto"))
-    op.execute(usuarios.update().where(usuarios.c.login == "msanchez").values(certificado_conjunto=True))
 
 
 def downgrade():

@@ -25,7 +25,10 @@ const { chromium } = require("playwright");
     await page.locator("#unidad_1").selectOption("meses");
     await page.locator("#establecimiento").fill("[Ejemplo] Sede ficticia");
     await page.locator("#dictamen").fill("[Ejemplo] Dictamen de prueba");
-    await page.locator("#firma").setInputFiles(data.firma);
+    const agregar = page.getByRole("button", { name: "Agregar planilla" });
+    await agregar.click();
+    await agregar.click();
+    assert.match(await page.locator("#limite-planillas").textContent(), /máximo 2 planillas/);
     await page.locator("[name=confirmacion]").check();
     await page.screenshot({ path: path.join(data.salida, "formulario_390.png"), fullPage: true });
     const [download] = await Promise.all([page.waitForEvent("download"),
