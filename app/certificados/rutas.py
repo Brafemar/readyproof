@@ -10,10 +10,9 @@ from flask import Blueprint, abort, current_app, g, render_template, request, se
 from pypdf.errors import PdfReadError
 from sqlalchemy import select, text
 
-from ..auth import csrf_token, exigir_admin, exigir_usuario
+from ..auth import csrf_token, exigir_admin
 from ..db import sesion
 from ..models import Auditoria, Carga, Cliente, FirmaCertificadoActiva, Planilla, Sistema, ahora
-from ..modo import es_piloto
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import obtener
 from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, leer_version, validar_png
@@ -25,16 +24,15 @@ MAX_PLANILLAS_PROPUESTA = 2
 
 
 def exigir_propuesta():
-    exigir_usuario()
+    exigir_admin()
     if not g.usuario.certificado_conjunto:
         abort(403, description="La cuenta no tiene permiso de certificado conjunto.")
-    if not es_piloto():
-        abort(409, description="La emisión del certificado sigue pendiente de aprobación.")
+    if not current_app.config["CERTIFICADO_CONJUNTO_HABILITADO"]:
+        abort(409, description="La propuesta de certificado conjunto no está habilitada.")
 
 
 @certificados.get("/certificados")
 def formulario():
-    exigir_admin()
     exigir_propuesta()
     db = sesion()
     filas = db.execute(select(Carga.id, Carga.numero_registro, Sistema.designacion,
@@ -105,7 +103,7 @@ def firma_aprobada():
         if activa:
             with directorio_privado(current_app.instance_path) as fd:
                 return leer_version(fd, activa.sha256)
-        if es_piloto() and current_app.testing:
+        if current_app.testing:
             referencia = current_app.config.get("CERTIFICADO_REFERENCIA_V2")
             if referencia:
                 return extraer_firma_aprobada(Path(referencia).read_bytes())

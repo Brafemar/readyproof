@@ -1512,3 +1512,8 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 
 - Administración carga PNG normalizados en el directorio privado de la instancia. El puntero y la auditoría se confirman en una transacción. Se conservan las versiones anteriores.
 - La migración 023 crea únicamente la tabla de metadatos. El certificado verifica la huella antes de leer la firma y la referencia V2 queda reservada a pruebas.
+
+## Certificado conjunto con habilitación independiente
+
+- La propuesta y su enlace de Administración requieren habilitación explícita, permiso de usuario y rol de administrador. Se conserva la etiqueta de propuesta y la restricción a planillas ficticias.
+- El recurso de firma de referencia sigue disponible solo en pruebas. La carga de firma y los flujos de planillas, correo e integraciones conservan su lógica.

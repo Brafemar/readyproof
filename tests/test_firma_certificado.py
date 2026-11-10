@@ -214,6 +214,7 @@ def verificar_pdf(payload):
 
 def test_propuesta_dos_planillas_y_permiso(app, client, privado, usuario_admin, carga_emitida):
     segunda = dos_cargas(app, carga_emitida)
+    app.config.update(MODO_PILOTO=False, CERTIFICADO_CONJUNTO_HABILITADO=True)
     cuerpo = datos(carga_emitida) | {"carga_2":segunda,"cantidad_2":"7","unidad_2":"dias"}
     ruta = "/api/certificados/propuesta"
     assert client.post(ruta, data=cuerpo).status_code == 403
@@ -224,10 +225,17 @@ def test_propuesta_dos_planillas_y_permiso(app, client, privado, usuario_admin, 
     assert r.status_code==200, r.json
     verificar_pdf(r.data)
     assert len(list(privado.glob("*.png")))==1
+    with Session(app.extensions["db_engine"]) as db:
+        db.get(Usuario, usuario_admin["id"]).rol = "tecnico"
+        db.commit()
+    tecnico = login_cliente(app, usuario_admin["login"], usuario_admin["clave"])
+    assert tecnico.get("/certificados").status_code == 403
+    assert tecnico.post(ruta, data=cuerpo).status_code == 403
 
 
 def test_navegador_firma_y_certificado(app, client, privado, usuario_admin, carga_emitida, tmp_path):
     segunda = dos_cargas(app, carga_emitida)
+    app.config.update(MODO_PILOTO=False, CERTIFICADO_CONJUNTO_HABILITADO=True)
     habilitar(app,client,usuario_admin)
     ruta_firma = tmp_path / "firma_ficticia.png"
     ruta_firma.write_bytes(firma())

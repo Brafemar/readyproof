@@ -7,6 +7,7 @@ from io import BytesIO
 import secrets
 import smtplib
 import ssl
+from uuid import uuid4
 
 import pytest
 from pypdf import PdfWriter
@@ -14,7 +15,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.correo import preparar_envio, reintentar_envios, send_email, registrar_bounce
-from app.models import Carga, Envio, Intento, RegistroAcceso, Retencion, Usuario, ahora
+from app.models import Carga, Cliente, Envio, Intento, RegistroAcceso, Retencion, Sistema, Usuario, ahora
 from app.planillas.leyenda_iram import incorporar_leyenda_iram
 
 
@@ -70,6 +71,49 @@ def carga_emitida(app,catalogo,datos_api,usuario_admin,tmp_path):
 
 def preparar(session,key,actor):
     return preparar_envio(session,session.get(Carga,key),"cliente@example.invalid",actor,"[Ejemplo] Planilla","[Ejemplo] PDF adjunto.")
+
+
+def test_envio_inmediato_real_en_modo_prueba_no_transmite(app, client, carga_emitida, monkeypatch):
+    app.config.update(MODO_PILOTO=False, MAIL_MODO_PRUEBA=True, PLANILLAS_TRANSPORTE="gmail_api",
+                      EMPRESA_MANTENEDORA="Empresa ficticia", CERTIFICADO_N="IFI-2099-00001")
+    with Session(app.extensions["db_engine"]) as db:
+        carga = db.get(Carga, carga_emitida)
+        carga.numero_registro = 1
+        sistema = db.get(Sistema, carga.sistema_id)
+        db.get(Cliente, sistema.cliente_id).es_ejemplo = False
+        db.commit()
+
+    intentos = []
+    destinatario = "cliente@example.invalid"
+
+    def registrar(transporte, destinos=()):
+        intentos.append((transporte, tuple(destinos)))
+        assert all(valor.endswith("@example.invalid") for valor in destinos)
+
+    def token_simulado():
+        registrar("gmail_token")
+        return "token-ficticio"
+
+    class SMTPFalso:
+        def __init__(self, *args, **kwargs):
+            registrar("smtp_conexion")
+
+        def send_message(self, mensaje, **kwargs):
+            registrar("smtp_envio", (str(mensaje["To"]),))
+
+    monkeypatch.setattr("app.gmail_https.obtener_token", token_simulado)
+    monkeypatch.setattr("app.gmail_https.enviar_con_token",
+                        lambda mensaje, token: registrar("gmail_envio", (str(mensaje["To"]),)))
+    monkeypatch.setattr(smtplib, "SMTP", SMTPFalso)
+    monkeypatch.setattr(smtplib, "SMTP_SSL", SMTPFalso)
+    respuesta = client.post(f"/api/cargas/{carga_emitida}/enviar",
+                            json={"destinatario": destinatario, "inmediato": True},
+                            headers={"Idempotency-Key": str(uuid4())})
+    assert respuesta.status_code == 202, respuesta.json
+    assert respuesta.json["modo_prueba"] is True
+    assert respuesta.json["estado"] == "pendiente"
+    assert respuesta.json["destinatario"] == destinatario
+    assert intentos == []
 
 
 def test_gmail_credenciales_desde_env(app,smtp,carga_emitida,usuario_admin,monkeypatch):

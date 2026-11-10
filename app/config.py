@@ -20,8 +20,12 @@ def configuracion():
     raw_mode=os.environ.get('MODO_PILOTO','true').lower()
     if raw_mode not in ('true','false'):raise RuntimeError('MODO_PILOTO debe ser true o false.')
     piloto=raw_mode=='true'
+    raw_certificado = os.environ.get('CERTIFICADO_CONJUNTO_HABILITADO', 'false').lower()
+    if raw_certificado not in ('true', 'false'):
+        raise RuntimeError('CERTIFICADO_CONJUNTO_HABILITADO debe ser true o false.')
     return {
         'MODO_PILOTO':piloto,
+        'CERTIFICADO_CONJUNTO_HABILITADO': raw_certificado == 'true',
         'CONTABILIUM_CLIENT_ID':os.environ.get('CONTABILIUM_CLIENT_ID','').strip(),
         'CONTABILIUM_CLIENT_SECRET':os.environ.get('CONTABILIUM_CLIENT_SECRET','').strip(),
         'EMPRESA_MANTENEDORA':os.environ.get('EMPRESA_MANTENEDORA','[Ejemplo] readyproof').strip(),

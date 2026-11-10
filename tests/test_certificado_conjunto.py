@@ -32,6 +32,7 @@ def firma_ficticia():
 
 
 def configurar(app, usuario_admin, carga_emitida):
+    app.config["CERTIFICADO_CONJUNTO_HABILITADO"] = True
     out = BytesIO()
     pdf = canvas.Canvas(out)
     for texto in ("PLANILLA FICTICIA", "ANEXO FOTOGRÁFICO"):
@@ -88,6 +89,9 @@ def test_permiso_en_servidor_y_propuesta(app, client, usuario_admin, carga_emiti
     assert mensaje["To"] == "certificado@example.invalid"
     assert len(list(mensaje.iter_attachments())) == 1
     app.config["MODO_PILOTO"] = False
+    assert client.post(ruta, data=datos(carga_emitida)).status_code == 200
+    app.config["CERTIFICADO_CONJUNTO_HABILITADO"] = False
+    assert client.get("/certificados").status_code == 409
     assert client.post(ruta, data=datos(carga_emitida)).status_code == 409
 
 
@@ -97,6 +101,7 @@ def test_administrador_habilita_y_revoca(client, usuario_admin):
     assert respuesta.status_code == 200 and respuesta.json["certificado_conjunto"] is True
     from tests.conftest import login_cliente
     app = client.application
+    app.config["CERTIFICADO_CONJUNTO_HABILITADO"] = True
     nuevo = login_cliente(app, usuario_admin["login"], usuario_admin["clave"])
     assert nuevo.get("/certificados").status_code == 200
     respuesta = nuevo.put(ruta, json=dict(rol="admin", activo=True, cliente_ids=[], certificado_conjunto=False))
