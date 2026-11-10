@@ -3,7 +3,6 @@ from datetime import date
 from email.message import EmailMessage
 from hashlib import sha256
 from io import BytesIO
-from pathlib import Path
 from uuid import UUID
 
 from flask import Blueprint, abort, current_app, g, render_template, request, send_file
@@ -15,9 +14,9 @@ from ..db import sesion
 from ..models import Auditoria, Carga, Cliente, FirmaCertificadoActiva, Planilla, Sistema, ahora
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import obtener
-from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, leer_version, validar_png
+from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, validar_png
 from .calendario import vencimiento
-from .pdf import extraer_firma_aprobada, generar_propuesta
+from .pdf import generar_propuesta
 
 certificados = Blueprint("certificados", __name__)
 MAX_PLANILLAS_PROPUESTA = 2
@@ -97,21 +96,6 @@ def cargar_firma():
     return metadatos(activa), 200 if anterior else 201
 
 
-def firma_aprobada():
-    activa = sesion().get(FirmaCertificadoActiva, 1)
-    try:
-        if activa:
-            with directorio_privado(current_app.instance_path) as fd:
-                return leer_version(fd, activa.sha256)
-        if current_app.testing:
-            referencia = current_app.config.get("CERTIFICADO_REFERENCIA_V2")
-            if referencia:
-                return extraer_firma_aprobada(Path(referencia).read_bytes())
-    except (OSError, ValueError, PdfReadError):
-        pass
-    abort(503, description="La firma gráfica aprobada no está disponible en este entorno.")
-
-
 def dato(nombre, limite, *, obligatorio=True):
     texto = request.form.get(nombre, "").strip()
     if (obligatorio and not texto) or len(texto)>limite or any(ord(c)<32 for c in texto):
@@ -165,14 +149,13 @@ def propuesta():
         referencias.append(f"{planilla.codigo} / {carga.numero_registro or 's/n'} / R{carga.revision_publica}")
         periodos.append(f"{cantidad} {'día(s)' if unidad=='dias' else 'mes(es)'}")
         cargas.append(carga)
-    firma = firma_aprobada()
     ficha=dict(fecha=fecha,cliente=cliente.nombre,intervencion=f"{cliente.cuit or 'Sin CUIT'} · {dato('intervencion',50)}",
                establecimiento=dato("establecimiento",120),sistemas=" / ".join(dict.fromkeys(sistemas)),
                periodicidades=" / ".join(periodos),dictamen=dato("dictamen",120),
                observaciones=dato("observaciones",120,obligatorio=False),referencias=" · ".join(referencias),
                informe=dato("informe",90,obligatorio=False) or "No indicado")
     try:
-        pdf=generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha, firma)
+        pdf=generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha)
     except PdfReadError:
         raise DatosInvalidos("No se pudo leer una planilla de respaldo.") from None
     salida=request.form.get("salida","pdf")

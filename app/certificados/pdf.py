@@ -1,26 +1,14 @@
 """Compone una propuesta de certificado sobre la plantilla aprobada."""
-from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
 
 from ..fotos.anexo_pdf import _numerar_documento
 from ..planillas.validacion import DatosInvalidos
 
 PLANTILLA = Path(__file__).with_name("plantilla_propuesta.pdf")
-
-
-def extraer_firma_aprobada(referencia):
-    if sha256(referencia).hexdigest() != "832271563f622193cb937f8e8b4dd26e294d575608fa98960e4f59360aa63fc6":
-        raise ValueError("La referencia de la firma no coincide con la aprobada.")
-    pagina = PdfReader(BytesIO(referencia)).pages[0]
-    firma = pagina.images["/FormXob.3f70379b043c51fb7b35703d34208835"].image
-    salida = BytesIO()
-    firma.save(salida, format="PNG")
-    return salida.getvalue()
 
 
 def separar_documentos(documentos):
@@ -36,7 +24,7 @@ def separar_documentos(documentos):
     return planillas, anexos
 
 
-def generar_propuesta(documentos, filas, ficha, firma):
+def generar_propuesta(documentos, filas, ficha):
     planillas, anexos = separar_documentos(documentos)
     escritor = PdfWriter()
     for page in planillas + anexos:
@@ -74,8 +62,6 @@ def generar_propuesta(documentos, filas, ficha, firma):
         linea(420, y, dato, 383)
     total = len(escritor.pages)
     linea(693, 28, f"T.C. 3 AÑOS · Pág. {total} de {total}", 120, puntos=8)
-    lienzo.drawImage(ImageReader(BytesIO(firma)), 440, 70, width=96, height=35,
-                     preserveAspectRatio=True, anchor="sw", mask="auto")
     lienzo.save()
     capa.seek(0)
     certificado.merge_page(PdfReader(capa).pages[0])

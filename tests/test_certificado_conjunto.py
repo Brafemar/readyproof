@@ -1,4 +1,4 @@
-"""Certificado conjunto con planillas y firmas exclusivamente ficticias."""
+"""Propuesta de certificado conjunto con planillas ficticias."""
 from datetime import date
 from email import policy
 from email.parser import BytesParser
@@ -11,7 +11,6 @@ import shutil
 import subprocess
 from threading import Thread
 
-from PIL import Image, ImageDraw
 from pypdf import PdfReader
 from reportlab.pdfgen import canvas
 from sqlalchemy import select
@@ -21,14 +20,6 @@ from werkzeug.serving import make_server
 from app.certificados.calendario import vencimiento
 from app.models import Auditoria, Carga, Usuario
 from tests.test_smtp_gmail import carga_emitida
-
-
-def firma_ficticia():
-    img = Image.new("RGBA", (160, 60))
-    ImageDraw.Draw(img).line([(5, 40), (35, 10), (70, 45), (105, 18), (150, 28)], fill="black", width=3)
-    out = BytesIO()
-    img.save(out, format="PNG")
-    return out.getvalue()
 
 
 def configurar(app, usuario_admin, carga_emitida):
@@ -60,8 +51,7 @@ def test_vencimiento_calendario():
     assert vencimiento(date(2027, 12, 31), dias=7) == date(2028, 1, 7)
 
 
-def test_permiso_en_servidor_y_propuesta(app, client, usuario_admin, carga_emitida, monkeypatch):
-    monkeypatch.setattr("app.certificados.rutas.firma_aprobada", firma_ficticia)
+def test_permiso_en_servidor_y_propuesta(app, client, usuario_admin, carga_emitida):
     ruta = "/api/certificados/propuesta"
     assert client.get("/certificados").status_code == 403
     assert client.post(ruta, data=datos(carga_emitida)).status_code == 403
@@ -113,8 +103,7 @@ def test_administrador_habilita_y_revoca(client, usuario_admin):
         assert {row.datos_nuevo["certificado_conjunto"] for row in rows} == {True, False}
 
 
-def test_certificado_navegador(app, usuario_admin, carga_emitida, tmp_path, monkeypatch):
-    monkeypatch.setattr("app.certificados.rutas.firma_aprobada", firma_ficticia)
+def test_certificado_navegador(app, usuario_admin, carga_emitida, tmp_path):
     configurar(app, usuario_admin, carga_emitida)
     server = make_server("127.0.0.1", 0, app, threaded=True)
     thread = Thread(target=server.serve_forever, daemon=True)

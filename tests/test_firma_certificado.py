@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from werkzeug.serving import make_server
 
 from app.auth import hash_clave
+from app.certificados.pdf import PLANTILLA
 from app.models import Auditoria, Carga, FirmaCertificadoActiva, Usuario
 from tests.conftest import login_cliente
 from tests.test_certificado_conjunto import datos
@@ -209,7 +210,11 @@ def verificar_pdf(payload):
     texto = paginas[-1].extract_text()
     assert "PROPUESTA / NO EMITIDO" in texto and "Mat. A 11576" in texto and "Mat. “A” 11576" not in texto
     assert "29/02/2028" in texto and "07/02/2028" in texto
-    assert any(imagen.image.mode=="RGBA" for imagen in paginas[-1].images)
+    assert "Lic. Martín Marcos A. Sánchez" in texto
+    plantilla = PdfReader(PLANTILLA).pages[0]
+    assert [(imagen.name, imagen.data) for imagen in paginas[-1].images] == [
+        (imagen.name, imagen.data) for imagen in plantilla.images
+    ]
 
 
 def test_propuesta_dos_planillas_y_permiso(app, client, privado, usuario_admin, carga_emitida):
@@ -219,12 +224,10 @@ def test_propuesta_dos_planillas_y_permiso(app, client, privado, usuario_admin, 
     ruta = "/api/certificados/propuesta"
     assert client.post(ruta, data=cuerpo).status_code == 403
     client = habilitar(app,client,usuario_admin)
-    assert client.post(ruta,data=cuerpo).status_code == 503
-    assert cargar(client,firma()).status_code==201
     r=client.post(ruta,data=cuerpo)
     assert r.status_code==200, r.json
     verificar_pdf(r.data)
-    assert len(list(privado.glob("*.png")))==1
+    assert not privado.exists()
     with Session(app.extensions["db_engine"]) as db:
         db.get(Usuario, usuario_admin["id"]).rol = "tecnico"
         db.commit()
@@ -237,8 +240,6 @@ def test_navegador_firma_y_certificado(app, client, privado, usuario_admin, carg
     segunda = dos_cargas(app, carga_emitida)
     app.config.update(MODO_PILOTO=False, CERTIFICADO_CONJUNTO_HABILITADO=True)
     habilitar(app,client,usuario_admin)
-    ruta_firma = tmp_path / "firma_ficticia.png"
-    ruta_firma.write_bytes(firma())
     salida = Path(os.environ.get("RP_FIRMA_EVIDENCIA", str(tmp_path))).resolve()
     salida.mkdir(parents=True,exist_ok=True)
     server=make_server("127.0.0.1",0,app,threaded=True)
@@ -248,11 +249,11 @@ def test_navegador_firma_y_certificado(app, client, privado, usuario_admin, carg
         result=subprocess.run([os.environ.get("READYPROOF_NODE") or shutil.which("node"),
                                "tests/browser/certificado_conjunto.cjs"],input=json.dumps({
             "url":f"http://127.0.0.1:{server.server_port}","usuario":usuario_admin,"salida":str(salida),
-            "firma":str(ruta_firma),"primera":carga_emitida,"segunda":segunda}),
+            "verificarFirmaVacia":True,"primera":carga_emitida,"segunda":segunda}),
             text=True,capture_output=True,timeout=100)
         assert result.returncode==0,result.stderr
         verificar_pdf((salida/"propuesta_conjunta.pdf").read_bytes())
-        assert len(list(privado.glob("*.png")))==1
+        assert not privado.exists()
     finally:
         server.shutdown()
         thread.join(timeout=10)

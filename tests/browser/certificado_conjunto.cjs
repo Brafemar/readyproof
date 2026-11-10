@@ -16,14 +16,10 @@ const { chromium } = require("playwright");
     await page.locator("#login").fill(data.usuario.login);
     await page.locator("#clave").fill(data.usuario.clave);
     await Promise.all([page.waitForURL(data.url + "/"), page.getByRole("button", { name: "Ingresar", exact: true }).click()]);
-    if (data.firma) {
+    if (data.verificarFirmaVacia) {
       await page.getByRole("link", { name: "Administración", exact: true }).click();
       await page.getByRole("link", { name: "Firma del certificado", exact: true }).click();
       await page.getByText("Sin firma activa.").waitFor();
-      await page.locator("#firma").setInputFiles(data.firma);
-      await page.getByRole("button", { name: "Guardar firma" }).click();
-      await page.getByText("Firma guardada.").waitFor();
-      assert.match(await page.locator("#estado-firma").textContent(), /SHA-256 [0-9a-f]{64}/);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390);
       await page.screenshot({ path: path.join(data.salida, "firma_admin_390.png"), fullPage: true });
       await page.goto(data.url + "/");
