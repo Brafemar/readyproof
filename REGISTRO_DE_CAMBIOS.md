@@ -1493,3 +1493,5 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - Se ajusta la reserva de encabezado A4 y se renueva la caché de la PWA para cargar el SVG principal.
 
 - Se amplía proporcionalmente el sello ISO en el encabezado de nuevas planillas con el logotipo principal.
+
+- Los iconos instalables llevan fondo blanco opaco. La verificación operativa compara el logo del PDF con el PNG compuesto sobre blanco.

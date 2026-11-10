@@ -86,7 +86,10 @@ def verificar_pdf(payload):
         raise ErrorPrueba('Falta la leyenda IRAM en una página.')
     if 'T.C. 3 AÑOS' not in reader.pages[0].extract_text():raise ErrorPrueba('Falta la retención en el encabezado.')
     with Image.open(ROOT/'app/static/logo_readyproof.png') as image:
-        expected=sha256(image.convert('RGB').tobytes()).hexdigest()
+        rgba=image.convert('RGBA')
+        fondo=Image.new('RGB',rgba.size,'white')
+        fondo.paste(rgba,mask=rgba.getchannel('A'))
+        expected=sha256(fondo.tobytes()).hexdigest()
     if any(not any(sha256(image.image.convert('RGB').tobytes()).hexdigest()==expected for image in page.images) for page in reader.pages):
         raise ErrorPrueba('El PDF no contiene el logo vigente en todas las páginas.')
     if any((reader.metadata or {}).get(key)!='readyproof' for key in ('/Author','/Creator','/Producer')):
