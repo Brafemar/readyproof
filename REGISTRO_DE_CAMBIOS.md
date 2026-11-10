@@ -1495,3 +1495,9 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - Se amplía proporcionalmente el sello ISO en el encabezado de nuevas planillas con el logotipo principal.
 
 - Los iconos instalables llevan fondo blanco opaco. La verificación operativa compara el logo del PDF con el PNG compuesto sobre blanco.
+
+## Certificado conjunto de prueba
+
+- Permiso administrable por cuenta, con asignación inicial en la migración y control en servidor.
+- Se prepara una propuesta con planillas ficticias, anexos y certificado al final. Se conserva la leyenda de propuesta y el sello vectorial de la referencia.
+- El correo de prueba se descarga como archivo EML. La emisión y el transporte real quedan pendientes de autorización.

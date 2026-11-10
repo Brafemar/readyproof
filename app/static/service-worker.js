@@ -1,4 +1,4 @@
-const CACHE = 'readyproof-ui-v29-identidad-principal';
+const CACHE = 'readyproof-ui-v30-certificado-propuesta';
 const STATIC = [
   '/static/fotos.js','/static/fotos.css','/static/carga.css','/static/carga.js','/static/auth.js','/static/cuenta.css',
   '/static/admin.js','/static/cuenta.js','/static/pwa.css','/static/pwa.js','/static/buscar.js',

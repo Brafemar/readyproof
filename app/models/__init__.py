@@ -176,6 +176,7 @@ class Usuario(Base):
     rol: Mapped[str] = mapped_column(String(12))
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora)
+    certificado_conjunto: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false(), nullable=False)
     auditorias: Mapped[list['Auditoria']] = relationship(back_populates='usuario', passive_deletes='all')
 
 

@@ -44,6 +44,8 @@ def create_app(test_config=None):
     app.register_blueprint(auditoria_api)
     from .correo.rutas import correo_api
     app.register_blueprint(correo_api)
+    from .certificados.rutas import certificados
+    app.register_blueprint(certificados)
     from .rutas.web import web
     app.register_blueprint(web)
     from .auth.rutas import auth

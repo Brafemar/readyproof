@@ -468,3 +468,9 @@ Jorge autoriza modo REAL, confirma mantenedora READYPROOF y certificado IFI-2024
 ## 2026-11-09 — Certificado en planillas por sistema
 
 Confirmar con Jorge y Martín si el certificado debe variar por sistema y cuál es el identificador oficial completo de cada uno. Hasta recibir esa confirmación, la emisión conserva el certificado vigente.
+
+## Certificado conjunto
+
+- Confirmar periodicidades y dictámenes de cada sistema o inspección con el responsable técnico.
+- Confirmar tratamiento de la leyenda de propuesta, numeración y emisión real, matrícula a mostrar y autorización de envío.
+- La maqueta permite dos filas de vigencia. Confirmar formato para conjuntos con más de dos inspecciones.

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certificado conjunto · readyproof</title>
+<link rel="stylesheet" href="/static/carga.css">
+{% include 'base.html' %}
+</head>
+<body><main>
+<a href="/">Volver a planillas</a>
+<h1>Certificado conjunto</h1>
+<p>Propuesta de prueba con planillas ficticias. Confirmá el dictamen y la vigencia de cada inspección.</p>
+<form action="/api/certificados/propuesta" method="post" enctype="multipart/form-data">
+<input type="hidden" name="csrf_token" value="{{ csrf }}">
+<div class="field-grid">
+<div class="field"><label for="fecha">Fecha del certificado</label><input id="fecha" name="fecha" type="date" required></div>
+<div class="field"><label for="intervencion">Fecha de intervención</label><input id="intervencion" name="intervencion" type="date" required></div>
+{% for i in (1, 2) %}
+<div class="field"><label for="carga_{{ i }}">Planilla {{ i }}{% if i == 2 %} (opcional){% endif %}</label>
+<select id="carga_{{ i }}" name="carga_{{ i }}" {% if i == 1 %}required{% endif %}>
+<option value="">Elegí una planilla</option>
+{% for id, registro, sistema, cliente_id, cliente, codigo in opciones %}
+<option value="{{ id }}">{{ cliente }} · {{ sistema }} · {{ codigo }} · {{ registro or 's/n' }}</option>
+{% endfor %}
+</select></div>
+<div class="field"><label for="cantidad_{{ i }}">Periodicidad confirmada {{ i }}</label><input id="cantidad_{{ i }}" name="cantidad_{{ i }}" type="number" min="1" {% if i == 1 %}required{% endif %}>
+<label for="unidad_{{ i }}">Unidad {{ i }}</label><select id="unidad_{{ i }}" name="unidad_{{ i }}" {% if i == 1 %}required{% endif %}><option value="">Elegí una unidad</option><option value="meses">Meses calendario</option><option value="dias">Días</option></select></div>
+{% endfor %}
+<div class="field"><label for="establecimiento">Establecimiento y domicilio ficticios</label><input id="establecimiento" name="establecimiento" maxlength="120" required></div>
+<div class="field"><label for="dictamen">Dictamen de prueba</label><input id="dictamen" name="dictamen" maxlength="120" required></div>
+<div class="field"><label for="observaciones">Observaciones</label><input id="observaciones" name="observaciones" maxlength="120"></div>
+<div class="field"><label for="informe">Informe técnico de respaldo</label><input id="informe" name="informe" maxlength="90"></div>
+<div class="field"><label for="firma">Firma gráfica ficticia (PNG)</label><input id="firma" name="firma" type="file" accept="image/png" required></div>
+</div>
+<label><input type="checkbox" name="confirmacion" value="si" required> Confirmo las periodicidades y el dictamen de la propuesta.</label>
+<p><button class="button primary" name="salida" value="pdf">Descargar propuesta PDF</button>
+<button class="button secondary" name="salida" value="correo_prueba">Preparar correo de prueba</button></p>
+</form></main></body></html>

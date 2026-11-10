@@ -120,4 +120,4 @@ def registro(evento, *, usuario_id=None, estado=200, login_huella=None):
 
 
 def usuario_json(usuario):
-    return {"id":usuario.id,"login":usuario.login,"nombre":usuario.nombre,"rol":usuario.rol,"activo":usuario.activo}
+    return {"id":usuario.id,"login":usuario.login,"nombre":usuario.nombre,"rol":usuario.rol,"activo":usuario.activo,"certificado_conjunto":usuario.certificado_conjunto}

@@ -156,7 +156,9 @@ def crear_usuario():
 
 @auth.put("/api/admin/usuarios/<usuario_id>")
 def editar_usuario(usuario_id):
-    exigir_admin();data=objeto({"rol","activo","cliente_ids"})
+    exigir_admin();data=objeto({"rol","activo","cliente_ids"},{"certificado_conjunto"})
+    if "certificado_conjunto" in data and not isinstance(data["certificado_conjunto"], bool):
+        raise DatosInvalidos("El permiso de certificado debe ser verdadero o falso.")
     if data["rol"] not in ("admin","tecnico") or not isinstance(data["activo"],bool):raise DatosInvalidos("Rol o estado inválido.")
     sesion().execute(text("SELECT pg_advisory_xact_lock(724004)"))
     user=obtener(Usuario,usuario_id);sesion().refresh(user)
@@ -164,6 +166,8 @@ def editar_usuario(usuario_id):
         count=sesion().scalar(select(func.count()).select_from(Usuario).where(Usuario.rol=="admin",Usuario.activo.is_(True)))
         if count<=1:abort(409,description="Debe quedar al menos un administrador activo.")
     ids=validar_asignaciones(data["cliente_ids"])
+    if "certificado_conjunto" in data:
+        user.certificado_conjunto = data["certificado_conjunto"]
     user.rol=data["rol"];user.activo=data["activo"];asignar(user,ids);revocar(user.id);g.evento_auth="usuario_actualizado"
     return jsonify(vista_usuario(user))
 

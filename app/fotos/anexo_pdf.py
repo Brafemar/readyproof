@@ -388,14 +388,15 @@ def unir_pdf(planilla_pdf, anexo_pdf):
     return output.getvalue()
 
 
-def _numerar_documento(writer):
+def _numerar_documento(writer, *, ultima_con_numeracion_propia=False):
     """Sustituye solo la numeración marcada por la del documento completo."""
     font = writer._add_object(DictionaryObject({NameObject('/Type'): NameObject('/Font'),
         NameObject('/Subtype'): NameObject('/Type1'), NameObject('/BaseFont'): NameObject('/Helvetica'),
         NameObject('/Encoding'): NameObject('/WinAnsiEncoding')}))
     total = len(writer.pages)
     writer.add_metadata({"/ReadyproofPaginas": str(total)})
-    for numero, page in enumerate(writer.pages, 1):
+    paginas = writer.pages[:-1] if ultima_con_numeracion_propia else writer.pages
+    for numero, page in enumerate(paginas, 1):
         contents = page.get_contents()
         if contents is not None:
             clean, depth = [], 0
