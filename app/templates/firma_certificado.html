@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="{{ csrf }}">
+<title>Firma del certificado · readyproof</title>
+<link rel="stylesheet" href="/static/carga.css">
+{% include 'base.html' %}
+<script src="/static/firma_certificado.js" defer></script>
+</head>
+<body><main>
+<a href="/admin">Volver a Administración</a>
+<h1>Firma del certificado</h1>
+<p id="estado-firma" role="status" style="overflow-wrap:anywhere">Consultando estado…</p>
+<form id="formulario-firma" enctype="multipart/form-data" action="/api/admin/firma-certificado" method="post">
+<div class="field"><label for="firma">PNG con fondo transparente, hasta 256 KiB</label>
+<input id="firma" name="firma" type="file" accept="image/png" required></div>
+<p><button class="button primary" type="submit">Guardar firma</button></p>
+</form>
+<p id="resultado-firma" role="status"></p>
+</main></body>
+</html>

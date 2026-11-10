@@ -1507,3 +1507,8 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - La propuesta conserva el encabezado de la referencia y el firmante aprobado. La firma se lee de la referencia V2 privada, verificada por SHA-256, y queda fuera del repositorio.
 - La migración 022 crea el permiso deshabilitado para todas las cuentas. Administración registra cada habilitación o revocación en auditoría.
 - El formulario de propuesta es exclusivo de Administración y bloquea una tercera planilla. La descarga verifica el permiso en el servidor.
+
+## Almacenamiento privado de la firma de certificado
+
+- Administración carga PNG normalizados en el directorio privado de la instancia. El puntero y la auditoría se confirman en una transacción. Se conservan las versiones anteriores.
+- La migración 023 crea únicamente la tabla de metadatos. El certificado verifica la huella antes de leer la firma y la referencia V2 queda reservada a pruebas.

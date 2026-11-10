@@ -115,6 +115,15 @@ class Auditoria(Base):
     usuario: Mapped['Usuario'] = relationship(back_populates='auditorias')
 
 
+class FirmaCertificadoActiva(Base):
+    __tablename__ = "firma_certificado_activa"
+    __table_args__ = (CheckConstraint("id = 1", name="ck_firma_certificado_unica"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    sha256: Mapped[str] = mapped_column(String(64))
+    tamano: Mapped[int] = mapped_column(Integer)
+    actualizada_en: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class EmisionCarga(Base):
     __tablename__ = "emisiones_carga"
     __table_args__ = (UniqueConstraint("carga_id", "revision_publica"),)

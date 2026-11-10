@@ -16,6 +16,18 @@ const { chromium } = require("playwright");
     await page.locator("#login").fill(data.usuario.login);
     await page.locator("#clave").fill(data.usuario.clave);
     await Promise.all([page.waitForURL(data.url + "/"), page.getByRole("button", { name: "Ingresar", exact: true }).click()]);
+    if (data.firma) {
+      await page.getByRole("link", { name: "Administración", exact: true }).click();
+      await page.getByRole("link", { name: "Firma del certificado", exact: true }).click();
+      await page.getByText("Sin firma activa.").waitFor();
+      await page.locator("#firma").setInputFiles(data.firma);
+      await page.getByRole("button", { name: "Guardar firma" }).click();
+      await page.getByText("Firma guardada.").waitFor();
+      assert.match(await page.locator("#estado-firma").textContent(), /SHA-256 [0-9a-f]{64}/);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390);
+      await page.screenshot({ path: path.join(data.salida, "firma_admin_390.png"), fullPage: true });
+      await page.goto(data.url + "/");
+    }
     await page.getByRole("link", { name: "Certificado conjunto" }).click();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390);
     await page.locator("#fecha").fill("2028-01-31");
@@ -29,6 +41,12 @@ const { chromium } = require("playwright");
     await agregar.click();
     await agregar.click();
     assert.match(await page.locator("#limite-planillas").textContent(), /máximo 2 planillas/);
+    if (data.segunda) {
+      await page.locator("#carga_1").selectOption(data.primera);
+      await page.locator("#carga_2").selectOption(data.segunda);
+      await page.locator("#cantidad_2").fill("7");
+      await page.locator("#unidad_2").selectOption("dias");
+    }
     await page.locator("[name=confirmacion]").check();
     await page.screenshot({ path: path.join(data.salida, "formulario_390.png"), fullPage: true });
     const [download] = await Promise.all([page.waitForEvent("download"),

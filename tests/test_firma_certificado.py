@@ -1,0 +1,251 @@
+"""Integración de la firma gráfica ficticia con PostgreSQL y el disco privado."""
+from hashlib import sha256
+from io import BytesIO
+import json
+import os
+from pathlib import Path
+import shutil
+import stat
+import subprocess
+from threading import Thread
+
+from PIL import Image, ImageDraw
+from pypdf import PdfReader
+import pytest
+from reportlab.pdfgen import canvas
+from sqlalchemy import event, select
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+from werkzeug.serving import make_server
+
+from app.auth import hash_clave
+from app.models import Auditoria, Carga, FirmaCertificadoActiva, Usuario
+from tests.conftest import login_cliente
+from tests.test_certificado_conjunto import datos
+from tests.test_smtp_gmail import carga_emitida
+
+RUTA = "/api/admin/firma-certificado"
+
+
+@pytest.fixture
+def privado(app, tmp_path):
+    app.instance_path = str(tmp_path / "instance")
+    return Path(app.instance_path) / "firmas_certificado"
+
+
+def codificar(imagen, formato="PNG", **opciones):
+    buffer = BytesIO()
+    imagen.save(buffer, formato, **opciones)
+    return buffer.getvalue()
+
+
+def firma(y=21):
+    imagen = Image.new("RGBA", (160, 60))
+    ImageDraw.Draw(imagen).line([(5, y), (43, 9), (80, 49), (150, 22)], fill="black", width=3)
+    return codificar(imagen)
+
+
+def cargar(client, datos):
+    return client.post(RUTA, data={"firma": (BytesIO(datos), "firma.png", "image/png")})
+
+
+def estado(client):
+    return client.post(RUTA + "/estado").json
+
+
+def info(path):
+    st = path.stat()
+    return {"modo": format(stat.S_IMODE(st.st_mode), "04o"), "uid": st.st_uid, "gid": st.st_gid,
+            "propietario": path.owner(), "grupo": path.group()}
+
+
+def evidencia(nombre, contenido):
+    salida = os.environ.get("RP_FIRMA_EVIDENCIA")
+    if salida:
+        destino = Path(salida)
+        destino.mkdir(parents=True, exist_ok=True)
+        with (destino / nombre).open("x", encoding="utf-8") as f:
+            json.dump(contenido, f, ensure_ascii=False, indent=2)
+
+
+def test_alta_y_reemplazo_real(app, client, privado, usuario_admin):
+    assert estado(client) == {"activa": False}
+    primera = cargar(client, firma())
+    assert primera.status_code == 201, primera.json
+    h1 = primera.json["sha256"]
+    anterior = privado / (h1 + ".png")
+    assert sha256(anterior.read_bytes()).hexdigest() == h1
+    segunda = cargar(client, firma(31))
+    assert segunda.status_code == 200
+    h2 = segunda.json["sha256"]
+    nueva = privado / (h2 + ".png")
+    assert h2 != h1 and sha256(nueva.read_bytes()).hexdigest() == h2
+    assert sha256(anterior.read_bytes()).hexdigest() == h1
+    assert estado(client)["sha256"] == h2
+    datos_disco = {key: info(path) for key,path in (("directorio", privado), ("anterior", anterior), ("nueva", nueva))}
+    assert [item["modo"] for item in datos_disco.values()] == ["0700", "0600", "0600"]
+    assert all((item["uid"],item["gid"])==(os.geteuid(),os.getegid()) for item in datos_disco.values())
+    with Session(app.extensions["db_engine"]) as db:
+        filas = db.scalars(select(Auditoria).where(Auditoria.tabla == "firma_certificado_activa")
+                           .order_by(Auditoria.timestamp)).all()
+        assert len(filas) == 2
+        assert all(row.usuario_id == usuario_admin["id"] and row.timestamp for row in filas)
+        assert filas[0].datos_anterior is None and filas[0].datos_nuevo["sha256"] == h1
+        assert filas[1].datos_anterior == {"sha256":h1}
+        assert filas[1].datos_nuevo == {"sha256":h2,"tamano":nueva.stat().st_size,
+                                       "resultado":"activada","operacion":"reemplazo"}
+    evidencia("permisos_hashes.json", {"permisos":datos_disco, "hash_anterior":h1, "hash_nuevo":h2,
+                                     "version_anterior_conservada":True, "auditoria_eventos":2})
+
+
+def invalido(caso):
+    if caso == "jpeg":
+        return codificar(Image.new("RGB", (20,20)), "JPEG")
+    if caso == "truncado":
+        return firma()[:35]
+    if caso == "tamano":
+        return firma() + b"0" * 262144
+    if caso == "dimensiones":
+        return codificar(Image.new("RGBA", (2401, 10)))
+    if caso == "opaco":
+        return codificar(Image.new("RGBA", (20,20), "black"))
+    im = Image.new("RGBA", (20,20))
+    if caso == "transparente":
+        return codificar(im)
+    if caso == "blanco":
+        im.putpixel((8,8),(255,255,255,255))
+        return codificar(im)
+    assert caso == "animado"
+    im.putpixel((8,8),(0,0,0,255))
+    return codificar(im, save_all=True, append_images=[Image.new("RGBA",(20,20),"red")], duration=100)
+
+
+@pytest.mark.parametrize("caso", ["jpeg","truncado","tamano","dimensiones","opaco","transparente","blanco","animado"])
+def test_png_invalido_no_escribe(client, privado, caso):
+    assert cargar(client, invalido(caso)).status_code == 422
+    assert not privado.exists()
+
+
+def test_tecnico_no_escribe(app, privado):
+    with Session(app.extensions["db_engine"]) as db:
+        db.add(Usuario(login="tecnico-firma",nombre="[Ejemplo] Técnico",rol="tecnico",
+                       clave_hash=hash_clave("clave-ficticia-solo-pruebas")))
+        db.commit()
+    client = login_cliente(app, "tecnico-firma", "clave-ficticia-solo-pruebas")
+    assert client.get("/admin/firma-certificado").status_code == 403
+    assert client.post(RUTA + "/estado").status_code == 403
+    assert cargar(client, firma()).status_code == 403
+    assert not privado.exists()
+
+
+def test_admin_sin_csrf_no_escribe(client, privado):
+    client.environ_base.pop("HTTP_X_CSRF_TOKEN")
+    assert client.post(RUTA + "/estado").status_code == 403
+    assert cargar(client, firma()).status_code == 403
+    assert not privado.exists()
+
+
+def test_auditoria_fallida_no_activa(app, client, privado):
+    inicial = cargar(client, firma())
+    assert inicial.status_code == 201
+    h1 = inicial.json["sha256"]
+
+    def falla_auditoria(session, *_):
+        if any(isinstance(row, Auditoria) and row.tabla=="firma_certificado_activa" for row in session.new):
+            raise SQLAlchemyError("Fallo de auditoría simulado")
+
+    factory = app.extensions["db_sessions"]
+    event.listen(factory, "before_flush", falla_auditoria)
+    try:
+        assert cargar(client, firma(35)).status_code == 503
+    finally:
+        event.remove(factory, "before_flush", falla_auditoria)
+    assert estado(client)["sha256"] == h1
+    assert sha256((privado / (h1 + ".png")).read_bytes()).hexdigest() == h1
+    with Session(app.extensions["db_engine"]) as db:
+        assert db.get(FirmaCertificadoActiva, 1).sha256 == h1
+        assert len(db.scalars(select(Auditoria).where(Auditoria.tabla == "firma_certificado_activa")).all()) == 1
+
+
+def pdf_prueba(numero):
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+    for texto in (f"PLANILLA FICTICIA {numero}", "ANEXO FOTOGRÁFICO",):
+        pdf.drawString(36, 720, texto)
+        if texto.startswith("ANEXO"):
+            pdf.drawString(36, 700, f"ANEXO FICTICIO {numero}")
+        pdf.showPage()
+    pdf.save()
+    return buffer.getvalue()
+
+
+def dos_cargas(app, carga_emitida):
+    with Session(app.extensions["db_engine"],expire_on_commit=False) as db:
+        primera = db.get(Carga, carga_emitida)
+        primera.pdf = pdf_prueba(1)
+        primera.pdf_sha256 = sha256(primera.pdf).hexdigest()
+        payload = pdf_prueba(2)
+        segunda = Carga(sistema_id=primera.sistema_id, planilla_id=primera.planilla_id,
+                        creada_por_id=primera.creada_por_id, estado="emitida", datos=primera.datos,
+                        emitida_en=primera.emitida_en, pdf=payload, pdf_sha256=sha256(payload).hexdigest())
+        db.add(segunda)
+        db.commit()
+        return segunda.id
+
+
+def habilitar(app, client, usuario):
+    r = client.put("/api/admin/usuarios/" + usuario["id"], json={
+        "rol":"admin","activo":True,"cliente_ids":[],"certificado_conjunto":True})
+    assert r.status_code==200 and r.json["certificado_conjunto"]
+    return login_cliente(app, usuario["login"], usuario["clave"])
+
+
+def verificar_pdf(payload):
+    paginas = PdfReader(BytesIO(payload)).pages
+    assert len(paginas) == 5
+    for i, valor in enumerate(("PLANILLA FICTICIA 1","PLANILLA FICTICIA 2",
+                               "ANEXO FICTICIO 1","ANEXO FICTICIO 2","CERTIFICADO DE INSPECCIÓN")):
+        assert valor in paginas[i].extract_text()
+    texto = paginas[-1].extract_text()
+    assert "PROPUESTA / NO EMITIDO" in texto and "Mat. A 11576" in texto and "Mat. “A” 11576" not in texto
+    assert "29/02/2028" in texto and "07/02/2028" in texto
+    assert any(imagen.image.mode=="RGBA" for imagen in paginas[-1].images)
+
+
+def test_propuesta_dos_planillas_y_permiso(app, client, privado, usuario_admin, carga_emitida):
+    segunda = dos_cargas(app, carga_emitida)
+    cuerpo = datos(carga_emitida) | {"carga_2":segunda,"cantidad_2":"7","unidad_2":"dias"}
+    ruta = "/api/certificados/propuesta"
+    assert client.post(ruta, data=cuerpo).status_code == 403
+    client = habilitar(app,client,usuario_admin)
+    assert client.post(ruta,data=cuerpo).status_code == 503
+    assert cargar(client,firma()).status_code==201
+    r=client.post(ruta,data=cuerpo)
+    assert r.status_code==200, r.json
+    verificar_pdf(r.data)
+    assert len(list(privado.glob("*.png")))==1
+
+
+def test_navegador_firma_y_certificado(app, client, privado, usuario_admin, carga_emitida, tmp_path):
+    segunda = dos_cargas(app, carga_emitida)
+    habilitar(app,client,usuario_admin)
+    ruta_firma = tmp_path / "firma_ficticia.png"
+    ruta_firma.write_bytes(firma())
+    salida = Path(os.environ.get("RP_FIRMA_EVIDENCIA", str(tmp_path))).resolve()
+    salida.mkdir(parents=True,exist_ok=True)
+    server=make_server("127.0.0.1",0,app,threaded=True)
+    thread=Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    try:
+        result=subprocess.run([os.environ.get("READYPROOF_NODE") or shutil.which("node"),
+                               "tests/browser/certificado_conjunto.cjs"],input=json.dumps({
+            "url":f"http://127.0.0.1:{server.server_port}","usuario":usuario_admin,"salida":str(salida),
+            "firma":str(ruta_firma),"primera":carga_emitida,"segunda":segunda}),
+            text=True,capture_output=True,timeout=100)
+        assert result.returncode==0,result.stderr
+        verificar_pdf((salida/"propuesta_conjunta.pdf").read_bytes())
+        assert len(list(privado.glob("*.png")))==1
+    finally:
+        server.shutdown()
+        thread.join(timeout=10)
+        server.server_close()

@@ -8,14 +8,15 @@ from uuid import UUID
 
 from flask import Blueprint, abort, current_app, g, render_template, request, send_file
 from pypdf.errors import PdfReadError
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from ..auth import csrf_token, exigir_admin, exigir_usuario
 from ..db import sesion
-from ..models import Carga, Cliente, Planilla, Sistema
+from ..models import Auditoria, Carga, Cliente, FirmaCertificadoActiva, Planilla, Sistema, ahora
 from ..modo import es_piloto
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import obtener
+from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, leer_version, validar_png
 from .calendario import vencimiento
 from .pdf import extraer_firma_aprobada, generar_propuesta
 
@@ -48,13 +49,69 @@ def formulario():
                            max_planillas=MAX_PLANILLAS_PROPUESTA)
 
 
-def firma_aprobada():
-    referencia = current_app.config.get("CERTIFICADO_REFERENCIA_V2") or (
-        Path(current_app.instance_path) / "certificado_referencia_v2.pdf")
+@certificados.get("/admin/firma-certificado")
+def pantalla_firma():
+    exigir_admin()
+    return render_template("firma_certificado.html", csrf=csrf_token())
+
+
+def metadatos(firma):
+    if firma is None:
+        return {"activa": False}
+    return {"activa": True, "sha256": firma.sha256, "tamano": firma.tamano,
+            "actualizada_en": firma.actualizada_en.isoformat()}
+
+
+@certificados.post("/api/admin/firma-certificado/estado")
+def estado_firma():
+    exigir_admin()
+    return metadatos(sesion().get(FirmaCertificadoActiva, 1))
+
+
+@certificados.post("/api/admin/firma-certificado")
+def cargar_firma():
+    exigir_admin()
+    archivos = request.files.getlist("firma")
+    if len(archivos) != 1:
+        raise DatosInvalidos("Adjuntá un único archivo PNG.")
+    datos = validar_png(archivos[0].stream.read(MAX_BYTES + 1))
+    db = sesion()
+    db.execute(text("SELECT pg_advisory_xact_lock(724023)"))
+    activa = db.get(FirmaCertificadoActiva, 1)
+    anterior = activa.sha256 if activa else None
     try:
-        return extraer_firma_aprobada(Path(referencia).read_bytes())
+        with directorio_privado(current_app.instance_path, crear=True) as fd:
+            nueva = guardar_version(fd, datos)
+    except (OSError, ValueError):
+        abort(503, description="No se pudo guardar la firma en el directorio privado.")
+    fecha = ahora()
+    if activa is None:
+        activa = FirmaCertificadoActiva(id=1)
+        db.add(activa)
+    activa.sha256, activa.tamano, activa.actualizada_en = nueva, len(datos), fecha
+    db.add(Auditoria(tabla="firma_certificado_activa", registro_id="1", accion="UPDATE" if anterior else "INSERT",
+                     usuario_id=g.usuario.id, timestamp=fecha,
+                     datos_anterior={"sha256": anterior} if anterior else None,
+                     datos_nuevo={"sha256": nueva, "tamano": len(datos), "resultado": "activada",
+                                  "operacion": "reemplazo" if anterior else "alta"}))
+    db.flush()
+    g.evento_auth = "firma_certificado_actualizada"
+    return metadatos(activa), 200 if anterior else 201
+
+
+def firma_aprobada():
+    activa = sesion().get(FirmaCertificadoActiva, 1)
+    try:
+        if activa:
+            with directorio_privado(current_app.instance_path) as fd:
+                return leer_version(fd, activa.sha256)
+        if es_piloto() and current_app.testing:
+            referencia = current_app.config.get("CERTIFICADO_REFERENCIA_V2")
+            if referencia:
+                return extraer_firma_aprobada(Path(referencia).read_bytes())
     except (OSError, ValueError, PdfReadError):
-        abort(503, description="La firma gráfica aprobada no está disponible en este entorno.")
+        pass
+    abort(503, description="La firma gráfica aprobada no está disponible en este entorno.")
 
 
 def dato(nombre, limite, *, obligatorio=True):
