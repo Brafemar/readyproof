@@ -101,7 +101,7 @@ def test_downgrade_no_elimina_cuit_registrado(app):
             config.attributes['connection']=c;command.downgrade(config,'010_firmantes')
     with engine.connect() as c:
         assert c.scalar(text('SELECT cuit FROM clientes WHERE cuit IS NOT NULL')) == '20000000001'
-        assert c.scalar(text('SELECT version_num FROM alembic_version')) == '024_emision_certificado'
+        assert c.scalar(text('SELECT version_num FROM alembic_version')) == '025_registro_certificado'
 
 
 def test_migrar_010_a_012_conserva_uuid_relaciones_y_datos(database_url):
@@ -120,7 +120,7 @@ def test_migrar_010_a_012_conserva_uuid_relaciones_y_datos(database_url):
         with engine.connect() as c:
             assert c.execute(text('SELECT id,cuit FROM clientes WHERE id=:id'),{'id':cid}).one() == (cid,None)
             assert c.execute(text('SELECT id,cliente_id,activo FROM sistemas WHERE id=:id'),{'id':sid}).one() == (sid,cid,True)
-            assert c.scalar(text('SELECT version_num FROM alembic_version')) == '024_emision_certificado'
+            assert c.scalar(text('SELECT version_num FROM alembic_version')) == '025_registro_certificado'
             assert next(x for x in inspect(c).get_columns('sistemas') if x['name']=='cliente_id')['nullable'] is False
     finally:
         engine.dispose()

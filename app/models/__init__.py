@@ -142,11 +142,16 @@ class EmisionCarga(Base):
 
 class EmisionCertificado(Base):
     __tablename__ = "emisiones_certificado"
-    __table_args__ = (CheckConstraint("condicion IN ('APROBADO', 'NO APROBADO')",
-                                      name="ck_emision_certificado_condicion"),)
+    __table_args__ = (
+        CheckConstraint("condicion IN ('APROBADO', 'NO APROBADO')", name="ck_emision_certificado_condicion"),
+        CheckConstraint("numero_registro > 0 AND revision > 0", name="ck_emision_certificado_numeracion"),
+        UniqueConstraint("numero_registro", "revision", name="uq_emision_certificado_registro_revision"),
+    )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=identificador)
     actor_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id"))
     cliente_id: Mapped[str] = mapped_column(ForeignKey("clientes.id"))
+    numero_registro: Mapped[int] = mapped_column(Integer)
+    revision: Mapped[int] = mapped_column(Integer)
     condicion: Mapped[str] = mapped_column(String(11))
     fecha_emision: Mapped[date]
     emitido_en: Mapped[datetime] = mapped_column(DateTime(timezone=True))

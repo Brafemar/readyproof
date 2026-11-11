@@ -1,5 +1,5 @@
 """Propuestas y emisiones locales de certificados conjuntos."""
-from datetime import date, timedelta
+from datetime import date
 from email.message import EmailMessage
 from hashlib import sha256
 from io import BytesIO
@@ -7,15 +7,16 @@ from uuid import UUID
 
 from flask import Blueprint, abort, current_app, g, render_template, request, send_file
 from pypdf.errors import PdfReadError
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 
 from ..auth import csrf_token, exigir_admin, exigir_usuario
+from ..carga.servicios import siguiente_numero_registro
 from ..db import sesion
 from ..models import Auditoria, Carga, Cliente, EmisionCertificado, FirmaCertificadoActiva, Planilla, Sistema, UsuarioCliente, ahora
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import obtener
 from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, leer_version, validar_png
-from .calendario import vencimiento
+from .calendario import vencimiento, vigencia_emision
 from .pdf import generar_propuesta
 
 certificados = Blueprint("certificados", __name__)
@@ -130,6 +131,31 @@ def emitir():
     return preparar_documento(emitido=True)
 
 
+def numeracion_emision(cliente_id):
+    valores = request.form.getlist("registro")
+    if not valores or valores == [""]:
+        return siguiente_numero_registro(), 1
+    try:
+        registro = int(valores[0])
+        if len(valores) != 1 or not 1 <= registro <= 2_147_483_647:
+            raise ValueError()
+    except ValueError:
+        raise DatosInvalidos("Indicá un número de registro válido para reemitir.") from None
+
+    db = sesion()
+    primera = db.scalar(select(EmisionCertificado.id).where(
+        EmisionCertificado.numero_registro == registro,
+        EmisionCertificado.revision == 1,
+        EmisionCertificado.cliente_id == cliente_id,
+    ).with_for_update())
+    if primera is None:
+        abort(404, description="No se encontró ese registro de certificado para el cliente seleccionado.")
+    ultima = db.scalar(select(func.max(EmisionCertificado.revision)).where(
+        EmisionCertificado.numero_registro == registro,
+    ))
+    return registro, ultima + 1
+
+
 def preparar_documento(*, emitido=False):
     condicion = None
     if emitido:
@@ -150,6 +176,7 @@ def preparar_documento(*, emitido=False):
     filas, cargas, sistemas, referencias = [], [], [], []
     cliente = None
     periodos = []
+    duracion = {"meses": 0, "dias": 0}
     for i in range(1, MAX_PLANILLAS_PROPUESTA + 1):
         raw_id = request.form.get(f"carga_{i}")
         if not raw_id:
@@ -162,8 +189,7 @@ def preparar_documento(*, emitido=False):
             cantidad = int(request.form.get(f"cantidad_{i}", ""))
             if unidad not in ("dias", "meses"):raise ValueError()
             hasta = vencimiento(fecha, **{unidad:cantidad})
-            if emitido:
-                hasta -= timedelta(days=1)
+            duracion[unidad] += cantidad
         except (ValueError, OverflowError):
             raise DatosInvalidos("Revisá la planilla y su periodicidad confirmada.") from None
         carga = obtener(Carga, cid)
@@ -184,6 +210,17 @@ def preparar_documento(*, emitido=False):
         referencias.append(f"{planilla.codigo} / {carga.numero_registro or 's/n'} / R{carga.revision_publica}")
         periodos.append(f"{cantidad} {'día(s)' if unidad=='dias' else 'mes(es)'}")
         cargas.append(carga)
+    if emitido:
+        try:
+            hasta = vigencia_emision(fecha, **duracion)
+        except (ValueError, OverflowError):
+            raise DatosInvalidos("Revisá la vigencia compuesta confirmada.") from None
+        periodos = []
+        for unidad, singular, plural in (("meses", "mes", "meses"), ("dias", "día", "días")):
+            cantidad = duracion[unidad]
+            if cantidad:
+                periodos.append(f"{cantidad} {singular if cantidad == 1 else plural}")
+        filas = [dict(sistema=" / ".join(periodos), vencimiento=hasta)]
     ficha=dict(fecha=fecha,cliente=cliente.nombre,intervencion=f"{cliente.cuit or 'Sin CUIT'} · {dato('intervencion',50)}",
                establecimiento=dato("establecimiento",120),sistemas=" / ".join(dict.fromkeys(sistemas)),
                periodicidades=" / ".join(periodos),dictamen=dato("dictamen",120,obligatorio=not emitido),
@@ -192,13 +229,16 @@ def preparar_documento(*, emitido=False):
     firma = firma_propuesta()
     if emitido and firma is None:
         abort(503, description="La emisión requiere una firma gráfica activa.")
+    numeracion = numeracion_emision(cliente.id) if emitido else None
     try:
-        pdf=generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha, firma=firma, condicion=condicion)
+        pdf = generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha, firma=firma,
+                                condicion=condicion, numeracion=numeracion)
     except PdfReadError:
         raise DatosInvalidos("No se pudo leer una planilla de respaldo.") from None
     if emitido:
         sesion().add(EmisionCertificado(
             actor_id=g.usuario.id, cliente_id=cliente.id, condicion=condicion,
+            numero_registro=numeracion[0], revision=numeracion[1],
             fecha_emision=fecha, emitido_en=ahora(), pdf=pdf, pdf_sha256=sha256(pdf).hexdigest(),
             planillas=[c.id for c in cargas],
         ))

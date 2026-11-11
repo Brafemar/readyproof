@@ -15,6 +15,10 @@ LEYENDAS_PROPUESTA = (
     "PROPUESTA / NO EMITIDO",
     "CONDICI\x02N FINAL: PENDIENTE DE VALIDACI\x02N T\x03CNICA",
     "Fechas ilustrativas.",
+    "Registro [NNNN]",
+    "VIGENCIA POR SISTEMA / INSPECCI",
+    "Dictamen y vigencias por sistema o inspecci",
+    "PERIODICIDAD POR INSPECCI",
     "PROPUESTA DE DISE\x08O",
 )
 
@@ -23,12 +27,21 @@ def quitar_leyendas_propuesta(pagina):
     contenido = pagina.get_contents()
     conservadas = []
     retiradas = []
-    for operandos, operador in contenido.operations:
+    divisores = 0
+    operaciones = contenido.operations
+    for indice, (operandos, operador) in enumerate(operaciones):
         if operador == b"Tj" and str(operandos[0]).startswith(LEYENDAS_PROPUESTA):
             retiradas.append(str(operandos[0]))
+        elif indice >= 2 and operador == b"S" and operaciones[indice - 2] == ([48, 355], b"m") and (
+            operaciones[indice - 1][1] == b"l" and operaciones[indice - 1][0][1] == 355
+        ):
+            # Termina el trazado sin dibujar el divisor de la segunda fila.
+            conservadas.append(([], b"n"))
+            divisores += 1
         else:
             conservadas.append((operandos, operador))
-    if any(sum(texto.startswith(leyenda) for texto in retiradas) != 1 for leyenda in LEYENDAS_PROPUESTA):
+    if divisores != 1 or any(sum(texto.startswith(leyenda) for texto in retiradas) != 1
+                            for leyenda in LEYENDAS_PROPUESTA):
         raise DatosInvalidos("La plantilla no permite generar el certificado emitido.")
     contenido.operations = conservadas
     pagina.replace_contents(contenido)
@@ -47,7 +60,7 @@ def separar_documentos(documentos):
     return planillas, anexos
 
 
-def generar_propuesta(documentos, filas, ficha, *, firma=None, condicion=None):
+def generar_propuesta(documentos, filas, ficha, *, firma=None, condicion=None, numeracion=None):
     planillas, anexos = separar_documentos(documentos)
     escritor = PdfWriter()
     for page in planillas + anexos:
@@ -72,11 +85,16 @@ def generar_propuesta(documentos, filas, ficha, *, firma=None, condicion=None):
     if condicion is not None:
         linea(730, 534, "EMITIDO", 65, puntos=10, negrita=True)
         linea(36, 427, f"CONDICIÓN FINAL: {condicion}", 600, puntos=10, negrita=True)
-        linea(36, 302, "Cada vigencia corresponde únicamente al sistema y a la inspección indicados.", 700, puntos=8)
+        numero, revision = numeracion
+        linea(641, 514, f"Registro {numero:04d} · Revisión {revision}", 166, puntos=9)
+        linea(36, 446, "Dictamen y vigencia confirmados por el responsable técnico.", 700, puntos=11)
+        linea(48, 396, "VIGENCIA CONJUNTA", 420, puntos=9, negrita=True, blanco=True)
+        linea(36, 138, "PERIODICIDAD CONFIRMADA", 354, puntos=8, negrita=True)
+        linea(36, 302, "Vigencia conjunta de las inspecciones incluidas.", 700, puntos=8)
 
     fecha = ficha["fecha"].strftime("%d/%m/%Y")
     for i, fila in enumerate(filas):
-        y = 370 - 37 * i
+        y = 355 if condicion is not None else 370 - 37 * i
         linea(48, y, fila["sistema"], 420, puntos=11, negrita=True, blanco=True)
         linea(485, y, fecha, 120, puntos=12, blanco=True)
         linea(639, y-3, fila["vencimiento"].strftime("%d/%m/%Y"), 145, puntos=25, negrita=True, blanco=True)

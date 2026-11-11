@@ -13,7 +13,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth import hash_clave
-from app.models import Carga, EmisionCertificado, Sistema, Usuario
+from app.carga.servicios import preparar_numero_emision
+from app.db import sesion
+from app.models import Carga, EmisionCertificado, NumeroRegistroContador, Sistema, Usuario
 from tests.conftest import login_cliente
 from tests.test_certificado_conjunto import datos
 from tests.test_firma_certificado import cargar, dos_cargas, firma, habilitar, privado
@@ -41,12 +43,17 @@ def test_emite_certificado_con_vigencia(app, client, privado, usuario_admin, car
     assert "EMITIDO" in texto.splitlines()
     assert f"CONDICIÓN FINAL: {condicion}" in texto.splitlines()
     assert "PROPUESTA / NO EMITIDO" not in texto and "SIN VALIDEZ DE EMISIÓN" not in texto
-    assert "28/02/2028" in texto and "06/02/2028" in texto
+    assert texto.splitlines().count("06/03/2028") == 1
+    assert "28/02/2028" not in texto and "06/02/2028" not in texto
+    assert "1 mes / 7 días" in texto and "VIGENCIA CONJUNTA" in texto
     assert "[Ejemplo] Dictamen de prueba" in texto
-    assert "T.C. 3 AÑOS · Pág. 5 de 5" in texto and "Registro [NNNN] · Revisión [R]" in texto
+    assert "T.C. 3 AÑOS · Pág. 5 de 5" in texto
+    assert "[NNNN]" not in texto and "[R]" not in texto
     assert any(im.image.size == (160, 60) for im in paginas[4].images)
     with Session(app.extensions["db_engine"]) as db:
         registro = db.scalars(select(EmisionCertificado)).one()
+        assert f"Registro {registro.numero_registro:04d} · Revisión 1" in texto
+        assert registro.revision == 1
         assert registro.actor_id == usuario_admin["id"] and registro.condicion == condicion
         assert registro.fecha_emision == date(2028, 1, 31)
         assert registro.planillas == [carga_emitida, segunda]
@@ -55,6 +62,42 @@ def test_emite_certificado_con_vigencia(app, client, privado, usuario_admin, car
         carpeta = Path(salida)
         carpeta.mkdir(parents=True, exist_ok=True)
         (carpeta / f"emitido_{condicion.lower().replace(' ', '_')}.pdf").write_bytes(respuesta.data)
+
+
+def test_registro_global_y_reemision(app, client, privado, usuario_admin, carga_emitida):
+    app.config["CERTIFICADO_CONJUNTO_HABILITADO"] = True
+    client = habilitar(app, client, usuario_admin)
+    assert cargar(client, firma()).status_code == 201
+    engine = app.extensions["db_engine"]
+    with app.app_context():
+        db = sesion()
+        planilla = db.get(Carga, carga_emitida)
+        preparar_numero_emision(planilla)
+        anterior = planilla.numero_registro
+        db.commit()
+
+    formulario = datos(carga_emitida) | {"condicion": "APROBADO"}
+    assert b'name="registro"' in client.get("/certificados").data
+    primera = client.post(EMITIR, data=formulario)
+    segunda = client.post(EMITIR, data=formulario)
+    assert client.post(EMITIR, data=formulario | {"registro": str(anterior)}).status_code == 404
+    tercera = client.post(EMITIR, data=formulario | {"registro": str(anterior + 1), "condicion": "NO APROBADO"})
+    for respuesta, numero, revision in (
+        (primera, anterior + 1, 1), (segunda, anterior + 2, 1), (tercera, anterior + 1, 2),
+    ):
+        assert respuesta.status_code == 200
+        texto = PdfReader(BytesIO(respuesta.data)).pages[-1].extract_text()
+        assert f"Registro {numero:04d} · Revisión {revision}" in texto
+        assert "[NNNN]" not in texto and "[R]" not in texto
+
+    with Session(engine) as db:
+        filas = db.scalars(select(EmisionCertificado).order_by(
+            EmisionCertificado.numero_registro, EmisionCertificado.revision)).all()
+        assert [(r.numero_registro, r.revision, r.pdf) for r in filas] == [
+            (anterior + 1, 1, primera.data), (anterior + 1, 2, tercera.data),
+            (anterior + 2, 1, segunda.data),
+        ]
+        assert db.get(NumeroRegistroContador, 1).ultimo == anterior + 2
 
 
 def test_permiso_firma_y_revocacion(app, client, privado, carga_emitida):

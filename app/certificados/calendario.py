@@ -12,3 +12,9 @@ def vencimiento(fecha_certificado, *, meses=None, dias=None):
     total=fecha_certificado.year*12+fecha_certificado.month-1+meses
     year,month=divmod(total,12); month+=1
     return date(year,month,min(fecha_certificado.day,monthrange(year,month)[1]))
+
+
+def vigencia_emision(fecha, *, meses, dias):
+    """Suma primero los meses calendario y cuenta el día de emisión."""
+    base = vencimiento(fecha, meses=meses) if meses else fecha
+    return base + timedelta(days=dias - 1)

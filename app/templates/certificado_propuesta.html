@@ -10,7 +10,7 @@
 <a href="/">Volver a planillas</a>
 <h1>Certificado conjunto</h1>
 <p><strong>PROPUESTA / NO EMITIDO</strong></p>
-<p>Confirmá la vigencia de cada inspección antes de emitir.</p>
+<p>Al emitir, se suman las periodicidades confirmadas para calcular una sola vigencia.</p>
 <form action="{{ url_for('certificados.propuesta' if g.usuario.rol == 'admin' else 'certificados.emitir') }}" method="post" enctype="multipart/form-data">
 <input type="hidden" name="csrf_token" value="{{ csrf }}">
 <div class="field-grid">
@@ -41,7 +41,13 @@
 <label><input type="checkbox" name="confirmacion" value="si" required> Confirmo las periodicidades y el dictamen.</label>
 {% if g.usuario.certificado_conjunto %}
 <fieldset>
-<legend>Condición final</legend>
+<legend>Emisión</legend>
+<div class="field">
+<label for="registro">Registro a reemitir (opcional)</label>
+<input id="registro" name="registro" type="text" inputmode="numeric" maxlength="10" pattern="[0-9]+">
+<p>Dejá el campo vacío para asignar un registro nuevo.</p>
+</div>
+<p>Condición final</p>
 <label><input type="radio" name="condicion" value="APROBADO"> Aprobar</label>
 <label><input type="radio" name="condicion" value="NO APROBADO"> No aprobar</label>
 </fieldset>

@@ -1528,3 +1528,9 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 
 - La propuesta y su enlace de Administración requieren habilitación explícita, permiso de usuario y rol de administrador. Se conserva la etiqueta de propuesta y la restricción a planillas ficticias.
 - El recurso de firma de referencia sigue disponible solo en pruebas. La carga de firma y los flujos de planillas, correo e integraciones conservan su lógica.
+
+### 2026-11-11 · Vigencia y numeración del certificado (AV)
+
+- La emisión muestra una sola vigencia compuesta: meses calendario, días y descuento de un día.
+- Certificados y planillas comparten el contador transaccional de registros. La reemisión conserva el registro, incrementa la revisión y archiva cada PDF.
+- La migración 025 agrega registro y revisión al archivo de emisiones. Conserva intactos los PDF que se hubieran emitido con 024.
