@@ -11,7 +11,7 @@ import re
 from PIL import Image, UnidentifiedImageError
 from pypdf import PdfReader, PdfWriter
 from pypdf.errors import PdfReadError
-from pypdf.generic import ArrayObject, DecodedStreamObject, DictionaryObject, EncodedStreamObject, NameObject, NumberObject
+from pypdf.generic import ArrayObject, BooleanObject, DecodedStreamObject, DictionaryObject, EncodedStreamObject, NameObject, NumberObject
 from reportlab.lib.colors import HexColor
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
@@ -28,6 +28,8 @@ BORDE_BLANCO_PT = 2.5
 ANILLO_OSCURO = "#1D1D1B"
 ANILLO_OSCURO_PT = 0.8
 RADIO_MARCA_PT = 9
+MINIMO_PT_ANEXO = 9
+PAGINA_ANEXO = NameObject('/ReadyproofAnexoFotografico')
 TAMANIO_TEXTO = 11
 INTERLINEADO = 15
 CODIGOS = ("✓", "O", "X", "NA")
@@ -217,7 +219,7 @@ def _cabecera(canvas, font, campos):
         for index, name in enumerate(names):
             x = MARGEN + index*(width+20)
             lines = _lineas(campos[name], _Metrica(font, 10.5), width)
-            _texto(canvas, font, x, top, name.upper(), 8)
+            _texto(canvas, font, x, top, name.upper(), MINIMO_PT_ANEXO)
             for offset, line in enumerate(lines):
                 _texto(canvas, font, x, top+13+offset*13, line, 10.5)
             max_height = max(max_height, 13+len(lines)*13)
@@ -304,20 +306,21 @@ def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, confi
         if index == 0:
             for number, mark in points.items():
                 x, cy = left+mark["x"]*width, A4_PT[1]-photo_top-mark["y"]*height
+                text = str(number)
+                font_size = TAMANIO_TEXTO
+                while font_size > MINIMO_PT_ANEXO and pdfmetrics.stringWidth(text, font, font_size) > 14:
+                    font_size -= 1
+                radio = max(RADIO_MARCA_PT, (pdfmetrics.stringWidth(text, font, font_size) + 4) / 2)
                 canvas.setFillColor(HexColor(COLOR_MARCAS))
                 canvas.setStrokeColor(HexColor("#FFFFFF"))
                 canvas.setLineWidth(BORDE_BLANCO_PT)
-                canvas.circle(x, cy, RADIO_MARCA_PT, fill=1, stroke=1)
+                canvas.circle(x, cy, radio, fill=1, stroke=1)
                 canvas.setStrokeColor(HexColor(ANILLO_OSCURO))
                 canvas.setLineWidth(ANILLO_OSCURO_PT)
                 # Anillo tangente al borde blanco: no reduce su espesor visible.
-                exterior = RADIO_MARCA_PT + BORDE_BLANCO_PT/2 + ANILLO_OSCURO_PT/2
+                exterior = radio + BORDE_BLANCO_PT/2 + ANILLO_OSCURO_PT/2
                 canvas.circle(x, cy, exterior, fill=0, stroke=1)
                 canvas.setFillColor(HexColor("#FFFFFF"))
-                text = str(number)
-                font_size = 11
-                while pdfmetrics.stringWidth(text, font, font_size)>14 and font_size>5:
-                    font_size -= 1
                 canvas.setFont(font, font_size)
                 canvas.drawCentredString(x, cy-font_size*.33, text)
         canvas.setFillColor(HexColor("#1D1D1B"))
@@ -348,19 +351,22 @@ def generar_anexo(jpeg, marcas, observaciones, *, fuente=None, carga=None, confi
             _texto(canvas,font,MARGEN,y,"Sin marcas registradas." if sin_marcas else "Referencias en la página siguiente.",10)
         canvas.setFillColor(HexColor("#6C6C6B"))
         if pie:
-            pie_lines = _lineas(pie, _Metrica(font,8), A4_PT[0]-2*MARGEN-65)
+            pie_lines = _lineas(pie, _Metrica(font, MINIMO_PT_ANEXO), A4_PT[0]-2*MARGEN-65)
             if len(pie_lines)>2:
                 raise ValueError("El pie configurado es demasiado extenso: revisá la configuración de planilla.")
             for offset,line in enumerate(pie_lines):
-                _texto(canvas,font,MARGEN,PIE_Y+offset*10,line,8)
-        canvas.setFont(font,8)
+                _texto(canvas,font,MARGEN,PIE_Y+offset*10,line,MINIMO_PT_ANEXO)
+        canvas.setFont(font,MINIMO_PT_ANEXO)
         canvas._code.append("/RPPaginacion BMC")
-        canvas.drawRightString(A4_PT[0]-MARGEN,A4_PT[1]-PIE_Y-8,f"Pág. {index+1} de {len(pages)}")
+        canvas.drawRightString(A4_PT[0]-MARGEN,A4_PT[1]-PIE_Y-MINIMO_PT_ANEXO,
+                               f"Pág. {index+1} de {len(pages)}")
         canvas._code.append("EMC")
         canvas.showPage()
     canvas.save()
     writer = PdfWriter()
     writer.clone_document_from_reader(PdfReader(BytesIO(buffer.getvalue())))
+    for page in writer.pages:
+        page[PAGINA_ANEXO] = BooleanObject(True)
     _insertar_jpeg(writer,jpeg,size,mode,(left,photo_top,width,height))
     output = BytesIO()
     writer.write(output)
@@ -395,11 +401,12 @@ def _numerar_documento(writer, *, ultima_con_numeracion_propia=False):
         NameObject('/Encoding'): NameObject('/WinAnsiEncoding')}))
     from ..planillas.impresion import es_planilla_sdi, MINIMO_PT_SDI
 
-    puntos = MINIMO_PT_SDI if es_planilla_sdi(writer.metadata.title if writer.metadata else None) else 8
+    puntos_planilla = MINIMO_PT_SDI if es_planilla_sdi(writer.metadata.title if writer.metadata else None) else 8
     total = len(writer.pages)
     writer.add_metadata({"/ReadyproofPaginas": str(total)})
     paginas = writer.pages[:-1] if ultima_con_numeracion_propia else writer.pages
     for numero, page in enumerate(paginas, 1):
+        puntos = MINIMO_PT_ANEXO if PAGINA_ANEXO in page else puntos_planilla
         contents = page.get_contents()
         if contents is not None:
             clean, depth = [], 0

@@ -1537,3 +1537,8 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - La tabla de impresión ocupa el ancho útil de A4 y mantiene la escala de los textos al incorporar los elementos del pie.
 - La primera página conserva la cabecera completa. Las continuaciones repiten el título, el código y la fila del cliente. El espacio de identificación de firmantes se reserva en la última página.
 - El encabezado conserva el PNG vigente y deja separación entre el logo y la tabla.
+
+### 2026-11-11 · Tipografía del anexo fotográfico (BL)
+
+- Las etiquetas, la leyenda, la numeración y las marcas del anexo se imprimen con un mínimo de 9 pt. La numeración del anexo conserva ese mínimo al unirse a una planilla.
+- Se conservan el título, la geometría del encabezado y la ubicación de las fotos.
