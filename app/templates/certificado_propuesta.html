@@ -10,8 +10,8 @@
 <a href="/">Volver a planillas</a>
 <h1>Certificado conjunto</h1>
 <p><strong>PROPUESTA / NO EMITIDO</strong></p>
-<p>Propuesta de prueba con planillas ficticias. Confirmá el dictamen y la vigencia de cada inspección.</p>
-<form action="/api/certificados/propuesta" method="post" enctype="multipart/form-data">
+<p>Confirmá la vigencia de cada inspección antes de emitir.</p>
+<form action="{{ url_for('certificados.propuesta' if g.usuario.rol == 'admin' else 'certificados.emitir') }}" method="post" enctype="multipart/form-data">
 <input type="hidden" name="csrf_token" value="{{ csrf }}">
 <div class="field-grid">
 <div class="field"><label for="fecha">Fecha del certificado</label><input id="fecha" name="fecha" type="date" required></div>
@@ -33,14 +33,28 @@
 <div class="field"><button class="button secondary" id="agregar-planilla" type="button">Agregar planilla</button>
 <p id="limite-planillas" role="status"></p></div>
 <div class="field"><label for="establecimiento">Establecimiento y domicilio ficticios</label><input id="establecimiento" name="establecimiento" maxlength="120" required></div>
-<div class="field"><label for="dictamen">Dictamen</label><input id="dictamen" name="dictamen" maxlength="120" required></div>
+<div class="field"><label for="dictamen">Dictamen</label><input id="dictamen" name="dictamen" maxlength="120"></div>
 <div class="field"><label for="observaciones">Observaciones</label><input id="observaciones" name="observaciones" maxlength="120"></div>
 <div class="field"><label for="informe">Informe técnico de respaldo</label><input id="informe" name="informe" maxlength="90"></div>
 
 </div>
-<label><input type="checkbox" name="confirmacion" value="si" required> Confirmo las periodicidades y el dictamen de la propuesta.</label>
-<p><button class="button primary" name="salida" value="pdf">Descargar propuesta PDF</button>
-<button class="button secondary" name="salida" value="correo_prueba">Preparar correo de prueba</button></p>
+<label><input type="checkbox" name="confirmacion" value="si" required> Confirmo las periodicidades y el dictamen.</label>
+{% if g.usuario.certificado_conjunto %}
+<fieldset>
+<legend>Condición final</legend>
+<label><input type="radio" name="condicion" value="APROBADO"> Aprobar</label>
+<label><input type="radio" name="condicion" value="NO APROBADO"> No aprobar</label>
+</fieldset>
+{% endif %}
+<p>
+{% if g.usuario.rol == 'admin' %}
+<button class="button secondary" name="salida" value="pdf">Descargar propuesta PDF</button>
+<button class="button secondary" name="salida" value="correo_prueba">Preparar correo de prueba</button>
+{% endif %}
+{% if g.usuario.certificado_conjunto %}
+<button class="button primary" formaction="{{ url_for('certificados.emitir') }}">Emitir certificado</button>
+{% endif %}
+</p>
 </form></main>
 <script>
 const filas = Array.from(document.querySelectorAll("[data-planilla]"));

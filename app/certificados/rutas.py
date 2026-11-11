@@ -1,5 +1,5 @@
-"""Generación local de propuestas sin emisión ni transporte externo."""
-from datetime import date
+"""Propuestas y emisiones locales de certificados conjuntos."""
+from datetime import date, timedelta
 from email.message import EmailMessage
 from hashlib import sha256
 from io import BytesIO
@@ -9,9 +9,9 @@ from flask import Blueprint, abort, current_app, g, render_template, request, se
 from pypdf.errors import PdfReadError
 from sqlalchemy import select, text
 
-from ..auth import csrf_token, exigir_admin
+from ..auth import csrf_token, exigir_admin, exigir_usuario
 from ..db import sesion
-from ..models import Auditoria, Carga, Cliente, FirmaCertificadoActiva, Planilla, Sistema, ahora
+from ..models import Auditoria, Carga, Cliente, EmisionCertificado, FirmaCertificadoActiva, Planilla, Sistema, UsuarioCliente, ahora
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import obtener
 from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, leer_version, validar_png
@@ -22,26 +22,28 @@ certificados = Blueprint("certificados", __name__)
 MAX_PLANILLAS_PROPUESTA = 2
 
 
-def exigir_propuesta():
-    exigir_admin()
+def exigir_permiso_certificado():
+    exigir_usuario()
     if not g.usuario.certificado_conjunto:
         abort(403, description="La cuenta no tiene permiso de certificado conjunto.")
     if not current_app.config["CERTIFICADO_CONJUNTO_HABILITADO"]:
-        abort(409, description="La propuesta de certificado conjunto no está habilitada.")
+        abort(409, description="El certificado conjunto no está habilitado.")
 
 
 @certificados.get("/certificados")
 def formulario():
-    exigir_propuesta()
+    exigir_permiso_certificado()
     db = sesion()
-    filas = db.execute(select(Carga.id, Carga.numero_registro, Sistema.designacion,
+    consulta = (select(Carga.id, Carga.numero_registro, Sistema.designacion,
                               Cliente.id, Cliente.nombre, Planilla.codigo)
         .join(Sistema, Carga.sistema_id == Sistema.id)
         .join(Cliente, Sistema.cliente_id == Cliente.id)
         .join(Planilla, Carga.planilla_id == Planilla.id)
-        .where(Carga.estado == "emitida", Carga.pdf.is_not(None), Carga.estado_anulada.is_(False),
-               Cliente.es_ejemplo.is_(True), Cliente.nombre.startswith("[Ejemplo] "))
-        .order_by(Carga.emitida_en.desc())).all()
+        .where(Carga.estado == "emitida", Carga.pdf.is_not(None), Carga.estado_anulada.is_(False)))
+    if g.usuario.rol != "admin":
+        consulta = consulta.join(UsuarioCliente, UsuarioCliente.cliente_id == Cliente.id).where(
+            UsuarioCliente.usuario_id == g.usuario.id)
+    filas = db.execute(consulta.order_by(Carga.emitida_en.desc())).all()
     return render_template("certificado_propuesta.html", opciones=filas, csrf=csrf_token(),
                            max_planillas=MAX_PLANILLAS_PROPUESTA)
 
@@ -117,7 +119,24 @@ def dato(nombre, limite, *, obligatorio=True):
 
 @certificados.post("/api/certificados/propuesta")
 def propuesta():
-    exigir_propuesta()
+    exigir_admin()
+    exigir_permiso_certificado()
+    return preparar_documento()
+
+
+@certificados.post("/api/certificados/emitir")
+def emitir():
+    exigir_permiso_certificado()
+    return preparar_documento(emitido=True)
+
+
+def preparar_documento(*, emitido=False):
+    condicion = None
+    if emitido:
+        condiciones = request.form.getlist("condicion")
+        if len(condiciones) != 1 or condiciones[0] not in ("APROBADO", "NO APROBADO"):
+            raise DatosInvalidos("Elegí Aprobar o No aprobar para emitir el certificado.")
+        condicion = condiciones[0]
     campos_carga = [key for key in request.form if key.startswith("carga_")]
     permitidos = {f"carga_{i}" for i in range(1, MAX_PLANILLAS_PROPUESTA + 1)}
     if any(key not in permitidos or len(request.form.getlist(key)) > 1 for key in campos_carga):
@@ -143,6 +162,8 @@ def propuesta():
             cantidad = int(request.form.get(f"cantidad_{i}", ""))
             if unidad not in ("dias", "meses"):raise ValueError()
             hasta = vencimiento(fecha, **{unidad:cantidad})
+            if emitido:
+                hasta -= timedelta(days=1)
         except (ValueError, OverflowError):
             raise DatosInvalidos("Revisá la planilla y su periodicidad confirmada.") from None
         carga = obtener(Carga, cid)
@@ -152,7 +173,9 @@ def propuesta():
             raise DatosInvalidos("Elegí una planilla emitida, vigente y con un PDF íntegro.")
         sistema = obtener(Sistema, carga.sistema_id)
         actual = obtener(Cliente, sistema.cliente_id)
-        if not actual.es_ejemplo or not actual.nombre.startswith("[Ejemplo] ") or (cliente and cliente.id!=actual.id):
+        if cliente and cliente.id != actual.id:
+            raise DatosInvalidos("Elegí planillas del mismo cliente.")
+        if not emitido and (not actual.es_ejemplo or not actual.nombre.startswith("[Ejemplo] ")):
             raise DatosInvalidos("Elegí planillas ficticias del mismo cliente.")
         cliente=actual
         planilla=obtener(Planilla,carga.planilla_id)
@@ -163,13 +186,25 @@ def propuesta():
         cargas.append(carga)
     ficha=dict(fecha=fecha,cliente=cliente.nombre,intervencion=f"{cliente.cuit or 'Sin CUIT'} · {dato('intervencion',50)}",
                establecimiento=dato("establecimiento",120),sistemas=" / ".join(dict.fromkeys(sistemas)),
-               periodicidades=" / ".join(periodos),dictamen=dato("dictamen",120),
+               periodicidades=" / ".join(periodos),dictamen=dato("dictamen",120,obligatorio=not emitido),
                observaciones=dato("observaciones",120,obligatorio=False),referencias=" · ".join(referencias),
                informe=dato("informe",90,obligatorio=False) or "No indicado")
+    firma = firma_propuesta()
+    if emitido and firma is None:
+        abort(503, description="La emisión requiere una firma gráfica activa.")
     try:
-        pdf=generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha, firma=firma_propuesta())
+        pdf=generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha, firma=firma, condicion=condicion)
     except PdfReadError:
         raise DatosInvalidos("No se pudo leer una planilla de respaldo.") from None
+    if emitido:
+        sesion().add(EmisionCertificado(
+            actor_id=g.usuario.id, cliente_id=cliente.id, condicion=condicion,
+            fecha_emision=fecha, emitido_en=ahora(), pdf=pdf, pdf_sha256=sha256(pdf).hexdigest(),
+            planillas=[c.id for c in cargas],
+        ))
+        g.evento_auth = "certificado_emitido"
+        return descargar(pdf, "application/pdf", "certificado_emitido.pdf")
+
     salida=request.form.get("salida","pdf")
     if salida == "correo_prueba":
         mensaje=EmailMessage()
@@ -184,6 +219,10 @@ def propuesta():
     else:
         raise DatosInvalidos("Salida de propuesta inválida.")
     g.evento_auth="certificado_propuesta_preparada"
+    return descargar(contenido, tipo, nombre)
+
+
+def descargar(contenido, tipo, nombre):
     respuesta=send_file(BytesIO(contenido),mimetype=tipo,as_attachment=True,download_name=nombre)
     respuesta.headers["Cache-Control"]="no-store"
     return respuesta

@@ -25,6 +25,7 @@ const { chromium } = require("playwright");
       await page.goto(data.url + "/");
     }
     await page.getByRole("link", { name: "Certificado conjunto" }).click();
+    assert.equal(await page.getByRole("button", { name: "Emitir certificado", exact: true }).isEnabled(), true);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390);
     await page.locator("#fecha").fill("2028-01-31");
     await page.locator("#intervencion").fill("2028-01-30");

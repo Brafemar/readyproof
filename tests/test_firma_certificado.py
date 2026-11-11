@@ -232,7 +232,7 @@ def test_propuesta_dos_planillas_y_permiso(app, client, privado, usuario_admin, 
         db.get(Usuario, usuario_admin["id"]).rol = "tecnico"
         db.commit()
     tecnico = login_cliente(app, usuario_admin["login"], usuario_admin["clave"])
-    assert tecnico.get("/certificados").status_code == 403
+    assert tecnico.get("/certificados").status_code == 200
     assert tecnico.post(ruta, data=cuerpo).status_code == 403
 
 

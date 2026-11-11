@@ -1,4 +1,4 @@
-"""Compone una propuesta de certificado sobre la plantilla aprobada."""
+"""Compone propuestas y certificados emitidos sobre la plantilla aprobada."""
 from io import BytesIO
 from pathlib import Path
 
@@ -10,6 +10,28 @@ from ..fotos.anexo_pdf import _numerar_documento
 from ..planillas.validacion import DatosInvalidos
 
 PLANTILLA = Path(__file__).with_name("plantilla_propuesta.pdf")
+
+LEYENDAS_PROPUESTA = (
+    "PROPUESTA / NO EMITIDO",
+    "CONDICI\x02N FINAL: PENDIENTE DE VALIDACI\x02N T\x03CNICA",
+    "Fechas ilustrativas.",
+    "PROPUESTA DE DISE\x08O",
+)
+
+
+def quitar_leyendas_propuesta(pagina):
+    contenido = pagina.get_contents()
+    conservadas = []
+    retiradas = []
+    for operandos, operador in contenido.operations:
+        if operador == b"Tj" and str(operandos[0]).startswith(LEYENDAS_PROPUESTA):
+            retiradas.append(str(operandos[0]))
+        else:
+            conservadas.append((operandos, operador))
+    if any(sum(texto.startswith(leyenda) for texto in retiradas) != 1 for leyenda in LEYENDAS_PROPUESTA):
+        raise DatosInvalidos("La plantilla no permite generar el certificado emitido.")
+    contenido.operations = conservadas
+    pagina.replace_contents(contenido)
 
 
 def separar_documentos(documentos):
@@ -25,12 +47,14 @@ def separar_documentos(documentos):
     return planillas, anexos
 
 
-def generar_propuesta(documentos, filas, ficha, *, firma=None):
+def generar_propuesta(documentos, filas, ficha, *, firma=None, condicion=None):
     planillas, anexos = separar_documentos(documentos)
     escritor = PdfWriter()
     for page in planillas + anexos:
         escritor.add_page(page)
     certificado = escritor.add_page(PdfReader(PLANTILLA).pages[0])
+    if condicion is not None:
+        quitar_leyendas_propuesta(certificado)
     capa = BytesIO()
     lienzo = canvas.Canvas(capa, pagesize=(float(certificado.mediabox.width), float(certificado.mediabox.height)))
 
@@ -40,10 +64,15 @@ def generar_propuesta(documentos, filas, ficha, *, firma=None):
         medida = lienzo.stringWidth(texto, fuente, puntos)
         escala = min(1, ancho / medida) if medida else 1
         if puntos * escala < 7:
-            raise DatosInvalidos("Un campo del certificado es demasiado largo para la propuesta A4.")
+            raise DatosInvalidos("Un campo del certificado es demasiado largo para el formato A4.")
         lienzo.setFont(fuente, puntos * escala)
         lienzo.setFillColorRGB(*( (1, 1, 1) if blanco else (.114, .114, .106) ))
         lienzo.drawString(x, y, texto)
+
+    if condicion is not None:
+        linea(730, 534, "EMITIDO", 65, puntos=10, negrita=True)
+        linea(36, 427, f"CONDICIÓN FINAL: {condicion}", 600, puntos=10, negrita=True)
+        linea(36, 302, "Cada vigencia corresponde únicamente al sistema y a la inspección indicados.", 700, puntos=8)
 
     fecha = ficha["fecha"].strftime("%d/%m/%Y")
     for i, fila in enumerate(filas):

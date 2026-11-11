@@ -1513,6 +1513,11 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - Administración carga PNG normalizados en el directorio privado de la instancia. El puntero y la auditoría se confirman en una transacción. Se conservan las versiones anteriores.
 - La migración 023 crea únicamente la tabla de metadatos. El certificado verifica la huella antes de leer la firma y la referencia V2 queda reservada a pruebas.
 
+## Emisión de certificados conjuntos
+
+- El permiso de emisión se administra por cuenta. La migración concede el permiso inicial si el correo indicado identifica una sola cuenta.
+- La emisión exige firma activa y una decisión de aprobación. El certificado conserva su vigencia para ambas decisiones y se archiva con su huella.
+
 ## Firma activa opcional en la propuesta del certificado
 
 - La propuesta incorpora la firma activa de Administración desde el almacenamiento privado. Sin firma activa conserva el espacio vacío.
