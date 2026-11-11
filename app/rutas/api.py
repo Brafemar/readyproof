@@ -383,12 +383,12 @@ def generar_pdf_carga(carga, datos):
     temporary.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="emision-", dir=temporary) as directory:
         planilla=obtener(Planilla,carga.planilla_id)
-        source=(generar_saa1(datos_para_excel(datos),Path(directory)/"planilla.xlsx") if planilla.codigo=="SG-PEM-IFI-SAA-1"
-                else generar_multisistema(datos,Path(directory)/"planilla.xlsx",planilla.codigo))
         identidad=firmantes_guardados(carga)
         identidad.update(empresa=obtener(Cliente, obtener(Sistema,carga.sistema_id).cliente_id).nombre,
                          fecha=datos.get('cabecera',{}).get('fecha',carga.creada_en.date().isoformat()))
         if not es_piloto():identidad['empresa_mantenedora']=current_app.config['EMPRESA_MANTENEDORA']
+        source=(generar_saa1(datos_para_excel(datos),Path(directory)/"planilla.xlsx") if planilla.codigo=="SG-PEM-IFI-SAA-1"
+                else generar_multisistema(datos,Path(directory)/"planilla.xlsx",planilla.codigo,firmantes=identidad))
         result = convertir_pdf(source, Path(directory) / "planilla.pdf", firmas=firmas_guardadas(carga), firmantes=identidad)
         payload = result.read_bytes()
         from ..fotos.emision import incorporar_fotos_carga

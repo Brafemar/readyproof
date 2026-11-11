@@ -393,6 +393,9 @@ def _numerar_documento(writer, *, ultima_con_numeracion_propia=False):
     font = writer._add_object(DictionaryObject({NameObject('/Type'): NameObject('/Font'),
         NameObject('/Subtype'): NameObject('/Type1'), NameObject('/BaseFont'): NameObject('/Helvetica'),
         NameObject('/Encoding'): NameObject('/WinAnsiEncoding')}))
+    from ..planillas.impresion import es_planilla_sdi, MINIMO_PT_SDI
+
+    puntos = MINIMO_PT_SDI if es_planilla_sdi(writer.metadata.title if writer.metadata else None) else 8
     total = len(writer.pages)
     writer.add_metadata({"/ReadyproofPaginas": str(total)})
     paginas = writer.pages[:-1] if ultima_con_numeracion_propia else writer.pages
@@ -418,10 +421,10 @@ def _numerar_documento(writer, *, ultima_con_numeracion_propia=False):
         resources[NameObject('/Font')] = fonts
         page[NameObject('/Resources')] = resources
         label = f'Pág. {numero} de {total}'
-        x = float(page.mediabox.right) - MARGEN - pdfmetrics.stringWidth(label, 'Helvetica', 8)
+        x = float(page.mediabox.right) - MARGEN - pdfmetrics.stringWidth(label, 'Helvetica', puntos)
         y = float(page.mediabox.bottom) + MARGEN + 2
         stream = DecodedStreamObject()
-        stream.set_data((f'/RPPaginacion BMC q 0.333 g BT /RPPagina 8 Tf '
+        stream.set_data((f'/RPPaginacion BMC q 0.333 g BT /RPPagina {puntos} Tf '
                          f'1 0 0 1 {x:.6f} {y:.6f} Tm <{label.encode("cp1252").hex()}> Tj ET Q EMC\n').encode('ascii'))
         current = page.get('/Contents')
         resolved = current.get_object() if current is not None else None

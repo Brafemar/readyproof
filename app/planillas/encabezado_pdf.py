@@ -9,6 +9,8 @@ from lxml import etree
 from openpyxl import load_workbook
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
+
+from .impresion import es_planilla_sdi
 from pypdf.generic import (
     ArrayObject, DecodedStreamObject, DictionaryObject, NameObject, NumberObject,
 )
@@ -105,7 +107,9 @@ def reponer_logos(origen_excel, origen_pdf, destino_pdf, *, logo_izquierdo=None)
     reader = PdfReader(origen_pdf)
     writer = PdfWriter()
     writer.clone_document_from_reader(reader)
-    writer.add_metadata({"/Title": codigo_de_planilla(origen_excel), "/Author": "readyproof", "/Creator": "readyproof", "/Producer": "readyproof"})
+    codigo = codigo_de_planilla(origen_excel)
+    sdi = es_planilla_sdi(codigo)
+    writer.add_metadata({"/Title": codigo, "/Author": "readyproof", "/Creator": "readyproof", "/Producer": "readyproof"})
     refs = [_imagen_pdf(logo[3], writer) for logo in logos]
     for page in writer.pages:
         if logos and list(page.images):
@@ -124,13 +128,16 @@ def reponer_logos(origen_excel, origen_pdf, destino_pdf, *, logo_izquierdo=None)
             xobjects[name] = reference
             page_width, page_height = float(page.mediabox.width), float(page.mediabox.height)
             if anchor == "RH":
-                iso_height = 72 if logo_izquierdo is not None else min(height, 32)
+                iso_height = (63 if sdi else 72) if logo_izquierdo is not None else min(height, 32)
                 width, height = width * iso_height / height, iso_height
             if anchor == "LH" and logo_izquierdo is not None:
                 with Image.open(BytesIO(logo_izquierdo)) as image:
-                    width, height = 140, 140 * image.height / image.width
+                    width = 122 if sdi else 140
+                    height = width * image.height / image.width
             x = margins["left"] if anchor == "LH" else (page_width - margins["right"] - width if anchor == "RH" else (page_width - width) / 2)
-            header = min(margins["header"], 8) if anchor == "LH" and logo_izquierdo is not None else margins["header"]
+            header = margins["header"]
+            if not sdi and anchor == "LH" and logo_izquierdo is not None:
+                header = min(header, 8)
             y = page_height - header - height
             commands.append(f"q {width:.5f} 0 0 {height:.5f} {x:.5f} {y:.5f} cm {name} Do Q\n")
         if commands:

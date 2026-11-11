@@ -1523,3 +1523,17 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 
 - La propuesta y su enlace de Administración requieren habilitación explícita, permiso de usuario y rol de administrador. Se conserva la etiqueta de propuesta y la restricción a planillas ficticias.
 - El recurso de firma de referencia sigue disponible solo en pruebas. La carga de firma y los flujos de planillas, correo e integraciones conservan su lógica.
+
+
+### 2026-11-11 · Legibilidad de planillas SDI (BH)
+
+- La copia de impresión de SDI-1 a SDI-5 aumenta la tipografía y ajusta el ancho de columnas y la altura de filas para el texto cargado.
+- La paginación mantiene las filas completas. Los rótulos verticales de las planillas periódicas se repiten al continuar el bloque.
+- La leyenda IRAM, la identificación al pie, el registro, el modo y la numeración salen a 9 pt en los PDF SDI. Se conserva el PNG del encabezado.
+
+
+### 2026-11-11 · Aprovechamiento del A4 en planillas SDI (BI)
+
+- La tabla de impresión ocupa el ancho útil de A4 y mantiene la escala de los textos al incorporar los elementos del pie.
+- La primera página conserva la cabecera completa. Las continuaciones repiten el título, el código y la fila del cliente. El espacio de identificación de firmantes se reserva en la última página.
+- El encabezado conserva el PNG vigente y deja separación entre el logo y la tabla.
