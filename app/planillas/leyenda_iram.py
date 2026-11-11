@@ -2,6 +2,8 @@
 from pypdf import PdfReader,PdfWriter,Transformation
 from pypdf.generic import ArrayObject,DecodedStreamObject,DictionaryObject,NameObject
 
+from .impresion import es_planilla_sdi, MINIMO_PT_SDI
+
 TEXTO="Planilla conforme a IRAM 3546:2011"
 TAMANIO=8
 GRIS=0.5
@@ -10,8 +12,8 @@ ESCALA_CONTENIDO=0.95
 METRICAS_HELVETICA={' ': 278, '0': 556, '1': 556, '2': 556, '3': 556, '4': 556, '5': 556, '6': 556, ':': 278, 'A': 667, 'I': 278, 'M': 833, 'P': 667, 'R': 722, 'a': 556, 'c': 500, 'e': 556, 'f': 278, 'i': 222, 'l': 222, 'm': 833, 'n': 556, 'o': 556, 'r': 333}
 
 
-def ancho_leyenda():
-    return sum(METRICAS_HELVETICA[c] for c in TEXTO)*TAMANIO/1000
+def ancho_leyenda(tamanio=TAMANIO):
+    return sum(METRICAS_HELVETICA[c] for c in TEXTO)*tamanio/1000
 
 
 def incorporar_leyenda_iram(origen,destino,*,firmantes=None):
@@ -21,26 +23,32 @@ def incorporar_leyenda_iram(origen,destino,*,firmantes=None):
     writer=PdfWriter();writer.clone_document_from_reader(reader)
     font=DictionaryObject({NameObject("/Type"):NameObject("/Font"),NameObject("/Subtype"):NameObject("/Type1"),NameObject("/BaseFont"):NameObject("/Helvetica"),NameObject("/Encoding"):NameObject("/WinAnsiEncoding")})
     font_ref=writer._add_object(font)
-    escala=ESCALA_CONTENIDO
+    sdi=es_planilla_sdi(reader.metadata.title if reader.metadata else None)
+    tamanio=MINIMO_PT_SDI if sdi else TAMANIO
+    escala=1 if sdi else ESCALA_CONTENIDO
     if firmantes:
-        from .identificacion_pdf import preparar_identificacion,pegar_identificacion
-        columnas,top,escala=preparar_identificacion(firmantes,float(writer.pages[-1].mediabox.width),float(writer.pages[-1].mediabox.height))
+        from .identificacion_pdf import FUENTE,preparar_identificacion,pegar_identificacion
+        fuente_firmantes=MINIMO_PT_SDI if sdi else FUENTE
+        columnas,top,escala_firmantes=preparar_identificacion(firmantes,float(writer.pages[-1].mediabox.width),float(writer.pages[-1].mediabox.height),fuente=fuente_firmantes)
+        if not sdi:
+            escala=escala_firmantes
     for page in writer.pages:
         width,height=float(page.mediabox.width),float(page.mediabox.height)
         transform=Transformation().scale(escala).translate((1-escala)*width/2,(1-escala)*(height-8))
-        page.add_transformation(transform)
+        if not sdi:
+            page.add_transformation(transform)
         resources=DictionaryObject(dict(page["/Resources"].get_object()));page[NameObject("/Resources")]=resources
         fonts=DictionaryObject(dict(resources.get("/Font",DictionaryObject()).get_object()))
         if "/RPIRAM" in fonts:raise RuntimeError("El PDF ya tiene un recurso reservado para la leyenda.")
         fonts[NameObject("/RPIRAM")]=font_ref;resources[NameObject("/Font")]=fonts
-        x=(width-ancho_leyenda())/2
-        commands=f"q {GRIS} g BT /RPIRAM {TAMANIO} Tf 1 0 0 1 {x:.6f} {PIE_PT:.6f} Tm <{TEXTO.encode('cp1252').hex()}> Tj ET Q\n"
+        x=(width-ancho_leyenda(tamanio))/2
+        commands=f"q {GRIS} g BT /RPIRAM {tamanio} Tf 1 0 0 1 {x:.6f} {PIE_PT:.6f} Tm <{TEXTO.encode('cp1252').hex()}> Tj ET Q\n"
         stream=DecodedStreamObject();stream.set_data(commands.encode("ascii"))
         original=page.get("/Contents");resolved=original.get_object() if original is not None else None
         contents=ArrayObject(list(resolved) if isinstance(resolved,ArrayObject) else [original] if original is not None else [])
         contents.append(writer._add_object(stream));page[NameObject("/Contents")]=contents
     if firmantes:
-        pegar_identificacion(writer,writer.pages[-1],font_ref,columnas,top)
+        pegar_identificacion(writer,writer.pages[-1],font_ref,columnas,top,fuente=fuente_firmantes)
         writer.add_metadata({'/ReadyproofFirmantes':'Identificación al pie de la última página; firmas en los casilleros originales.'})
-    writer.add_metadata({"/ReadyproofIRAM":TEXTO,"/ReadyproofAjustePie":f"escala proporcional {escala:.6f}; pie 11 mm; Helvetica 8 pt; gris 50%; todas las páginas"})
+    writer.add_metadata({"/ReadyproofIRAM":TEXTO,"/ReadyproofAjustePie":f"escala proporcional {escala:.6f}; pie 11 mm; Helvetica {tamanio} pt; gris 50%; todas las páginas"})
     with open(destino,"xb") as output:writer.write(output)

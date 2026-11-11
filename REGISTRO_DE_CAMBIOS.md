@@ -1513,6 +1513,11 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - Administración carga PNG normalizados en el directorio privado de la instancia. El puntero y la auditoría se confirman en una transacción. Se conservan las versiones anteriores.
 - La migración 023 crea únicamente la tabla de metadatos. El certificado verifica la huella antes de leer la firma y la referencia V2 queda reservada a pruebas.
 
+## Emisión de certificados conjuntos
+
+- El permiso de emisión se administra por cuenta. La migración concede el permiso inicial si el correo indicado identifica una sola cuenta.
+- La emisión exige firma activa y una decisión de aprobación. El certificado conserva su vigencia para ambas decisiones y se archiva con su huella.
+
 ## Firma activa opcional en la propuesta del certificado
 
 - La propuesta incorpora la firma activa de Administración desde el almacenamiento privado. Sin firma activa conserva el espacio vacío.
@@ -1523,3 +1528,37 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 
 - La propuesta y su enlace de Administración requieren habilitación explícita, permiso de usuario y rol de administrador. Se conserva la etiqueta de propuesta y la restricción a planillas ficticias.
 - El recurso de firma de referencia sigue disponible solo en pruebas. La carga de firma y los flujos de planillas, correo e integraciones conservan su lógica.
+
+
+### 2026-11-11 · Legibilidad de planillas SDI (BH)
+
+- La copia de impresión de SDI-1 a SDI-5 aumenta la tipografía y ajusta el ancho de columnas y la altura de filas para el texto cargado.
+- La paginación mantiene las filas completas. Los rótulos verticales de las planillas periódicas se repiten al continuar el bloque.
+- La leyenda IRAM, la identificación al pie, el registro, el modo y la numeración salen a 9 pt en los PDF SDI. Se conserva el PNG del encabezado.
+
+
+### 2026-11-11 · Aprovechamiento del A4 en planillas SDI (BI)
+
+- La tabla de impresión ocupa el ancho útil de A4 y mantiene la escala de los textos al incorporar los elementos del pie.
+- La primera página conserva la cabecera completa. Las continuaciones repiten el título, el código y la fila del cliente. El espacio de identificación de firmantes se reserva en la última página.
+- El encabezado conserva el PNG vigente y deja separación entre el logo y la tabla.
+
+### 2026-11-11 · Tipografía del anexo fotográfico (BL)
+
+- Las etiquetas, la leyenda, la numeración y las marcas del anexo se imprimen con un mínimo de 9 pt. La numeración del anexo conserva ese mínimo al unirse a una planilla.
+- Se conservan el título, la geometría del encabezado y la ubicación de las fotos.
+
+### 2026-11-11 · Vigencia y numeración del certificado (AV)
+
+- La emisión muestra una sola vigencia compuesta: meses calendario, días y descuento de un día.
+- Certificados y planillas comparten el contador transaccional de registros. La reemisión conserva el registro, incrementa la revisión y archiva cada PDF.
+- La migración 025 agrega registro y revisión al archivo de emisiones. Conserva intactos los PDF que se hubieran emitido con 024.
+
+### 2026-11-11 · Vigencia por periodicidad (AY)
+
+- El formulario y el PDF calculan el vencimiento desde la fecha de emisión en días corridos: mensual 30, trimestral 90, semestral 180 y anual 365. La fecha de emisión cuenta como primer día.
+- La solicitud anterior de 1 mes / 7 días se interpreta como mensual. Las planillas y los PDF archivados conservan sus datos y archivos.
+
+## 2026-11-11 — BP: numeración de las planillas SDI adjuntas
+
+- Cada hoja SDI conserva el título PDF de origen al incorporarse al certificado. Su numeración se imprime a 9 pt, incluso al adjuntarla junto a una planilla de otro sistema. La prueba cubre SDI, SAA y anexo en un mismo PDF.

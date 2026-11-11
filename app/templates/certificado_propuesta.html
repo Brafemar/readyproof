@@ -10,11 +10,24 @@
 <a href="/">Volver a planillas</a>
 <h1>Certificado conjunto</h1>
 <p><strong>PROPUESTA / NO EMITIDO</strong></p>
-<p>Propuesta de prueba con planillas ficticias. Confirmá el dictamen y la vigencia de cada inspección.</p>
-<form action="/api/certificados/propuesta" method="post" enctype="multipart/form-data">
+
+<form action="{{ url_for('certificados.propuesta' if g.usuario.rol == 'admin' else 'certificados.emitir') }}" method="post" enctype="multipart/form-data">
 <input type="hidden" name="csrf_token" value="{{ csrf }}">
 <div class="field-grid">
-<div class="field"><label for="fecha">Fecha del certificado</label><input id="fecha" name="fecha" type="date" required></div>
+<div class="field"><label for="fecha">Fecha de emisión</label><input id="fecha" name="fecha" type="date" max="9999-12-31" required></div>
+<div class="field">
+<label for="periodicidad">Periodicidad</label>
+<select id="periodicidad" name="periodicidad" required>
+<option value="">Elegí una periodicidad</option>
+{% for clave, (etiqueta, dias) in periodicidades.items() %}
+<option value="{{ clave }}" data-dias="{{ dias }}">{{ etiqueta }} ({{ dias }} días)</option>
+{% endfor %}
+</select>
+</div>
+<div class="field">
+<label for="vigencia-hasta">Válido hasta</label>
+<output id="vigencia-hasta" for="fecha periodicidad" aria-live="polite">—</output>
+</div>
 <div class="field"><label for="intervencion">Fecha de intervención</label><input id="intervencion" name="intervencion" type="date" required></div>
 {% for i in range(1, max_planillas + 1) %}
 <fieldset class="field-grid" data-planilla {% if i > 1 %}hidden disabled{% endif %}>
@@ -26,23 +39,60 @@
 <option value="{{ id }}">{{ cliente }} · {{ sistema }} · {{ codigo }} · {{ registro or 's/n' }}</option>
 {% endfor %}
 </select></div>
-<div class="field"><label for="cantidad_{{ i }}">Periodicidad confirmada {{ i }}</label><input id="cantidad_{{ i }}" name="cantidad_{{ i }}" type="number" min="1" {% if i == 1 %}required{% endif %}>
-<label for="unidad_{{ i }}">Unidad {{ i }}</label><select id="unidad_{{ i }}" name="unidad_{{ i }}" {% if i == 1 %}required{% endif %}><option value="">Elegí una unidad</option><option value="meses">Meses calendario</option><option value="dias">Días</option></select></div>
 </fieldset>
 {% endfor %}
 <div class="field"><button class="button secondary" id="agregar-planilla" type="button">Agregar planilla</button>
 <p id="limite-planillas" role="status"></p></div>
 <div class="field"><label for="establecimiento">Establecimiento y domicilio ficticios</label><input id="establecimiento" name="establecimiento" maxlength="120" required></div>
-<div class="field"><label for="dictamen">Dictamen</label><input id="dictamen" name="dictamen" maxlength="120" required></div>
+<div class="field"><label for="dictamen">Dictamen</label><input id="dictamen" name="dictamen" maxlength="120"></div>
 <div class="field"><label for="observaciones">Observaciones</label><input id="observaciones" name="observaciones" maxlength="120"></div>
 <div class="field"><label for="informe">Informe técnico de respaldo</label><input id="informe" name="informe" maxlength="90"></div>
 
 </div>
-<label><input type="checkbox" name="confirmacion" value="si" required> Confirmo las periodicidades y el dictamen de la propuesta.</label>
-<p><button class="button primary" name="salida" value="pdf">Descargar propuesta PDF</button>
-<button class="button secondary" name="salida" value="correo_prueba">Preparar correo de prueba</button></p>
+<label><input type="checkbox" name="confirmacion" value="si" required> Confirmo la periodicidad y el dictamen.</label>
+{% if g.usuario.certificado_conjunto %}
+<fieldset>
+<legend>Emisión</legend>
+<div class="field">
+<label for="registro">Registro a reemitir (opcional)</label>
+<input id="registro" name="registro" type="text" inputmode="numeric" maxlength="10" pattern="[0-9]+">
+<p>Dejá el campo vacío para asignar un registro nuevo.</p>
+</div>
+<p>Condición final</p>
+<label><input type="radio" name="condicion" value="APROBADO"> Aprobar</label>
+<label><input type="radio" name="condicion" value="NO APROBADO"> No aprobar</label>
+</fieldset>
+{% endif %}
+<p>
+{% if g.usuario.rol == 'admin' %}
+<button class="button secondary" name="salida" value="pdf">Descargar propuesta PDF</button>
+<button class="button secondary" name="salida" value="correo_prueba">Preparar correo de prueba</button>
+{% endif %}
+{% if g.usuario.certificado_conjunto %}
+<button class="button primary" formaction="{{ url_for('certificados.emitir') }}">Emitir certificado</button>
+{% endif %}
+</p>
 </form></main>
 <script>
+const fechaEmision = document.getElementById("fecha");
+const periodicidad = document.getElementById("periodicidad");
+const vigenciaHasta = document.getElementById("vigencia-hasta");
+const formatoFecha = new Intl.DateTimeFormat("es-AR", {
+  timeZone: "UTC", day: "2-digit", month: "2-digit", year: "numeric"
+});
+
+function actualizarVigencia() {
+  const dias = Number(periodicidad.selectedOptions[0]?.dataset.dias);
+  const emision = fechaEmision.valueAsNumber;
+  const hasta = new Date(emision + (dias - 1) * 86_400_000);
+  vigenciaHasta.value = Number.isFinite(hasta.getTime()) && hasta.getUTCFullYear() <= 9999
+    ? formatoFecha.format(hasta) : "—";
+}
+
+fechaEmision.addEventListener("input", actualizarVigencia);
+periodicidad.addEventListener("change", actualizarVigencia);
+window.addEventListener("pageshow", actualizarVigencia);
+
 const filas = Array.from(document.querySelectorAll("[data-planilla]"));
 document.getElementById("agregar-planilla").addEventListener("click", () => {
   const fila = filas.find(item => item.hidden);

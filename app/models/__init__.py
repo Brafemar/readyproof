@@ -1,5 +1,5 @@
 """Persistencia de clientes, sistemas, plantillas y cargas de la etapa 2."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from uuid import uuid4
 
 from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer, JSON, LargeBinary, String, Text, Uuid, Enum, UniqueConstraint, true, false
@@ -138,6 +138,26 @@ class EmisionCarga(Base):
     actor_id: Mapped[str | None] = mapped_column(ForeignKey("usuarios.id"))
     emitida_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     archivada_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora)
+
+
+class EmisionCertificado(Base):
+    __tablename__ = "emisiones_certificado"
+    __table_args__ = (
+        CheckConstraint("condicion IN ('APROBADO', 'NO APROBADO')", name="ck_emision_certificado_condicion"),
+        CheckConstraint("numero_registro > 0 AND revision > 0", name="ck_emision_certificado_numeracion"),
+        UniqueConstraint("numero_registro", "revision", name="uq_emision_certificado_registro_revision"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=identificador)
+    actor_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id"))
+    cliente_id: Mapped[str] = mapped_column(ForeignKey("clientes.id"))
+    numero_registro: Mapped[int] = mapped_column(Integer)
+    revision: Mapped[int] = mapped_column(Integer)
+    condicion: Mapped[str] = mapped_column(String(11))
+    fecha_emision: Mapped[date]
+    emitido_en: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    pdf: Mapped[bytes] = mapped_column(LargeBinary)
+    pdf_sha256: Mapped[str] = mapped_column(String(64))
+    planillas: Mapped[list[str]] = mapped_column(JSON)
 
 
 class RevisionCarga(Base):

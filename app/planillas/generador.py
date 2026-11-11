@@ -88,7 +88,7 @@ def generar_saa1(datos, destino):
     return _generar_paquete(spec, cambios, destino)
 
 
-def _generar_paquete(spec, cambios, destino):
+def _generar_paquete(spec, cambios, destino, *, firmantes=None):
     destino = Path(destino).resolve()
     if destino.suffix.lower() != ".xlsx":
         raise ValueError("El destino debe tener extensión .xlsx.")
@@ -119,9 +119,21 @@ def _generar_paquete(spec, cambios, destino):
                 text.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
                 text.text = valor
             workbook = etree.fromstring(source.read('xl/workbook.xml'))
-            from .impresion import preparar_impresion
+            from .impresion import ajustar_legibilidad_sdi, es_planilla_sdi, preparar_impresion
+            sdi = es_planilla_sdi(spec['codigo'])
+            pie_sdi_pt = 0
+            if sdi:
+                ajustar_legibilidad_sdi(tree, styles)
+                from .identificacion_pdf import preparar_identificacion
+                from .impresion import MINIMO_PT_SDI
+
+                if firmantes:
+                    _, top, _ = preparar_identificacion(firmantes, 297 / 25.4 * 72, 210 / 25.4 * 72,
+                                                        fuente=MINIMO_PT_SDI)
+                    pie_sdi_pt = top + 6
             preparar_impresion(tree, workbook, titulos=[title for title, _ in spec['bloques']],
-                               mantener_bloques=spec['tipo'] == 'checklist')
+                               mantener_bloques=spec['tipo'] == 'checklist',
+                               sdi=sdi, periodica=spec['tipo'] == 'periodico', pie_sdi_pt=pie_sdi_pt)
             filled = Path(temporal) / "cargada.xlsx"
             with ZipFile(filled, "w") as output:
                 for entry in source.infolist():
@@ -135,7 +147,7 @@ def _generar_paquete(spec, cambios, destino):
     return destino
 
 
-def generar_multisistema(datos,destino,codigo):
+def generar_multisistema(datos,destino,codigo, *, firmantes=None):
     from .catalogo_completo import definiciones_habilitadas as definiciones_multisistema
     from .validacion import validar_datos
     definition=definiciones_multisistema().get(codigo)
@@ -156,4 +168,4 @@ def generar_multisistema(datos,destino,codigo):
                 if field.get('unidad'):text+='  '+field['unidad']
                 changes[field['celda']]=text
     for index,value in enumerate(data['observaciones']):changes['A'+str(schema['fila_observaciones']+index)]=_texto(value) if value else ''
-    return _generar_paquete(definition['especificacion'],changes,destino)
+    return _generar_paquete(definition['especificacion'],changes,destino,firmantes=firmantes)

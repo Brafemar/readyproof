@@ -1,15 +1,55 @@
-"""Compone una propuesta de certificado sobre la plantilla aprobada."""
+"""Compone propuestas y certificados emitidos sobre la plantilla aprobada."""
 from io import BytesIO
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
+from pypdf.generic import TextStringObject
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 
-from ..fotos.anexo_pdf import _numerar_documento
+from ..fotos.anexo_pdf import TITULO_PLANILLA_ORIGEN, _numerar_documento
+from ..planillas.impresion import es_planilla_sdi
 from ..planillas.validacion import DatosInvalidos
 
 PLANTILLA = Path(__file__).with_name("plantilla_propuesta.pdf")
+
+LEYENDAS_PROPUESTA = (
+    "PROPUESTA / NO EMITIDO",
+    "CONDICI\x02N FINAL: PENDIENTE DE VALIDACI\x02N T\x03CNICA",
+    "Registro [NNNN]",
+    "PROPUESTA DE DISE\x08O",
+)
+LEYENDAS_VIGENCIA = (
+    "Fechas ilustrativas.",
+    "VIGENCIA POR SISTEMA / INSPECCI",
+    "Dictamen y vigencias por sistema o inspecci",
+    "PERIODICIDAD POR INSPECCI",
+)
+
+
+def adaptar_plantilla(pagina, *, emitido):
+    leyendas = LEYENDAS_VIGENCIA + (LEYENDAS_PROPUESTA if emitido else ())
+    contenido = pagina.get_contents()
+    conservadas = []
+    retiradas = []
+    divisores = 0
+    operaciones = contenido.operations
+    for indice, (operandos, operador) in enumerate(operaciones):
+        if operador == b"Tj" and str(operandos[0]).startswith(leyendas):
+            retiradas.append(str(operandos[0]))
+        elif indice >= 2 and operador == b"S" and operaciones[indice - 2] == ([48, 355], b"m") and (
+            operaciones[indice - 1][1] == b"l" and operaciones[indice - 1][0][1] == 355
+        ):
+            # Termina el trazado sin dibujar el divisor de la segunda fila.
+            conservadas.append(([], b"n"))
+            divisores += 1
+        else:
+            conservadas.append((operandos, operador))
+    if divisores != 1 or any(sum(texto.startswith(leyenda) for texto in retiradas) != 1
+                            for leyenda in leyendas):
+        raise DatosInvalidos("La plantilla no permite generar el certificado.")
+    contenido.operations = conservadas
+    pagina.replace_contents(contenido)
 
 
 def separar_documentos(documentos):
@@ -18,19 +58,24 @@ def separar_documentos(documentos):
         lector = PdfReader(BytesIO(datos))
         if lector.is_encrypted or not lector.pages:
             raise DatosInvalidos("La planilla de respaldo no contiene un PDF legible.")
+        titulo_origen = lector.metadata.title if lector.metadata else None
+        es_sdi = es_planilla_sdi(titulo_origen)
         en_anexo = False
         for page in lector.pages:
             en_anexo |= "ANEXO FOTOGRÁFICO" in (page.extract_text() or "").splitlines()
+            if es_sdi and not en_anexo:
+                page[TITULO_PLANILLA_ORIGEN] = TextStringObject(titulo_origen)
             (anexos if en_anexo else planillas).append(page)
     return planillas, anexos
 
 
-def generar_propuesta(documentos, filas, ficha, *, firma=None):
+def generar_propuesta(documentos, ficha, *, firma=None, condicion=None, numeracion=None):
     planillas, anexos = separar_documentos(documentos)
     escritor = PdfWriter()
     for page in planillas + anexos:
         escritor.add_page(page)
     certificado = escritor.add_page(PdfReader(PLANTILLA).pages[0])
+    adaptar_plantilla(certificado, emitido=condicion is not None)
     capa = BytesIO()
     lienzo = canvas.Canvas(capa, pagesize=(float(certificado.mediabox.width), float(certificado.mediabox.height)))
 
@@ -40,20 +85,28 @@ def generar_propuesta(documentos, filas, ficha, *, firma=None):
         medida = lienzo.stringWidth(texto, fuente, puntos)
         escala = min(1, ancho / medida) if medida else 1
         if puntos * escala < 7:
-            raise DatosInvalidos("Un campo del certificado es demasiado largo para la propuesta A4.")
+            raise DatosInvalidos("Un campo del certificado es demasiado largo para el formato A4.")
         lienzo.setFont(fuente, puntos * escala)
         lienzo.setFillColorRGB(*( (1, 1, 1) if blanco else (.114, .114, .106) ))
         lienzo.drawString(x, y, texto)
 
+    if condicion is not None:
+        linea(730, 534, "EMITIDO", 65, puntos=10, negrita=True)
+        linea(36, 427, f"CONDICIÓN FINAL: {condicion}", 600, puntos=10, negrita=True)
+        numero, revision = numeracion
+        linea(641, 514, f"Registro {numero:04d} · Revisión {revision}", 166, puntos=9)
+    linea(36, 446, "Dictamen y vigencia confirmados por el responsable técnico.", 700, puntos=11)
+    linea(48, 396, "VIGENCIA CONJUNTA", 420, puntos=9, negrita=True, blanco=True)
+    linea(36, 138, "PERIODICIDAD CONFIRMADA", 354, puntos=8, negrita=True)
+    linea(36, 302, "Vigencia calculada desde la fecha de emisión.", 700, puntos=8)
+
     fecha = ficha["fecha"].strftime("%d/%m/%Y")
-    for i, fila in enumerate(filas):
-        y = 370 - 37 * i
-        linea(48, y, fila["sistema"], 420, puntos=11, negrita=True, blanco=True)
-        linea(485, y, fecha, 120, puntos=12, blanco=True)
-        linea(639, y-3, fila["vencimiento"].strftime("%d/%m/%Y"), 145, puntos=25, negrita=True, blanco=True)
+    linea(48, 355, ficha["periodicidad"], 420, puntos=11, negrita=True, blanco=True)
+    linea(485, 355, fecha, 120, puntos=12, blanco=True)
+    linea(639, 352, ficha["vencimiento"].strftime("%d/%m/%Y"), 145, puntos=25, negrita=True, blanco=True)
     for y, dato in ((246, ficha["cliente"]), (216, ficha["intervencion"]),
                     (186, ficha["establecimiento"]), (156, ficha["sistemas"]),
-                    (126, ficha["periodicidades"]), (77, fecha)):
+                    (126, ficha["periodicidad"]), (77, fecha)):
         linea(36, y, dato, 354)
     for y, dato in ((258, ficha["dictamen"]), (209, ficha["observaciones"]),
                     (160, "Planillas: " + ficha["referencias"]),

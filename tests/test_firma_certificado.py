@@ -209,7 +209,8 @@ def verificar_pdf(payload):
         assert valor in paginas[i].extract_text()
     texto = paginas[-1].extract_text()
     assert "PROPUESTA / NO EMITIDO" in texto and "Mat. A 11576" in texto and "Mat. “A” 11576" not in texto
-    assert "29/02/2028" in texto and "07/02/2028" in texto
+    assert texto.splitlines().count("29/02/2028") == 1 and "07/02/2028" not in texto
+    assert "Mensual (30 días)" in texto and "VIGENCIA CONJUNTA" in texto
     assert "Lic. Martín Marcos A. Sánchez" in texto
     plantilla = PdfReader(PLANTILLA).pages[0]
     assert [(imagen.name, imagen.data) for imagen in paginas[-1].images] == [
@@ -232,7 +233,7 @@ def test_propuesta_dos_planillas_y_permiso(app, client, privado, usuario_admin, 
         db.get(Usuario, usuario_admin["id"]).rol = "tecnico"
         db.commit()
     tecnico = login_cliente(app, usuario_admin["login"], usuario_admin["clave"])
-    assert tecnico.get("/certificados").status_code == 403
+    assert tecnico.get("/certificados").status_code == 200
     assert tecnico.post(ruta, data=cuerpo).status_code == 403
 
 

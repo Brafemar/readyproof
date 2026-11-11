@@ -52,15 +52,19 @@ def archivar_emision(carga, firmantes):
     return row
 
 
-def preparar_numero_emision(carga):
+def siguiente_numero_registro():
     """El bloqueo se mantiene hasta commit; un rollback no consume números."""
+    contador = sesion().scalar(select(NumeroRegistroContador).where(
+        NumeroRegistroContador.id == 1).with_for_update())
+    if contador is None:
+        raise RuntimeError('Falta inicializar el contador de emisiones mediante la migración.')
+    contador.ultimo += 1
+    return contador.ultimo
+
+
+def preparar_numero_emision(carga):
     if carga.numero_registro is None:
-        contador = sesion().scalar(select(NumeroRegistroContador).where(
-            NumeroRegistroContador.id == 1).with_for_update())
-        if contador is None:
-            raise RuntimeError('Falta inicializar el contador de emisiones mediante la migración.')
-        contador.ultimo += 1
-        carga.numero_registro = contador.ultimo
+        carga.numero_registro = siguiente_numero_registro()
 
 
 def desbloquear_carga(carga_id, usuario_id, motivo, *, firmantes, revision):
