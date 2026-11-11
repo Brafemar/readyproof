@@ -1513,6 +1513,12 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - Administración carga PNG normalizados en el directorio privado de la instancia. El puntero y la auditoría se confirman en una transacción. Se conservan las versiones anteriores.
 - La migración 023 crea únicamente la tabla de metadatos. El certificado verifica la huella antes de leer la firma y la referencia V2 queda reservada a pruebas.
 
+## Firma activa opcional en la propuesta del certificado
+
+- La propuesta incorpora la firma activa de Administración desde el almacenamiento privado. Sin firma activa conserva el espacio vacío.
+- Antes de renderizar se verifican permisos, propietario, huella y límites del PNG. Una firma activa que no se puede validar bloquea la descarga con 503.
+- La prueba utiliza exclusivamente imágenes ficticias y conserva la etiqueta de propuesta sin emitir.
+
 ## Certificado conjunto con habilitación independiente
 
 - La propuesta y su enlace de Administración requieren habilitación explícita, permiso de usuario y rol de administrador. Se conserva la etiqueta de propuesta y la restricción a planillas ficticias.

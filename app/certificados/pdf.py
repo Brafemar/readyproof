@@ -4,6 +4,7 @@ from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
 
 from ..fotos.anexo_pdf import _numerar_documento
 from ..planillas.validacion import DatosInvalidos
@@ -24,7 +25,7 @@ def separar_documentos(documentos):
     return planillas, anexos
 
 
-def generar_propuesta(documentos, filas, ficha):
+def generar_propuesta(documentos, filas, ficha, *, firma=None):
     planillas, anexos = separar_documentos(documentos)
     escritor = PdfWriter()
     for page in planillas + anexos:
@@ -62,6 +63,9 @@ def generar_propuesta(documentos, filas, ficha):
         linea(420, y, dato, 383)
     total = len(escritor.pages)
     linea(693, 28, f"T.C. 3 AÑOS · Pág. {total} de {total}", 120, puntos=8)
+    if firma is not None:
+        lienzo.drawImage(ImageReader(BytesIO(firma)), 440, 70, width=96, height=35,
+                         preserveAspectRatio=True, anchor="sw", mask="auto")
     lienzo.save()
     capa.seek(0)
     certificado.merge_page(PdfReader(capa).pages[0])

@@ -14,7 +14,7 @@ from ..db import sesion
 from ..models import Auditoria, Carga, Cliente, FirmaCertificadoActiva, Planilla, Sistema, ahora
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import obtener
-from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, validar_png
+from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, leer_version, validar_png
 from .calendario import vencimiento
 from .pdf import generar_propuesta
 
@@ -96,6 +96,18 @@ def cargar_firma():
     return metadatos(activa), 200 if anterior else 201
 
 
+def firma_propuesta():
+    activa = sesion().get(FirmaCertificadoActiva, 1)
+    if activa is None:
+        return None
+    try:
+        with directorio_privado(current_app.instance_path) as fd:
+            datos = leer_version(fd, activa.sha256)
+        return validar_png(datos)
+    except (OSError, ValueError):
+        abort(503, description="La firma gráfica activa no se puede validar en el almacenamiento privado.")
+
+
 def dato(nombre, limite, *, obligatorio=True):
     texto = request.form.get(nombre, "").strip()
     if (obligatorio and not texto) or len(texto)>limite or any(ord(c)<32 for c in texto):
@@ -155,7 +167,7 @@ def propuesta():
                observaciones=dato("observaciones",120,obligatorio=False),referencias=" · ".join(referencias),
                informe=dato("informe",90,obligatorio=False) or "No indicado")
     try:
-        pdf=generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha)
+        pdf=generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha, firma=firma_propuesta())
     except PdfReadError:
         raise DatosInvalidos("No se pudo leer una planilla de respaldo.") from None
     salida=request.form.get("salida","pdf")

@@ -236,6 +236,85 @@ def test_propuesta_dos_planillas_y_permiso(app, client, privado, usuario_admin, 
     assert tecnico.post(ruta, data=cuerpo).status_code == 403
 
 
+def test_propuesta_firma_activa_opcional(app, client, privado, usuario_admin, carga_emitida):
+    segunda = dos_cargas(app, carga_emitida)
+    app.config.update(MODO_PILOTO=False, CERTIFICADO_CONJUNTO_HABILITADO=True)
+    client = habilitar(app, client, usuario_admin)
+    cuerpo = datos(carga_emitida) | {"carga_2": segunda, "cantidad_2": "7", "unidad_2": "dias"}
+    ruta = "/api/certificados/propuesta"
+    sin_firma = client.post(ruta, data=cuerpo)
+    assert sin_firma.status_code == 200
+    verificar_pdf(sin_firma.data)
+    assert not privado.exists()
+
+    imagen = firma()
+    alta = cargar(client, imagen)
+    assert alta.status_code == 201
+    assert info(privado)["modo"] == "0700"
+    assert info(privado / (alta.json["sha256"] + ".png"))["modo"] == "0600"
+    con_firma = client.post(ruta, data=cuerpo)
+    assert con_firma.status_code == 200
+    paginas = PdfReader(BytesIO(con_firma.data)).pages
+    assert len(paginas) == 5
+    assert paginas[4].extract_text() == PdfReader(BytesIO(sin_firma.data)).pages[4].extract_text()
+    base = len(PdfReader(PLANTILLA).pages[0].images)
+    assert len(paginas[4].images) == base + 1
+    esperada = Image.open(BytesIO(imagen)).convert("RGBA")
+    assert any(im.image.convert("RGBA").size == esperada.size and
+               im.image.convert("RGBA").tobytes() == esperada.tobytes() for im in paginas[4].images)
+    assert estado(client)["sha256"] == alta.json["sha256"]
+    salida = os.environ.get("RP_FIRMA_EVIDENCIA")
+    if salida:
+        out = Path(salida)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "propuesta_con_firma.pdf").write_bytes(con_firma.data)
+        (out / "propuesta_sin_firma.pdf").write_bytes(sin_firma.data)
+
+
+@pytest.mark.parametrize("caso", ["jpeg", "truncado", "tamano", "dimensiones",
+                                 "opaco", "transparente", "blanco", "animado"])
+def test_propuesta_rechaza_firma_activa_invalida(app, client, privado, usuario_admin, carga_emitida, caso):
+    app.config.update(MODO_PILOTO=False, CERTIFICADO_CONJUNTO_HABILITADO=True)
+    client = habilitar(app, client, usuario_admin)
+    assert cargar(client, firma()).status_code == 201
+    contenido = invalido(caso)
+    huella = sha256(contenido).hexdigest()
+    archivo = privado / (huella + ".png")
+    with archivo.open("xb") as stream:
+        stream.write(contenido)
+    archivo.chmod(0o600)
+    with Session(app.extensions["db_engine"]) as db:
+        activa = db.get(FirmaCertificadoActiva, 1)
+        activa.sha256, activa.tamano = huella, len(contenido)
+        db.commit()
+    respuesta = client.post("/api/certificados/propuesta", data=datos(carga_emitida))
+    assert respuesta.status_code == 503
+    assert respuesta.mimetype == "application/json"
+    assert archivo.read_bytes() == contenido
+
+
+@pytest.mark.parametrize("caso", ["directorio", "archivo", "huella", "ausente"])
+def test_propuesta_rechaza_almacen_firma_inseguro(app, client, privado, usuario_admin, carga_emitida, caso):
+    app.config.update(MODO_PILOTO=False, CERTIFICADO_CONJUNTO_HABILITADO=True)
+    client = habilitar(app, client, usuario_admin)
+    alta = cargar(client, firma())
+    assert alta.status_code == 201
+    archivo = privado / (alta.json["sha256"] + ".png")
+    if caso == "directorio":
+        privado.chmod(0o755)
+    elif caso == "archivo":
+        archivo.chmod(0o644)
+    elif caso == "huella":
+        archivo.write_bytes(b"archivo modificado")
+    else:
+        with Session(app.extensions["db_engine"]) as db:
+            db.get(FirmaCertificadoActiva, 1).sha256 = "0" * 64
+            db.commit()
+    respuesta = client.post("/api/certificados/propuesta", data=datos(carga_emitida))
+    assert respuesta.status_code == 503
+    assert respuesta.mimetype == "application/json"
+
+
 def test_navegador_firma_y_certificado(app, client, privado, usuario_admin, carga_emitida, tmp_path):
     segunda = dos_cargas(app, carga_emitida)
     app.config.update(MODO_PILOTO=False, CERTIFICADO_CONJUNTO_HABILITADO=True)
