@@ -1534,3 +1534,8 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 - La emisión muestra una sola vigencia compuesta: meses calendario, días y descuento de un día.
 - Certificados y planillas comparten el contador transaccional de registros. La reemisión conserva el registro, incrementa la revisión y archiva cada PDF.
 - La migración 025 agrega registro y revisión al archivo de emisiones. Conserva intactos los PDF que se hubieran emitido con 024.
+
+### 2026-11-11 · Vigencia por periodicidad (AY)
+
+- El formulario y el PDF calculan el vencimiento desde la fecha de emisión en días corridos: mensual 30, trimestral 90, semestral 180 y anual 365. La fecha de emisión cuenta como primer día.
+- La solicitud anterior de 1 mes / 7 días se interpreta como mensual. Las planillas y los PDF archivados conservan sus datos y archivos.

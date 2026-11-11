@@ -11,13 +11,14 @@ import shutil
 import subprocess
 from threading import Thread
 
+import pytest
 from pypdf import PdfReader
 from reportlab.pdfgen import canvas
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from werkzeug.serving import make_server
 
-from app.certificados.calendario import vencimiento
+from app.certificados.calendario import vigencia_emision
 from app.models import Auditoria, Carga, Usuario
 from tests.test_smtp_gmail import carga_emitida
 
@@ -45,10 +46,15 @@ def datos(carga):
                 dictamen="[Ejemplo] Dictamen de prueba", confirmacion="si")
 
 
-def test_vencimiento_calendario():
-    assert vencimiento(date(2028, 1, 31), meses=1) == date(2028, 2, 29)
-    assert vencimiento(date(2027, 1, 31), meses=1) == date(2027, 2, 28)
-    assert vencimiento(date(2027, 12, 31), dias=7) == date(2028, 1, 7)
+@pytest.mark.parametrize(("periodicidad", "fecha", "hasta"), [
+    ("mensual", date(2028, 1, 31), date(2028, 2, 29)),
+    ("trimestral", date(2028, 1, 31), date(2028, 4, 29)),
+    ("semestral", date(2028, 1, 31), date(2028, 7, 28)),
+    ("anual", date(2028, 1, 31), date(2029, 1, 29)),
+    ("mensual", date(2027, 1, 31), date(2027, 3, 1)),
+])
+def test_vigencia_por_periodicidad(periodicidad, fecha, hasta):
+    assert vigencia_emision(fecha, periodicidad) == hasta
 
 
 def test_permiso_en_servidor_y_propuesta(app, client, usuario_admin, carga_emitida):

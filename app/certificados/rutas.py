@@ -16,7 +16,7 @@ from ..models import Auditoria, Carga, Cliente, EmisionCertificado, FirmaCertifi
 from ..planillas.validacion import DatosInvalidos
 from ..rutas.api import obtener
 from .almacen_firma import MAX_BYTES, directorio_privado, guardar_version, leer_version, validar_png
-from .calendario import vencimiento, vigencia_emision
+from .calendario import PERIODICIDADES, PERIODICIDADES_LEGADAS, vigencia_emision
 from .pdf import generar_propuesta
 
 certificados = Blueprint("certificados", __name__)
@@ -46,7 +46,7 @@ def formulario():
             UsuarioCliente.usuario_id == g.usuario.id)
     filas = db.execute(consulta.order_by(Carga.emitida_en.desc())).all()
     return render_template("certificado_propuesta.html", opciones=filas, csrf=csrf_token(),
-                           max_planillas=MAX_PLANILLAS_PROPUESTA)
+                           max_planillas=MAX_PLANILLAS_PROPUESTA, periodicidades=PERIODICIDADES)
 
 
 @certificados.get("/admin/firma-certificado")
@@ -156,6 +156,23 @@ def numeracion_emision(cliente_id):
     return registro, ultima + 1
 
 
+def periodicidad_certificado(indices):
+    valores = request.form.getlist("periodicidad")
+    if valores:
+        if len(valores) == 1 and valores[0] in PERIODICIDADES:
+            return valores[0]
+    else:
+        try:
+            legado = tuple(sorted(
+                (request.form.get(f"unidad_{i}"), int(request.form[f"cantidad_{i}"]))
+                for i in indices
+            ))
+            return PERIODICIDADES_LEGADAS[legado]
+        except (KeyError, TypeError, ValueError):
+            pass
+    raise DatosInvalidos("Elegí una periodicidad mensual, trimestral, semestral o anual.")
+
+
 def preparar_documento(*, emitido=False):
     condicion = None
     if emitido:
@@ -168,15 +185,13 @@ def preparar_documento(*, emitido=False):
     if any(key not in permitidos or len(request.form.getlist(key)) > 1 for key in campos_carga):
         raise DatosInvalidos(f"La propuesta admite como máximo {MAX_PLANILLAS_PROPUESTA} planillas.")
     if request.form.get("confirmacion") != "si":
-        raise DatosInvalidos("Confirmá las periodicidades y el dictamen.")
+        raise DatosInvalidos("Confirmá la periodicidad y el dictamen.")
     try:
         fecha = date.fromisoformat(request.form.get("fecha", ""))
     except ValueError:
-        raise DatosInvalidos("Indicá la fecha del certificado.") from None
-    filas, cargas, sistemas, referencias = [], [], [], []
+        raise DatosInvalidos("Indicá la fecha de emisión.") from None
+    cargas, sistemas, referencias, indices = [], [], [], []
     cliente = None
-    periodos = []
-    duracion = {"meses": 0, "dias": 0}
     for i in range(1, MAX_PLANILLAS_PROPUESTA + 1):
         raw_id = request.form.get(f"carga_{i}")
         if not raw_id:
@@ -185,13 +200,8 @@ def preparar_documento(*, emitido=False):
             continue
         try:
             cid = str(UUID(raw_id))
-            unidad = request.form.get(f"unidad_{i}")
-            cantidad = int(request.form.get(f"cantidad_{i}", ""))
-            if unidad not in ("dias", "meses"):raise ValueError()
-            hasta = vencimiento(fecha, **{unidad:cantidad})
-            duracion[unidad] += cantidad
-        except (ValueError, OverflowError):
-            raise DatosInvalidos("Revisá la planilla y su periodicidad confirmada.") from None
+        except ValueError:
+            raise DatosInvalidos("Revisá la planilla seleccionada.") from None
         carga = obtener(Carga, cid)
         if any(c.id == cid for c in cargas):
             raise DatosInvalidos("Una planilla no se puede seleccionar dos veces.")
@@ -205,25 +215,20 @@ def preparar_documento(*, emitido=False):
             raise DatosInvalidos("Elegí planillas ficticias del mismo cliente.")
         cliente=actual
         planilla=obtener(Planilla,carga.planilla_id)
-        filas.append(dict(sistema=f"{sistema.designacion} · {planilla.codigo}", vencimiento=hasta))
         sistemas.append(sistema.designacion)
         referencias.append(f"{planilla.codigo} / {carga.numero_registro or 's/n'} / R{carga.revision_publica}")
-        periodos.append(f"{cantidad} {'día(s)' if unidad=='dias' else 'mes(es)'}")
         cargas.append(carga)
-    if emitido:
-        try:
-            hasta = vigencia_emision(fecha, **duracion)
-        except (ValueError, OverflowError):
-            raise DatosInvalidos("Revisá la vigencia compuesta confirmada.") from None
-        periodos = []
-        for unidad, singular, plural in (("meses", "mes", "meses"), ("dias", "día", "días")):
-            cantidad = duracion[unidad]
-            if cantidad:
-                periodos.append(f"{cantidad} {singular if cantidad == 1 else plural}")
-        filas = [dict(sistema=" / ".join(periodos), vencimiento=hasta)]
+        indices.append(i)
+    periodicidad = periodicidad_certificado(indices)
+    etiqueta, dias = PERIODICIDADES[periodicidad]
+    try:
+        hasta = vigencia_emision(fecha, periodicidad)
+    except OverflowError:
+        raise DatosInvalidos("La vigencia queda fuera del rango de fechas permitido.") from None
+    periodo = f"{etiqueta} ({dias} días)"
     ficha=dict(fecha=fecha,cliente=cliente.nombre,intervencion=f"{cliente.cuit or 'Sin CUIT'} · {dato('intervencion',50)}",
                establecimiento=dato("establecimiento",120),sistemas=" / ".join(dict.fromkeys(sistemas)),
-               periodicidades=" / ".join(periodos),dictamen=dato("dictamen",120,obligatorio=not emitido),
+               periodicidad=periodo,vencimiento=hasta,dictamen=dato("dictamen",120,obligatorio=not emitido),
                observaciones=dato("observaciones",120,obligatorio=False),referencias=" · ".join(referencias),
                informe=dato("informe",90,obligatorio=False) or "No indicado")
     firma = firma_propuesta()
@@ -231,7 +236,7 @@ def preparar_documento(*, emitido=False):
         abort(503, description="La emisión requiere una firma gráfica activa.")
     numeracion = numeracion_emision(cliente.id) if emitido else None
     try:
-        pdf = generar_propuesta([bytes(c.pdf) for c in cargas], filas, ficha, firma=firma,
+        pdf = generar_propuesta([bytes(c.pdf) for c in cargas], ficha, firma=firma,
                                 condicion=condicion, numeracion=numeracion)
     except PdfReadError:
         raise DatosInvalidos("No se pudo leer una planilla de respaldo.") from None

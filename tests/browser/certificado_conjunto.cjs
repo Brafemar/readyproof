@@ -30,8 +30,22 @@ const { chromium } = require("playwright");
     await page.locator("#fecha").fill("2028-01-31");
     await page.locator("#intervencion").fill("2028-01-30");
     await page.locator("#carga_1").selectOption({ index: 1 });
-    await page.locator("#cantidad_1").fill("1");
-    await page.locator("#unidad_1").selectOption("meses");
+    const periodicidad = page.getByLabel("Periodicidad", { exact: true });
+    const vigencia = page.locator("#vigencia-hasta");
+    assert.equal(await vigencia.textContent(), "—");
+    for (const [opcion, hasta] of Object.entries({
+      mensual: "29/02/2028", trimestral: "29/04/2028",
+      semestral: "28/07/2028", anual: "29/01/2029"
+    })) {
+      await periodicidad.selectOption(opcion);
+      assert.equal(await vigencia.textContent(), hasta);
+    }
+    await periodicidad.selectOption("mensual");
+    await page.locator("#fecha").fill("2027-01-31");
+    assert.equal(await vigencia.textContent(), "01/03/2027");
+    await page.locator("#fecha").fill("2028-01-31");
+    await page.locator("#intervencion").fill("2028-02-01");
+    assert.equal(await vigencia.textContent(), "29/02/2028");
     await page.locator("#establecimiento").fill("[Ejemplo] Sede ficticia");
     const dictamen = page.getByRole("textbox", { name: "Dictamen", exact: true });
     assert.equal(await dictamen.count(), 1);
@@ -44,8 +58,6 @@ const { chromium } = require("playwright");
     if (data.segunda) {
       await page.locator("#carga_1").selectOption(data.primera);
       await page.locator("#carga_2").selectOption(data.segunda);
-      await page.locator("#cantidad_2").fill("7");
-      await page.locator("#unidad_2").selectOption("dias");
     }
     await page.locator("[name=confirmacion]").check();
     await page.screenshot({ path: path.join(data.salida, "formulario_390.png"), fullPage: true });

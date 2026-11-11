@@ -34,6 +34,11 @@ def test_emite_certificado_con_vigencia(app, client, privado, usuario_admin, car
         "carga_2": segunda, "cantidad_2": "7", "unidad_2": "dias",
         "condicion": condicion,
     }
+    if condicion == "APROBADO":
+        for campo in ("cantidad_1", "unidad_1", "cantidad_2", "unidad_2"):
+            del formulario[campo]
+        formulario["periodicidad"] = "mensual"
+    assert client.post(EMITIR, data=formulario | {"periodicidad": "7"}).status_code == 422
     respuesta = client.post(EMITIR, data=formulario)
     assert respuesta.status_code == 200, respuesta.json
     assert respuesta.mimetype == "application/pdf"
@@ -43,9 +48,9 @@ def test_emite_certificado_con_vigencia(app, client, privado, usuario_admin, car
     assert "EMITIDO" in texto.splitlines()
     assert f"CONDICIÓN FINAL: {condicion}" in texto.splitlines()
     assert "PROPUESTA / NO EMITIDO" not in texto and "SIN VALIDEZ DE EMISIÓN" not in texto
-    assert texto.splitlines().count("06/03/2028") == 1
-    assert "28/02/2028" not in texto and "06/02/2028" not in texto
-    assert "1 mes / 7 días" in texto and "VIGENCIA CONJUNTA" in texto
+    assert texto.splitlines().count("29/02/2028") == 1
+    assert "06/03/2028" not in texto and "28/02/2028" not in texto
+    assert "Mensual (30 días)" in texto and "VIGENCIA CONJUNTA" in texto
     assert "[Ejemplo] Dictamen de prueba" in texto
     assert "T.C. 3 AÑOS · Pág. 5 de 5" in texto
     assert "[NNNN]" not in texto and "[R]" not in texto
