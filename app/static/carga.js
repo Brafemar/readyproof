@@ -21,6 +21,7 @@
   }
   const labels = {fecha:"Fecha",cliente:"Cliente",cuit:"CUIT",telefono:"Teléfono",direccion:"Dirección",edificio:"Edificio",sector:"Sector",empresa_mantenedora:"Empresa mantenedora",numero_mantenedor:"N.° mantenedor certificado",inspector:"Inspector",sistema_designacion:"Sistema / designación"};
   let catalog = null, draft = null, schema = null, syncPromise = null, timer = null;
+  let verificandoCatalogo = false;
   let operation = false, previewVersion = -1, previewUrl = null, serviceAvailable = navigator.onLine;
   const controls = [], drawVersion = {tecnico:0,responsable:0};
   const firmasActivas = new Set();
@@ -72,7 +73,7 @@
   window.addEventListener("readyproof-fotos-pendientes",event=>{fotosPendientes=event.detail;update();});
   window.readyproofFotosBorrador=localId=>storage("borradores","readonly","get",localId);
   function update() {
-    const online=navigator.onLine && serviceAvailable;
+    const online=navigator.onLine && serviceAvailable && !verificandoCatalogo;
     $("connection-text").textContent=online ? "Conectado" : "Sin conexión";
     document.querySelector(".connection").classList.toggle("offline", !online);
     window.dispatchEvent(new CustomEvent("readyproof-fotos-contexto",{detail:draft?{localId:draft.localId,serverId:draft.serverId,readOnly:isReadOnly(),estado:draft.estado,pending:draft.pending,conflicto:draft.conflicto}:null}));
@@ -94,15 +95,15 @@
     $("completar-ejemplo").hidden=!piloto;
     $("completar-ejemplo").disabled=isReadOnly()||operation;
     $("guardar").disabled=isReadOnly()||operation;
-    $("vista-previa").disabled=operation||!navigator.onLine||historica();
-    $("finalizar").disabled=fotosPendientes>0||operation||draft.estado==="emitida"||!navigator.onLine||draft.conflicto||previewVersion!==draft.editVersion||!validarFirmantes();
+    $("vista-previa").disabled=operation||verificandoCatalogo||!navigator.onLine||historica();
+    $("finalizar").disabled=fotosPendientes>0||operation||draft.estado==="emitida"||verificandoCatalogo||!navigator.onLine||draft.conflicto||previewVersion!==draft.editVersion||!validarFirmantes();
     $("finalizar").textContent=draft.estado==="finalizada" ? "Reintentar emisión →" : (piloto?"Finalizar ejemplo →":"Finalizar planilla →");
     $("finalizar").hidden=draft.estado==="emitida"||historica();
     $("copiar-a4").hidden=!permiteCopiaA4();
     $("copiar-a4").disabled=operation||!online;
     $("descargar").textContent=historica()?"Descargar PDF anterior":"Descargar PDF";
-    $("descargar").hidden=draft.estado!=="emitida";
-    $("enviar-pdf").hidden=draft.estado!=="emitida";
+    $("descargar").hidden=draft.estado!=="emitida"||verificandoCatalogo;
+    $("enviar-pdf").hidden=draft.estado!=="emitida"||verificandoCatalogo;
     $("enviar-pdf").disabled=operation||!online||historica();
     if(draft.serverId) $("descargar").href=`/api/cargas/${draft.serverId}/pdf`;
     for(const role of roles) $("firma-"+role+"-status").textContent=hasSignature(role) ? (draft.firmas?.[role] ? "Firma de prueba guardada" : "Firma guardada en esta planilla") : "Sin firma";
@@ -179,7 +180,7 @@
     clearTimeout(timer);timer=setTimeout(()=>sync(false),750);
   }
   async function sync(show=false) {
-    if(!draft)return false;
+    if(!draft||verificandoCatalogo)return false;
     if(syncPromise){await syncPromise;if(!draft)return false;if(draft.pending&&!draft.conflicto)return sync(show);return !draft.pending;}
     if(!navigator.onLine){status("Guardado en este dispositivo · Sin conexión");return false;}
     if(draft.conflicto){if(show)message("La versión del servidor cambió. Se conserva tu copia local.",true);return false;}
@@ -466,9 +467,28 @@
     }catch(error){$("correo-estado").textContent=error.message+". Si hubo un corte, cerrá y volvé a abrir este cuadro para consultar el resultado.";correoReady=false;}
     finally{correoBusy=false;operation=false;correoUpdate();update();}
   };
+  function mostrarClientes(){
+    $("cliente").replaceChildren();
+    for(const cliente of catalog.clientes)$("cliente").add(new Option(cliente.nombre,cliente.id));
+    $("cliente").disabled=!catalog.clientes.length;
+  }
+
   async function boot(){
     try{
       const cached=await storage("meta","readonly","get","catalogo");
+      const anteriores=await storage("borradores","readonly","getAll");
+      const recuperado=anteriores.filter(row=>cached?.definiciones?.[row.planillaId]
+        &&cached.clientes.some(cliente=>cliente.id===row.clienteId))
+        .sort((a,b)=>b.actualizado.localeCompare(a.actualizado))[0];
+      if(recuperado){
+        verificandoCatalogo=navigator.onLine;
+        catalog=cached;
+        draft=recuperado;
+        mostrarClientes();
+        render();
+        status("Borrador recuperado del dispositivo");
+        for(const id of ["cliente","sistema","planilla","borradores","nuevo"])$(id).disabled=true;
+      }
       try{
         const {clientes,sistemas,planillas,ejemplo}=await json("/api/catalogo-carga");
         const vigentes=cached?.definiciones||{};
@@ -481,7 +501,6 @@
           if(!coincide(planilla,definicion))throw new Error("El catálogo cambió. Volvé a cargar la pantalla.");
           definiciones[planilla.id]=definicion;
         }
-        const anteriores=await storage("borradores","readonly","getAll");
         for(const record of anteriores){
           if(!definiciones[record.planillaId]&&clientes.some(cliente=>cliente.id===record.clienteId)){
             definiciones[record.planillaId]=vigentes[record.planillaId]||await json(`/api/planillas/${record.planillaId}`);
@@ -489,12 +508,30 @@
         }
         catalog={clientes,planillas,ejemplo,sistemas,definiciones};await storage("meta","readwrite","put",catalog,"catalogo");
       }catch(error){serviceAvailable=false;if(!cached)throw new Error("No se pudo cargar el catálogo. Conectate al servicio local para iniciar la primera carga.");catalog=cached;}
-      $("cliente").replaceChildren();for(const cliente of catalog.clientes)$("cliente").add(new Option(cliente.nombre,cliente.id));$("cliente").disabled=false;
-      populateSystems();populatePlanillas();
+      verificandoCatalogo=false;
+      mostrarClientes();
+      $("borradores").disabled=false;
+      $("nuevo").disabled=false;
       const records=await draftList();
-      if(!catalog.clientes.length){message("No tenés clientes asignados. Pedí la asignación al administrador.");return;}
-      if(records.length){draft=records[0];render();status("Borrador recuperado del dispositivo");}
-      else await newDraft();
+      if(draft&&(!catalog.clientes.some(cliente=>cliente.id===draft.clienteId)
+        ||!catalog.definiciones[draft.planillaId])){
+        draft=null;
+        controls.length=0;
+        for(const id of ["cabecera-campos","bloques","observaciones-campos"])$(id).replaceChildren();
+        for(const id of Object.values(responsableInputs))$(id).value="";
+        for(const role of roles)$(`firma-${role}`).getContext("2d").clearRect(0,0,$(`firma-${role}`).width,$(`firma-${role}`).height);
+        $("formulario").hidden=true;
+        document.querySelector(".actionbar").hidden=true;
+        message("El cliente del borrador ya no está disponible. El borrador se conserva en este dispositivo.");
+      }
+      if(!catalog.clientes.length){populateSystems();populatePlanillas();if(!recuperado)message("No tenés clientes asignados. Pedí la asignación al administrador.");return;}
+      $("formulario").hidden=false;
+      document.querySelector(".actionbar").hidden=false;
+      if(draft){
+        $("cliente").value=draft.clienteId;populateSystems();$("sistema").value=draft.sistemaId;populatePlanillas();
+        $("planilla").value=draft.planillaId;
+      }else if(records.length){draft=records[0];render();status("Borrador recuperado del dispositivo");}
+      else {populateSystems();populatePlanillas();await newDraft();}
       update();if(draft?.pending)sync(false);
       else await refrescarPermisos();
     }catch(error){message(error.message);status("No se pudo preparar el guardado local");}
