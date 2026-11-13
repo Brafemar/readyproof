@@ -106,6 +106,7 @@
     $("enviar-pdf").hidden=draft.estado!=="emitida"||verificandoCatalogo;
     $("enviar-pdf").disabled=operation||!online||historica();
     if(draft.serverId) $("descargar").href=`/api/cargas/${draft.serverId}/pdf`;
+    prepararCompartirEmitida($("descargar"));
     for(const role of roles) $("firma-"+role+"-status").textContent=hasSignature(role) ? (draft.firmas?.[role] ? "Firma de prueba guardada" : "Firma guardada en esta planilla") : "Sin firma";
   }
   async function json(url, options={}) {
@@ -321,14 +322,74 @@
     draft={localId:crypto.randomUUID(),clienteId,sistemaId,planillaId,serverId:null,revision:null,estado:"borrador",datos,firmas:copy?structuredClone(copy.firmas):{},firmasServidor:{},responsable:copy?structuredClone(copy.responsable||{}):{},pending:true,conflicto:false,editVersion:0,actualizado:new Date().toISOString()};
     render();await persist();status("Borrador guardado en este dispositivo");sync(false);
   }
+  const avisoCompartir="Para compartir desde este navegador, descargá primero el PDF.";
+  const admiteCompartir=typeof navigator.share==="function"&&typeof navigator.canShare==="function";
+  let descargaCompartida=null, archivoPrevio=null;
+
+  function mostrarCompartir(boton, estado, archivo){
+    const admite=admiteCompartir&&navigator.canShare({files:[archivo]});
+    boton.hidden=!admite;
+    boton.disabled=false;
+    estado.textContent=admite?"":avisoCompartir;
+  }
+
+  async function compartirArchivo(archivo, estado){
+    if(!archivo)return;
+    try{
+      await navigator.share({files:[archivo]});
+    }catch(error){
+      if(error.name!=="AbortError")estado.textContent=avisoCompartir;
+    }
+  }
+
+  function prepararCompartirEmitida(enlace){
+    const boton=$("compartir-pdf"), estado=$("compartir-estado");
+    const url=enlace.hidden?null:enlace.href;
+    if(!url||!admiteCompartir){
+      descargaCompartida=null;
+      boton.hidden=true;
+      estado.textContent=url?avisoCompartir:"";
+      return;
+    }
+    if(descargaCompartida?.url===url)return;
+    const pendiente={url};
+    descargaCompartida=pendiente;
+    boton.hidden=false;
+    boton.disabled=true;
+    estado.textContent="";
+    fetch(url,{cache:"no-store"}).then(async respuesta=>{
+      if(!respuesta.ok||!respuesta.headers.get("Content-Type")?.startsWith("application/pdf"))
+        throw new Error("PDF no disponible");
+      const nombre=respuesta.headers.get("Content-Disposition")?.match(/filename="?([A-Za-z0-9_.-]+\.pdf)"?/i)?.[1];
+      const archivo=new File([await respuesta.blob()],nombre||"planilla.pdf",{type:"application/pdf"});
+      if(descargaCompartida!==pendiente)return;
+      pendiente.archivo=archivo;
+      mostrarCompartir(boton,estado,archivo);
+    }).catch(()=>{
+      if(descargaCompartida!==pendiente)return;
+      descargaCompartida=null;
+      boton.hidden=true;
+      estado.textContent=avisoCompartir;
+    });
+  }
+
+  $("compartir-pdf").onclick=()=>compartirArchivo(descargaCompartida?.archivo,$("compartir-estado"));
+  $("compartir-previa").onclick=()=>compartirArchivo(archivoPrevio,$("compartir-previa-estado"));
+  window.addEventListener("readyproof-lock",()=>{descargaCompartida=null;archivoPrevio=null;});
+
   async function preview(){
     message("");if(!validFields(true))return;
     clearTimeout(timer);await persist();if(!await sync(true)){if(!navigator.onLine)message("La vista previa requiere conexión. El borrador está guardado en este dispositivo.");return;}
     const version=draft.editVersion;operation=true;update();const dialog=$("preview-dialog");dialog.showModal();$("preview-status").textContent="Preparando PDF con los datos y firmas guardados…";$("pdf-frame").removeAttribute("src");$("abrir-pdf").hidden=true;
+    archivoPrevio=null;$("descargar-previa").hidden=true;$("compartir-previa").hidden=true;$("compartir-previa-estado").textContent="";
     try{
       const response=await fetch(`/api/cargas/${draft.serverId}/vista-previa`,{method:"POST",headers:{"Content-Type":"application/json","X-CSRF-Token":account.csrf_token},body:JSON.stringify({revision:draft.revision})});
       if(!response.ok){const data=await response.json();throw new Error(data.error||"No se pudo generar la vista previa.");}
-      if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(await response.blob());
+      if(previewUrl)URL.revokeObjectURL(previewUrl);
+      archivoPrevio=new File([await response.blob()],"planilla-vista-previa.pdf",{type:"application/pdf"});
+      previewUrl=URL.createObjectURL(archivoPrevio);
+      $("descargar-previa").href=previewUrl;$("descargar-previa").hidden=false;
+      mostrarCompartir($("compartir-previa"),$("compartir-previa-estado"),archivoPrevio);
       $("pdf-frame").src=previewUrl;$("abrir-pdf").href=previewUrl;$("abrir-pdf").hidden=false;
       previewVersion=draft.editVersion===version?version:-1;
       $("preview-status").textContent=previewVersion===version?"Vista previa lista. Revisá el documento antes de finalizar.":"El borrador cambió. Generá otra vista previa antes de finalizar.";
