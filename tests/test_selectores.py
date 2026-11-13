@@ -6,6 +6,7 @@ import shutil
 import subprocess
 from threading import Thread
 
+import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from werkzeug.serving import make_server
@@ -21,8 +22,35 @@ def test_service_worker_sin_respuestas_invalidas():
 
 
 def test_selectores_cambian_cliente_sistema_y_planilla(app,client,usuario_admin,catalogo):
+    probar_selectores(app, client, usuario_admin, catalogo)
+
+
+@pytest.mark.parametrize("piloto", [False, True], ids=["real-ficticio", "piloto"])
+def test_autocompleta_contacto_en_borrador_a_390_px(app,client,usuario_admin,catalogo,piloto):
+    app.config["MODO_PILOTO"] = piloto
+    probar_selectores(app, client, usuario_admin, catalogo, comprobar_contacto=True)
+
+
+def probar_selectores(app, client, usuario_admin, catalogo, *, comprobar_contacto=False):
     first,system,template=catalogo
-    other=client.post('/api/admin/clientes',json={'nombre':'[Ejemplo] Segunda planta'}).get_json()
+    ficha = {"nombre": "[Ejemplo] Segunda planta"}
+    if comprobar_contacto:
+        ficha.update(cuit="20000000001", contacto=dict(telefono="0000-0000000",
+                         direccion="Calle de prueba 123", email="contacto@example.invalid"))
+    respuesta = client.post('/api/admin/clientes', json=ficha)
+    assert respuesta.status_code == 201, respuesta.get_json()
+    other = respuesta.get_json()
+    piloto = app.config["MODO_PILOTO"]
+    contacto = None
+    if comprobar_contacto:
+        valores = dict(cuit=ficha["cuit"], telefono=ficha["contacto"]["telefono"],
+                       direccion=ficha["contacto"]["direccion"])
+        listado = {cliente["id"]: cliente for cliente in client.get("/api/clientes").get_json()}
+        assert listado[other["id"]] == dict(id=other["id"], nombre=ficha["nombre"],
+                                            es_ejemplo=piloto, **valores)
+        assert all(listado[first["id"]][campo] is None for campo in valores)
+        prefijo = "[Ejemplo] " if piloto else ""
+        contacto = {campo: prefijo + valor for campo, valor in valores.items()}
     other_system=client.post(f"/api/admin/clientes/{other['id']}/sistemas",json={'tipo':'SAA','designacion':'[Ejemplo] SAA de segunda planta'}).get_json()
     second_system=client.post(f"/api/admin/clientes/{first['id']}/sistemas",json={'tipo':'SAA','designacion':'[Ejemplo] Z segundo abastecimiento'}).get_json()
     with Session(app.extensions['db_engine']) as session:
@@ -33,11 +61,14 @@ def test_selectores_cambian_cliente_sistema_y_planilla(app,client,usuario_admin,
         alternative_id=alternative.id
     server=make_server('127.0.0.1',0,app,threaded=True)
     thread=Thread(target=server.serve_forever,daemon=True);thread.start()
-    out=Path('out/selectores_navegador').resolve();out.mkdir(parents=True,exist_ok=True)
+    out=Path('out/selectores_navegador').resolve()
+    if comprobar_contacto:
+        out /= "piloto" if piloto else "real_ficticio"
+    out.mkdir(parents=True,exist_ok=True)
     env=dict(os.environ,RP_URL=f'http://127.0.0.1:{server.server_port}',RP_OUT=str(out),
              RP_LOGIN=usuario_admin['login'],RP_PASSWORD=usuario_admin['clave'],
              RP_SELECTION=json.dumps({'cliente':first['id'],'otro_cliente':other['id'],'otro_sistema':other_system['id'],
-                                      'segundo_sistema':second_system['id'],'otra_planilla':alternative_id}))
+                                      'segundo_sistema':second_system['id'],'otra_planilla':alternative_id,'contacto':contacto}))
     node=os.environ.get('READYPROOF_NODE') or shutil.which('node')
     assert node
     try:

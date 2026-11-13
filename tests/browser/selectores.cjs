@@ -7,7 +7,9 @@ const base=process.env.RP_URL,out=process.env.RP_OUT,expected=JSON.parse(process
   const candidates=[process.env.READYPROOF_BROWSER,chromium.executablePath(),path.join(process.env.ProgramFiles||'C:/Program Files','Google/Chrome/Application/chrome.exe'),path.join(process.env['ProgramFiles(x86)']||'C:/Program Files (x86)','Microsoft/Edge/Application/msedge.exe')];
   const executablePath=candidates.find(item=>item&&fs.existsSync(item));assert.ok(executablePath);
   const browser=await chromium.launch({headless:true,executablePath});
-  const context=await browser.newContext({locale:'es-AR',viewport:{width:1280,height:900}});
+  const mobile=expected.contacto!==null;
+  const context=await browser.newContext({locale:'es-AR',viewport:mobile?{width:390,height:844}:{width:1280,height:900},
+    isMobile:mobile,hasTouch:mobile});
   const page=await context.newPage(),errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   async function record(){return page.evaluate(()=>new Promise((resolve,reject)=>{
@@ -23,21 +25,54 @@ const base=process.env.RP_URL,out=process.env.RP_OUT,expected=JSON.parse(process
     await page.waitForFunction(({id,value})=>document.getElementById(id).value===value,{id,value});
     let saved;
     for(let attempt=0;attempt<100;attempt++){
-      saved=await record();if(saved?.[key]===value && !saved.pending)break;
+      saved=await record();if(saved?.[key]===value && (mobile||!saved.pending))break;
       await new Promise(resolve=>setTimeout(resolve,100));
     }
-    assert.equal(saved[key],value);assert.equal(saved.pending,false);
+    assert.equal(saved[key],value);
+    if(!mobile)assert.equal(saved.pending,false);
   }
   try{
     await page.goto(base+'/login');await page.locator('#login').fill(process.env.RP_LOGIN);await page.locator('#clave').fill(process.env.RP_PASSWORD);
     await Promise.all([page.waitForURL(base+'/'),page.getByRole('button',{name:'Ingresar',exact:true}).click()]);
     await page.locator('#cabecera-campos input').first().waitFor();
-    await page.waitForFunction(()=>document.getElementById('save-status').textContent.includes('y en el servidor'));
+    if(!mobile)await page.waitForFunction(()=>document.getElementById('save-status').textContent.includes('y en el servidor'));
     await page.evaluate(()=>{window.selectionEvents={};for(const id of ['cliente','sistema','planilla'])document.getElementById(id).addEventListener('change',()=>window.selectionEvents[id]=(window.selectionEvents[id]||0)+1);});
     assert.equal(await page.locator('#cliente option').count(),2);
     assert.match(await page.locator('#seleccion-ayuda').textContent(),/2 clientes disponibles/);
     await selected('cliente',expected.otro_cliente,'clienteId');
     assert.equal(await page.locator('#sistema').inputValue(),expected.otro_sistema);
+    if(mobile){
+      const etiquetas={cuit:'CUIT',telefono:'Teléfono',direccion:'Dirección'};
+      for(const [campo,valor] of Object.entries(expected.contacto)){
+        assert.equal(await page.getByLabel(etiquetas[campo],{exact:true}).inputValue(),valor);
+        assert.equal((await record()).datos.cabecera[campo],valor);
+      }
+      for(const etiqueta of ['Edificio','Sector'])assert.equal(await page.getByLabel(etiqueta,{exact:true}).inputValue(),'');
+      assert.equal(await page.evaluate(()=>innerWidth),390);
+      await page.getByLabel('Dirección',{exact:true}).scrollIntoViewIfNeeded();
+      await page.screenshot({path:path.join(out,'autocompletado_390.png')});
+      const telefonoEditado='[Ejemplo] Teléfono de obra';
+      await page.getByLabel('Teléfono',{exact:true}).fill(telefonoEditado);
+      await page.getByLabel('Dirección',{exact:true}).fill('');
+      let editado;
+      for(let attempt=0;attempt<100;attempt++){
+        editado=await record();
+        if(editado?.datos.cabecera.telefono===telefonoEditado && editado.datos.cabecera.direccion===undefined)break;
+        await new Promise(resolve=>setTimeout(resolve,100));
+      }
+      assert.equal(editado.datos.cabecera.telefono,telefonoEditado);
+      assert.equal(editado.datos.cabecera.direccion,undefined);
+      await page.reload();
+      await page.locator('#cabecera-campos input').first().waitFor();
+      assert.equal(await page.getByLabel('Teléfono',{exact:true}).inputValue(),telefonoEditado);
+      assert.equal(await page.getByLabel('Dirección',{exact:true}).inputValue(),'');
+      await selected('cliente',expected.cliente,'clienteId');
+      for(const etiqueta of Object.values(etiquetas))assert.equal(await page.getByLabel(etiqueta,{exact:true}).inputValue(),'');
+      assert.deepEqual(errors,[]);
+      fs.writeFileSync(path.join(out,'resultado.json'),JSON.stringify({ancho_px:390,autocompletado:true,
+        edicion_conservada:true,borrado_manual_conservado:true,edificio_y_sector_manuales:true},null,2));
+      return;
+    }
     await selected('cliente',expected.cliente,'clienteId');
     await selected('sistema',expected.segundo_sistema,'sistemaId');
     await selected('planilla',expected.otra_planilla,'planillaId');

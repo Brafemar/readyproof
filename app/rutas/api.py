@@ -1,5 +1,6 @@
 """API de la etapa 2, exclusivamente local y con datos ficticios."""
 from copy import deepcopy
+from gzip import compress
 from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
@@ -24,6 +25,7 @@ from ..planillas.firmas import validar_firmas, ROLES
 from ..planillas.firmantes import validar_responsable, CAMPOS
 from ..planillas.validacion import DatosInvalidos, campos_permitidos, mapa, validar_datos, datos_para_excel
 from ..modo import es_piloto, validar_emision_modo
+from .web import ejemplo_saa1
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
@@ -167,10 +169,28 @@ def serializar(carga):
 
 @api.get("/clientes")
 def clientes():
+    return jsonify(clientes_catalogo())
+
+
+def clientes_catalogo():
     query = select(Cliente).where(or_(not es_piloto(), Cliente.es_ejemplo.is_(True) & Cliente.nombre.startswith("[Ejemplo] "))).order_by(Cliente.nombre)
     if g.usuario.rol != "admin":
         query = query.join(UsuarioCliente,UsuarioCliente.cliente_id==Cliente.id).where(UsuarioCliente.usuario_id==g.usuario.id)
-    return jsonify([{ "id":c.id,"nombre":c.nombre,"es_ejemplo":c.es_ejemplo } for c in sesion().scalars(query)])
+    resultado = []
+    for cliente in sesion().scalars(query):
+        contacto = cliente.contacto or {}
+        resultado.append(dict(id=cliente.id, nombre=cliente.nombre, es_ejemplo=cliente.es_ejemplo,
+                              cuit=cliente.cuit, telefono=contacto.get("telefono"),
+                              direccion=contacto.get("direccion")))
+    return resultado
+
+
+def sistemas_catalogo(cliente_ids):
+    consulta = (select(Sistema).where(Sistema.cliente_id.in_(cliente_ids), Sistema.activo.is_(True),
+                or_(not es_piloto(), Sistema.designacion.startswith("[Ejemplo] ")))
+                .order_by(Sistema.designacion))
+    return [dict(id=s.id, cliente_id=s.cliente_id, tipo=s.tipo, designacion=s.designacion)
+            for s in sesion().scalars(consulta)]
 
 
 @api.get("/clientes/<cliente_id>/sistemas")
@@ -178,27 +198,62 @@ def sistemas(cliente_id):
     cliente = obtener(Cliente, cliente_id)
     if es_piloto() and (not cliente.es_ejemplo or not cliente.nombre.startswith("[Ejemplo] ")):
         abort(403, description="Solo se admiten clientes ficticios en esta etapa.")
-    return jsonify([{ "id": s.id, "cliente_id": s.cliente_id, "tipo": s.tipo, "designacion": s.designacion } for s in sesion().scalars(select(Sistema).where(Sistema.cliente_id == cliente_id, Sistema.activo.is_(True), or_(not es_piloto(), Sistema.designacion.startswith("[Ejemplo] "))).order_by(Sistema.designacion))])
+    return jsonify(sistemas_catalogo([cliente_id]))
 
 
 @api.get("/planillas")
 def planillas():
-    definitions=definiciones_multisistema()
-    offered=[]
-    for p in sesion().scalars(select(Planilla).order_by(Planilla.codigo,Planilla.version)):
-        definition=definitions.get(p.codigo)
-        if (p.codigo=="SG-PEM-IFI-SAA-1" and p.huella==huella_saa1()) or (definition and p.version==definition['version'] and p.huella==definition['huella']):
-            offered.append(dict(id=p.id,codigo=p.codigo,version=p.version,sistema_tipo=p.sistema_tipo,huella=p.huella,
-                                nombre=definition['nombre'] if definition else "Información general",familia=p.sistema_tipo))
-    return jsonify(offered)
+    return jsonify(planillas_catalogo())
+
+
+def planillas_catalogo():
+    definiciones = definiciones_multisistema()
+    huella_piloto = huella_saa1()
+    ofrecidas = []
+    consulta = (select(Planilla.id, Planilla.codigo, Planilla.version, Planilla.sistema_tipo, Planilla.huella)
+                .order_by(Planilla.codigo, Planilla.version))
+    for p in sesion().execute(consulta):
+        definicion = definiciones.get(p.codigo)
+        if ((p.codigo == "SG-PEM-IFI-SAA-1" and p.huella == huella_piloto) or
+                (definicion and p.version == definicion["version"] and p.huella == definicion["huella"])):
+            ofrecidas.append(dict(id=p.id, codigo=p.codigo, version=p.version, sistema_tipo=p.sistema_tipo,
+                                  huella=p.huella, nombre=definicion["nombre"] if definicion else "Información general",
+                                  familia=p.sistema_tipo))
+    return ofrecidas
+
+
+@api.get("/catalogo-carga")
+def catalogo_carga():
+    clientes = clientes_catalogo()
+    sistemas = {cliente["id"]: [] for cliente in clientes}
+    if sistemas:
+        for sistema in sistemas_catalogo(list(sistemas)):
+            sistemas[sistema["cliente_id"]].append(sistema)
+    return jsonify(clientes=clientes, sistemas=sistemas, planillas=planillas_catalogo(), ejemplo=ejemplo_saa1())
+
+
+@api.get("/catalogo-carga/definiciones")
+def definiciones_catalogo_carga():
+    ids = [planilla["id"] for planilla in planillas_catalogo()]
+    consulta = select(Planilla).where(Planilla.id.in_(ids))
+    respuesta = jsonify({p.id: datos_definicion(p) for p in sesion().scalars(consulta)})
+    respuesta.vary.add("Accept-Encoding")
+    if request.accept_encodings["gzip"] > 0:
+        respuesta.set_data(compress(respuesta.get_data(), compresslevel=3, mtime=0))
+        respuesta.headers["Content-Encoding"] = "gzip"
+    return respuesta
 
 
 @api.get("/planillas/<planilla_id>")
 def definicion(planilla_id):
-    p = obtener(Planilla, planilla_id)
-    payload=dict(id=p.id,codigo=p.codigo,version=p.version,huella=p.huella,definicion=p.definicion)
-    if p.codigo in definiciones_multisistema():payload['ejemplo']=ejemplo_multisistema(p.definicion)
-    return jsonify(payload)
+    return jsonify(datos_definicion(obtener(Planilla, planilla_id)))
+
+
+def datos_definicion(p):
+    payload = dict(id=p.id, codigo=p.codigo, version=p.version, huella=p.huella, definicion=p.definicion)
+    if p.codigo in definiciones_multisistema():
+        payload["ejemplo"] = ejemplo_multisistema(p.definicion)
+    return payload
 
 
 @api.post("/cargas")

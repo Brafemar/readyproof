@@ -1562,3 +1562,13 @@ Las pantallas, la aplicación instalable, los correos y los PDF nuevos incorpora
 ## 2026-11-11 — BP: numeración de las planillas SDI adjuntas
 
 - Cada hoja SDI conserva el título PDF de origen al incorporarse al certificado. Su numeración se imprime a 9 pt, incluso al adjuntarla junto a una planilla de otro sistema. La prueba cubre SDI, SAA y anexo en un mismo PDF.
+
+## 2026-11-11 — BT: contacto del cliente en el borrador
+
+- El catálogo devuelve CUIT, teléfono y dirección para los clientes autorizados. Al crear un borrador se copian los datos disponibles. Los borradores guardados conservan las ediciones manuales.
+- La PWA actualiza la versión de su caché para cargar el formulario nuevo. Se verifica a 390 px en modo real con datos ficticios y en piloto.
+
+## 2026-11-11 — CC: carga agrupada de Planillas
+
+- El catálogo devuelve clientes autorizados, sistemas y planillas en una petición. Las definiciones se descargan juntas, con gzip si el navegador lo admite, y se reutilizan por versión y huella.
+- El cambio de selección guarda el borrador anterior y actualiza una vez el selector de borradores. Los accesos del catálogo agrupado quedan registrados en la auditoría existente.

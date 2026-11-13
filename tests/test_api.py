@@ -1,4 +1,6 @@
 from copy import deepcopy
+from gzip import decompress
+import json
 from io import BytesIO
 from hashlib import sha256
 
@@ -26,6 +28,18 @@ def test_catalogo_y_esquema_postgresql(client, catalogo, app):
     assert planilla["codigo"] == "SG-PEM-IFI-SAA-1"
     response = client.get(f"/api/planillas/{planilla['id']}")
     assert response.get_json()["definicion"]["cabecera"]["fecha"]["tipo"] == "fecha"
+    agrupado = client.get("/api/catalogo-carga").get_json()
+    assert agrupado["clientes"] == client.get("/api/clientes").get_json()
+    assert agrupado["sistemas"][cliente["id"]] == client.get(f"/api/clientes/{cliente['id']}/sistemas").get_json()
+    assert agrupado["planillas"] == client.get("/api/planillas").get_json()
+    assert agrupado["ejemplo"] == client.get("/api/ejemplo/saa1").get_json()
+    definiciones = client.get("/api/catalogo-carga/definiciones").get_json()
+    assert set(definiciones) == {p["id"] for p in agrupado["planillas"]}
+    assert definiciones[planilla["id"]] == response.get_json()
+    comprimido = client.get("/api/catalogo-carga/definiciones", headers={"Accept-Encoding": "gzip"})
+    assert comprimido.headers["Content-Encoding"] == "gzip"
+    assert "Accept-Encoding" in comprimido.vary
+    assert json.loads(decompress(comprimido.data)) == definiciones
     with Session(app.extensions["db_engine"]) as session:
         assert session.get(VersionEsquema, 1) is not None
 

@@ -25,6 +25,8 @@ def test_api_exige_sesion_y_csrf(app,client):
     anonymous=app.test_client()
     assert anonymous.get("/api/clientes").status_code==401
     assert anonymous.get("/api/planillas").status_code==401
+    assert anonymous.get("/api/catalogo-carga").status_code==401
+    assert anonymous.get("/api/catalogo-carga/definiciones").status_code==401
     assert anonymous.post("/api/cargas",json={}).status_code==401
     assert client.post("/api/admin/clientes",json={"nombre":"[Ejemplo] Otro"},headers={"X-CSRF-Token":"invalido"}).status_code==403
     assert client.post("/api/admin/clientes",json={"nombre":"[Ejemplo] Otro"},headers={"Origin":"https://otro.invalid"}).status_code==403
@@ -38,6 +40,9 @@ def test_tecnico_no_admin_y_solo_clientes_asignados(app,client,catalogo):
     tech=login_cliente(app,user["login"],password)
     assert [c["id"] for c in tech.get("/api/clientes").get_json()]==[catalogo[0]["id"]]
     assert tech.get(f"/api/clientes/{other['id']}/sistemas").status_code==404
+    agrupado=tech.get("/api/catalogo-carga").get_json()
+    assert [c["id"] for c in agrupado["clientes"]]==[catalogo[0]["id"]]
+    assert set(agrupado["sistemas"])=={catalogo[0]["id"]}
     assert tech.get("/api/admin/usuarios").status_code==403
     assert tech.get("/api/admin/accesos").status_code==403
     assert tech.get("/admin").status_code==403

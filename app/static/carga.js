@@ -140,10 +140,10 @@
     if(draft)select.value=draft.localId;
     return records;
   }
-  async function persist(target=draft) {
+  async function persist(target=draft,{actualizarLista=true}={}) {
     if(!target)return;
     await storage("borradores","readwrite","put",structuredClone(target));
-    await draftList();
+    if(actualizarLista)await draftList();
   }
   function collect() {
     const result={cabecera:{},bloques:{},observaciones:[]};
@@ -294,11 +294,30 @@
     }
   }
   async function newDraft(copy=null){
-    clearTimeout(timer);if(syncPromise)await syncPromise;if(draft)await persist();
+    clearTimeout(timer);if(syncPromise)await syncPromise;
+    if(draft)await persist(draft,{actualizarLista:false});
     const clienteId=$("cliente").value,sistemaId=$("sistema").value,planillaId=$("planilla").value;
     if(!sistemaId||!planillaId)return;
     const cliente=catalog.clientes.find(c=>c.id===clienteId),sistema=catalog.sistemas[clienteId].find(s=>s.id===sistemaId);
-    draft={localId:crypto.randomUUID(),clienteId,sistemaId,planillaId,serverId:null,revision:null,estado:"borrador",datos:copy?structuredClone(copy.datos):{cabecera:{cliente:cliente.nombre,sistema_designacion:sistema.designacion,empresa_mantenedora:empresa,...(piloto?{}:{numero_mantenedor:certificado})},bloques:{},observaciones:[]},firmas:copy?structuredClone(copy.firmas):{},firmasServidor:{},responsable:copy?structuredClone(copy.responsable||{}):{},pending:true,conflicto:false,editVersion:0,actualizado:new Date().toISOString()};
+    let datos;
+    if(copy){
+      datos=structuredClone(copy.datos);
+    }else{
+      const cabecera={
+        cliente:cliente.nombre,
+        sistema_designacion:sistema.designacion,
+        empresa_mantenedora:empresa,
+        ...(piloto?{}:{numero_mantenedor:certificado})
+      };
+      for(const campo of ["cuit","telefono","direccion"]){
+        const valor=cliente[campo];
+        if(typeof valor!=="string"||!valor.trim())continue;
+        const texto=piloto&&!valor.startsWith("[Ejemplo] ")?`[Ejemplo] ${valor}`:valor;
+        if(texto.length<=500)cabecera[campo]=texto;
+      }
+      datos={cabecera,bloques:{},observaciones:[]};
+    }
+    draft={localId:crypto.randomUUID(),clienteId,sistemaId,planillaId,serverId:null,revision:null,estado:"borrador",datos,firmas:copy?structuredClone(copy.firmas):{},firmasServidor:{},responsable:copy?structuredClone(copy.responsable||{}):{},pending:true,conflicto:false,editVersion:0,actualizado:new Date().toISOString()};
     render();await persist();status("Borrador guardado en este dispositivo");sync(false);
   }
   async function preview(){
@@ -451,13 +470,22 @@
     try{
       const cached=await storage("meta","readonly","get","catalogo");
       try{
-        const [clientes,planillas,ejemplo]=await Promise.all([json("/api/clientes"),json("/api/planillas"),json("/api/ejemplo/saa1")]);
-        const sistemas={},definiciones={};
-        await Promise.all(clientes.map(async cliente=>{sistemas[cliente.id]=await json(`/api/clientes/${cliente.id}/sistemas`);}));
-        await Promise.all(planillas.map(async planilla=>{definiciones[planilla.id]=await json(`/api/planillas/${planilla.id}`);}));
+        const {clientes,sistemas,planillas,ejemplo}=await json("/api/catalogo-carga");
+        const vigentes=cached?.definiciones||{};
+        const coincide=(planilla,definicion)=>definicion?.version===planilla.version&&definicion.huella===planilla.huella;
+        const fuentes=planillas.every(planilla=>coincide(planilla,vigentes[planilla.id]))
+          ?vigentes:await json("/api/catalogo-carga/definiciones");
+        const definiciones={};
+        for(const planilla of planillas){
+          const definicion=fuentes[planilla.id];
+          if(!coincide(planilla,definicion))throw new Error("El catálogo cambió. Volvé a cargar la pantalla.");
+          definiciones[planilla.id]=definicion;
+        }
         const anteriores=await storage("borradores","readonly","getAll");
         for(const record of anteriores){
-          if(!definiciones[record.planillaId]&&clientes.some(cliente=>cliente.id===record.clienteId))definiciones[record.planillaId]=await json(`/api/planillas/${record.planillaId}`);
+          if(!definiciones[record.planillaId]&&clientes.some(cliente=>cliente.id===record.clienteId)){
+            definiciones[record.planillaId]=vigentes[record.planillaId]||await json(`/api/planillas/${record.planillaId}`);
+          }
         }
         catalog={clientes,planillas,ejemplo,sistemas,definiciones};await storage("meta","readwrite","put",catalog,"catalogo");
       }catch(error){serviceAvailable=false;if(!cached)throw new Error("No se pudo cargar el catálogo. Conectate al servicio local para iniciar la primera carga.");catalog=cached;}

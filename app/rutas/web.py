@@ -23,6 +23,10 @@ def buscar_registro():
 
 @web.get("/api/ejemplo/saa1")
 def ejemplo():
+    return jsonify(ejemplo_saa1())
+
+
+def ejemplo_saa1():
     data = datos_ejemplo()
     data["cabecera"]["empresa_mantenedora"] = "readyproof"
     data["cabecera"]["fecha"] = data["cabecera"]["fecha"].isoformat()
@@ -30,4 +34,4 @@ def ejemplo():
         data["bloques"][title][label] = "2026-10-25"
     for title, label in ENTEROS:
         data["bloques"][title][label] = 1
-    return jsonify(data)
+    return data
