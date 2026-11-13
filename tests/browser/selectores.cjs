@@ -66,6 +66,7 @@ const base=process.env.RP_URL,out=process.env.RP_OUT,expected=JSON.parse(process
       await page.locator('#cabecera-campos input').first().waitFor();
       assert.equal(await page.getByLabel('Teléfono',{exact:true}).inputValue(),telefonoEditado);
       assert.equal(await page.getByLabel('Dirección',{exact:true}).inputValue(),'');
+      await page.locator('#cliente[data-catalogo-reconciliado=true]:enabled').waitFor();
       await selected('cliente',expected.cliente,'clienteId');
       for(const etiqueta of Object.values(etiquetas))assert.equal(await page.getByLabel(etiqueta,{exact:true}).inputValue(),'');
       assert.deepEqual(errors,[]);

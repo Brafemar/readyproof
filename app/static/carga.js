@@ -593,6 +593,7 @@
         $("planilla").value=draft.planillaId;
       }else if(records.length){draft=records[0];render();status("Borrador recuperado del dispositivo");}
       else {populateSystems();populatePlanillas();await newDraft();}
+      $("cliente").dataset.catalogoReconciliado="true";
       update();if(draft?.pending)sync(false);
       else await refrescarPermisos();
     }catch(error){message(error.message);status("No se pudo preparar el guardado local");}
